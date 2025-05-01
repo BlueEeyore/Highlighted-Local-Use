@@ -89,4 +89,3 @@ if __name__ == "__main__":
 
     result_dict = transcriber.trans_video("sample_video.mp4")
     print(result_dict)
-
