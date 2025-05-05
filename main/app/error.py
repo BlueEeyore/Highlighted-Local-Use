@@ -13,7 +13,7 @@ class LogicalStack:
 
     def dump(self):
         """returns each item of the stack on individual lines"""
-        return "\n".join(self.stack)
+        return "\n -".join(self.stack)
 
 if __name__ == "__main__":
     # test

@@ -61,7 +61,7 @@ class Transcript(db.Model):
     text = db.Column(db.Text)
 
 
-class Comment(db.model):
+class Comment(db.Model):
     __tablename__ = "Comment"
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
@@ -77,3 +77,10 @@ class Comment(db.model):
     length = db.Column(db.Integer)
 
     parents = db.relationship("Comment", remote_side=[id], backref="replies")
+
+
+
+def print_user_cols():
+    """prints the columns of User"""
+    for column in User.__table__.columns:
+        print(column.name, column.type)
