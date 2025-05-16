@@ -1,18 +1,19 @@
 from app.routes import db
-from faker import Faker
+import random
 
-fake = Faker()
 
 
 class UserClass(db.Model):
-    __tablename__ = "UserClass"
-    uid = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
-    cid = db.Column(db.Integer, db.ForeignKey("Class.id"), primary_key=True)
+    __tablename__ = "userclasses"
+    uid = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
+    cid = db.Column(db.Integer, db.ForeignKey("classes.id"), primary_key=True)
     role = db.Column(db.String(50))
 
+    user = db.relationship("User", back_populates="userclasses")
+    clazz = db.relationship("Class", back_populates="userclasses")
 
 class User(db.Model):
-    __tablename__ = "User"
+    __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
@@ -24,27 +25,26 @@ class User(db.Model):
     notifications = db.Column(db.String(255))
 
     lessons = db.relationship("Lesson", backref="user")    
-    userclasses = db.relationship("UserClass", backref="user")
+    userclasses = db.relationship("UserClass", back_populates="user")
 
 
 class Class(db.Model):
-    __tablename__ = "Class"
+    __tablename__ = "classes"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     joincode = db.Column(db.String(255), nullable=False, unique=True)
     starttime = db.Column(db.String(255), nullable=False)
 
-    lessons = db.relationship("Lesson", backref="class")
-    comments = db.relationship("Comment", backref="class")
-    userclasses = db.relationship("UserClass", backref="class")
+    lessons = db.relationship("Lesson", backref="clazz")
+    userclasses = db.relationship("UserClass", back_populates="clazz")
 
 
 
 class Lesson(db.Model):
-    __tablename__ = "Lesson"
+    __tablename__ = "lessons"
     id = db.Column(db.Integer, primary_key=True)
-    creatorid = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
-    classid = db.Column(db.Integer, db.ForeignKey("Class.id"), nullable=False)
+    creatorid = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    classid = db.Column(db.Integer, db.ForeignKey("classes.id"), nullable=False)
     name = db.Column(db.String(255))
     videofn = db.Column(db.String(255))
     creationtime = db.Column(db.String(255), nullable=False)
@@ -54,19 +54,19 @@ class Lesson(db.Model):
 
 
 class Transcript(db.Model):
-    __tablename__ = "Transcript"
+    __tablename__ = "transcripts"
     id = db.Column(db.Integer, primary_key=True)
-    lid = db.Column(db.Integer, db.ForeignKey("Lesson.id"), nullable=False)
+    lid = db.Column(db.Integer, db.ForeignKey("lessons.id"), nullable=False)
     timestamp = db.Column(db.String(255))
     text = db.Column(db.Text)
 
 
 class Comment(db.Model):
-    __tablename__ = "Comment"
+    __tablename__ = "comments"
     id = db.Column(db.Integer, primary_key=True)
-    uid = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
-    lid = db.Column(db.Integer, db.ForeignKey("Lesson.id"), nullable=False)
-    parentid = db.Column(db.Integer, db.ForeignKey("Comment.id"))
+    uid = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    lid = db.Column(db.Integer, db.ForeignKey("lessons.id"), nullable=False)
+    parentid = db.Column(db.Integer, db.ForeignKey("comments.id"))
     content = db.Column(db.Text)
     uploadtime = db.Column(db.String(255))  # might change to timestamp type later
     anonymous = db.Column(db.Boolean)
@@ -77,10 +77,3 @@ class Comment(db.Model):
     length = db.Column(db.Integer)
 
     parents = db.relationship("Comment", remote_side=[id], backref="replies")
-
-
-
-def print_user_cols():
-    """prints the columns of User"""
-    for column in User.__table__.columns:
-        print(column.name, column.type)

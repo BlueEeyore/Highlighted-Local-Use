@@ -8,7 +8,11 @@ logger = logging.getLogger(__name__)
 
 def session_config(app):
     """configures session"""
+    # sign the session cookie
     app.secret_key = "very-secret-key"
+
+    # make the session last a certain amount of time rather than
+    # just closing when the browser closes
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 
@@ -28,12 +32,13 @@ def get(key):
     """gets value associated with given key"""
     logger.debug(f"getting {key}")
 
-    if key in session["global_dict"]:
-        return session["global_dict"][key]
+    # checks if the item is in the dictionary. If not, pushes error up
+    if key not in session["global_dict"]:
+        logger.error(f"{key} not found in dictionary")
+        ErrorStack.push(f"{key} not in dictionary")
+        return None
 
-    logger.error(f"{key} not found in dictionary")
-    ErrorStack.push(f"{key} not in dictionary")
-    return None
+    return session["global_dict"][key]
 
 
 def remove(key):
