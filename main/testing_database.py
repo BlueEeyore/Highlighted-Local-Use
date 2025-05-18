@@ -6,6 +6,7 @@ if __name__ == "__main__":
     with app.app_context():
         db.drop_all()
         db.create_all()
-        user.print_cols()
-        user.get_user(1)
-        print(user.get_classes(uid=1))
+        # user.print_cols()
+        print(f"all users: {user.all_users()}")
+        # user.get_user(1)
+        # print(user.get_classes(uid=1))

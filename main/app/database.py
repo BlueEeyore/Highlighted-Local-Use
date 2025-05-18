@@ -21,7 +21,7 @@ class User(db.Model):
     lastname = db.Column(db.String(255), nullable=False)
     bio = db.Column(db.Text)
     school = db.Column(db.String(255))
-    pfp = db.Column(db.String(255))
+    pfp = db.Column(db.LargeBinary)
     notifications = db.Column(db.String(255))
 
     lessons = db.relationship("Lesson", backref="user")    

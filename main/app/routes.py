@@ -6,7 +6,7 @@ import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 db = SQLAlchemy()
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, "pizza.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Hello_21!@localhost:3306/13dtp'
 db.init_app(app)
       
 

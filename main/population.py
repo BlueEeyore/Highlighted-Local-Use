@@ -1,9 +1,20 @@
 from app import app, user, clazz, userclass
 from app.routes import db
 from faker import Faker
+import string
+import random
 
 
 fake = Faker()
+
+
+def unique_joincode(length):
+    """generates a unique joincode"""
+    while True:
+        chars = string.ascii_uppercase + string.digits
+        code = ''.join(random.choices(chars, k=length))
+        if not clazz.get_class_by("joincode", code):
+            return code
 
 
 def add_users(n=100):
@@ -14,7 +25,7 @@ def add_users(n=100):
                 password=fake.password(),
                 firstname=fake.first_name(),
                 lastname=fake.last_name(),
-                bio=fake.text(max_nb_chars=200),
+                bio=fake.text(max_nb_chars=100),
                 school=fake.company(),
                 pfp=fake.image(),
                 notifications=fake.text(max_nb_chars=5)
@@ -27,7 +38,7 @@ def add_classes(n=100):
     for x in range(n):
         clazz.insert(
                 name=fake.name(),
-                joincode=fake.code(),
+                joincode=unique_joincode(length=6),
                 starttime=fake.date_time().isoformat()
         )
     db.session.commit()
@@ -35,10 +46,10 @@ def add_classes(n=100):
 
 def add_userclasses(min_cons=0, max_cons = 3):
     """adds connections between fake users and classes"""
-    users = User.query.all()
-    classes = Class.query.all()
+    users = user.all_users()
+    classes = clazz.all_classes()
 
-    for user in users:
+    for sample_user in users:
         # select random number of connections
         cons = random.randint(min_cons, max_cons)
 
@@ -48,7 +59,7 @@ def add_userclasses(min_cons=0, max_cons = 3):
         # add association to userclass table
         for joined_class in joined_classes:
             userclass.insert(
-                    uid=user.id,
+                    uid=sample_user.id,
                     cid=joined_class.id,
                     role=fake.text(max_nb_chars=10)
             )
@@ -62,3 +73,7 @@ if __name__ == "__main__":
         add_users()
         add_classes()
         add_userclasses()
+        
+        print(f"all users: {user.all_users()}")
+        user.get_user(1)
+        print(user.get_classes(uid=1))

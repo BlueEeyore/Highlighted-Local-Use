@@ -1,4 +1,5 @@
 from .database import UserClass
+from app.routes import db
 import logging
 
 logger = logging.getLogger(__name__)
