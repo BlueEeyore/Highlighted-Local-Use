@@ -1,9 +1,9 @@
 import logging
 from flask import session
 from datetime import timedelta
+
+
 logger = logging.getLogger(__name__)
-
-
 
 
 def session_config(app):
@@ -29,13 +29,13 @@ def set(key, value):
 
 
 def get(key):
-    """gets value associated with given key"""
+    """gets value associated with given key
+    returns None if key doesn't exist"""
     logger.debug(f"getting {key}")
 
-    # checks if the item is in the dictionary. If not, pushes error up
+    # checks if the item is in the dictionary. If not, returns None
     if key not in session["global_dict"]:
-        logger.error(f"{key} not found in dictionary")
-        ErrorStack.push(f"{key} not in dictionary")
+        logger.debug(f"key {key} not found")
         return None
 
     return session["global_dict"][key]
@@ -56,23 +56,13 @@ def print_dict():
 def increment(key):
     """increments value associated with given key (must be int)"""
     logger.debug(f"incrementing {key}")
-
-    try:
-        session["global_dict"][key] += 1
-    except TypeError as e:
-        logger.exception(e)
-        return None     # do this properly
+    session["global_dict"][key] += 1
 
 
 def decrement(key):
     """decrements value associated with given key (must be int)"""
     logger.debug(f"decrementing {key}")
-
-    try:
-        session["global_dict"][key] -= 1
-    except TypeError as e:
-        logger.exception(e)
-        raise
+    session["global_dict"][key] -= 1
 
 
 

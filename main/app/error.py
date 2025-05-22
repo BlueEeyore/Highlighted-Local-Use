@@ -1,3 +1,6 @@
+from app import session_globals
+
+
 class LogicalStack:
     def __init__(self):
         self.stack = []
@@ -14,6 +17,39 @@ class LogicalStack:
     def dump(self):
         """returns each item of the stack on individual lines"""
         return "\n -".join(self.stack)
+
+
+def push_error(e):
+    """pushes error to stack in session
+    if stack not yet in session then adds it to session"""
+    error_stack = session_globals.get("error_stack")
+    if not error_stack:
+        new_error_stack = LogicalStack()
+        new_error_stack.push(e)
+        session_globals.set("error_stack", new_error_stack)
+    error_stack.push(e)
+
+
+def push_log(msg, e, exc_info):
+    """pushes error to stack in session and logs it"""
+    # push error and then msg to error stack
+    push_error(str(e))
+    push_error(msg)
+
+    # log error
+    logger.error(msg, exc_info=exc_info)
+
+
+def get_stack():
+    """returns error stack in session if exists
+    otherwise initialises in session and returns new stack"""
+    error_stack = session_globals.get("error_stack")
+    if not error_stack:
+        new_error_stack = LogicalStack()
+        session_globals.set("error_stack", new_error_stack)
+        return session_globals.get("error_stack")
+    return error_stack
+
 
 if __name__ == "__main__":
     # test

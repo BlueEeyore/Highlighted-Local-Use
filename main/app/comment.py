@@ -1,0 +1,85 @@
+from .database import Comment
+from app.routes import db
+import logging
+from app import error
+import sys
+
+logger = logging.getLogger(__name__)
+
+
+def print_cols():
+    """prints the columns of User"""
+    logger.debug("printing user columns")
+    for column in User.__table__.columns:
+        print(column.name, column.type)
+
+
+def all_comments():
+    """returns all comments"""
+    logger.debug("getting all comments")
+    try:
+        return Comment.query.all()
+    except Exception as e:
+        error.push_log("failed to query Comment", e, sys.exc_info())
+        return None
+
+
+def get_comment(cid):
+    """returns comment for given cid"""
+    logger.debug(f"getting comment with cid {cid}")
+    try:
+        return Comment.query.get(cid)
+    except Exception as e:
+        error.push_log("failed to query comments", e, sys.exc_info())
+        return None
+
+
+def get_comment_by(col_name, val):
+    """queries comment"""
+    logger.debug(f"getting all comments with column {col_name} and value {val}")
+
+    # finding the column in Comment associated with the given column name
+    logger.debug(f"getting attribute for column {col_name} in Comment")
+    try:
+        col_attr = getattr(Comment, col_name)
+    except AttributeError as e:
+        error.push_log(f"failed to get attribute for col {col_name} in Comment", e, sys.exc(info))
+        return None
+
+    # returning all comments filtered by that column
+    return Comment.query.filter(col_attr==val).all()
+
+
+def get_classes(cid):
+    """returns classes that the user is a part of"""
+    logger.debug(f"getting user classes for {uid}")
+
+    # query user with uid
+    try:
+        user = User.query.get(uid)
+    except Exception as e:
+        error.push_log("failed to query user", e, sys.exc_info())
+        return None
+
+    # get classes associated with queried user
+    try:
+        classes = [uc.clazz for uc in user.userclasses]
+    except Exception as e:
+        error.push_log("failed to query user for uc and then query uc for classes", e, sys.exc_info())
+        return None
+
+    return classes
+
+def insert(uid, lid, parentid, content, uploadtime, anonymous, private, comtype, tsrange, ts_offset, length):
+    """inserts a comment"""
+    logger.debug(f"adding comment with {[uid, lid, parentid, content, uploadtime, anonymous, private, comtype, tsrange, ts_offset, length]}")
+
+    # set new comment instance
+    new_comment = Comment(uid=uid, lid=lid, parentid=parentid, content=contnt, uploadtime=uploadtime, anonymous=anonymou, private=private, compyte=comtype, tsrange=tsrange, ts_offset=ts_offset, length=length)
+
+    # add new comment to db
+    try:
+        db.session.add(new_comment)
+    except Exception as e:
+        error.push_log(f"failed to add new comment {new_comment} to db", e, sys.exc_info)
+        return None
