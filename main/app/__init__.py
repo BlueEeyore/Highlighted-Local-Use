@@ -1,31 +1,39 @@
 from flask import Flask
-import logging
+from .database import db
+from .logger_config import get_logger
 
 
-# configuring app
-app = Flask(__name__)
+def create_app():
+    # configuring app
+    app = Flask(__name__)
 
 
-# initialising logger
-file_handler = logging.FileHandler("logs.log")
-app.logger.addHandler(file_handler)
-
-# to get it to log to console:
-#console_handler = logging.StreamHandler()
-#console_handler.setFormatter(formatter)
-#app.logger.addHandler(console_handler)
+    # to get it to log to console:
+    #console_handler = logging.StreamHandler()
+    #console_handler.setFormatter(formatter)
+    #app.logger.addHandler(console_handler)
 
 
-logger = logging.getLogger(__name__)
+    # intialise logger (for this file)
+    logger = get_logger(__name__)
 
 
-# configuring session
-logger.debug("configuring session")
-from .session_globals import session_config
-session_config(app)
+    # config and initialise db
+    logger.debug("initialising db")
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Hello_21!@localhost:3306/13dtp'
+    db.init_app(app)
 
 
-# running routes
-logger.debug("running app")
-from app import routes
-app.run(debug=True)
+    # configuring session
+    logger.debug("configuring session")
+    from .session_globals import session_config
+    session_config(app)
+
+
+    # running routes
+    # logger.debug("running app")
+    # from app import routes
+    # app.run(debug=True)
+
+
+    return app

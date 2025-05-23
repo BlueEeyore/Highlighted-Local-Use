@@ -1,9 +1,9 @@
-import logging
+from .logger_config import get_logger
 from flask import session
 from datetime import timedelta
 
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def session_config(app):
@@ -16,16 +16,22 @@ def session_config(app):
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 
-def set(key, value):
-    """assigns key to value"""
-    logger.debug(f"setting {key} to {value}")
-
+def _get_globs():
+    """gets global dictionary"""
     # checking if the global dictionary has been created yet. If not, creates it
     if "global_dict" not in session:
         logger.debug("creating global_dict")
         session["global_dict"] = {}
 
-    session["global_dict"][key] = value
+    return session["global_dict"]
+
+
+def set(key, value):
+    """assigns key to value"""
+    logger.debug(f"setting {key} to {value}")
+
+    globs = _get_globs()
+    globs[key] = value
 
 
 def get(key):
@@ -33,36 +39,46 @@ def get(key):
     returns None if key doesn't exist"""
     logger.debug(f"getting {key}")
 
+    globs = _get_globs()
+
     # checks if the item is in the dictionary. If not, returns None
-    if key not in session["global_dict"]:
+    if key not in globs:
         logger.debug(f"key {key} not found")
         return None
 
-    return session["global_dict"][key]
+    return globs[key]
 
 
 def remove(key):
     """removes item associated with given key"""
     logger.debug(f"removing {key}")
-    del session["global_dict"][key]
+
+    globs = _get_globs()
+    del globs[key]
     
 
 def print_dict():
     """prints the global dictionary (used only for debugging)"""
     logger.debug(f"printing dictionary")
-    print(session["global_dict"])
+
+    globs = _get_globs()
+    print(globs)
 
 
 def increment(key):
     """increments value associated with given key (must be int)"""
     logger.debug(f"incrementing {key}")
-    session["global_dict"][key] += 1
+
+    globs = _get_globs()
+    globs[key] -= 1
 
 
 def decrement(key):
     """decrements value associated with given key (must be int)"""
     logger.debug(f"decrementing {key}")
-    session["global_dict"][key] -= 1
+
+    globs = _get_globs()
+    globs[key] -= 1
 
 
 

@@ -1,10 +1,10 @@
 from .database import User
-from app.routes import db
-import logging
+from app.database import db
+from .logger_config import get_logger
 from app import error
 import sys
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def print_cols():
@@ -79,7 +79,6 @@ def insert(email, password, firstname, lastname, bio, school, pfp, notifications
 
     # add new user to db
     try:
-        print(1/0)
         db.session.add(new_user)
     except Exception as e:
         error.push_log(f"failed to add new user {new_user} to db", e, sys.exc_info)

@@ -1,6 +1,7 @@
-from app.routes import db
-import random
+from flask_sqlalchemy import SQLAlchemy
 
+
+db = SQLAlchemy()
 
 
 class UserClass(db.Model):

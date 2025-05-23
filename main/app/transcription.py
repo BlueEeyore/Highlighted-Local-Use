@@ -2,11 +2,12 @@ import whisper
 from moviepy import VideoFileClip
 from tempfile import NamedTemporaryFile
 from os import path
-import logging
+from .logger_config import get_logger
 from app import error
 import sys
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
+
 WHISPER_MODEL = {
         "small": "tiny",
         "medium": "medium",
@@ -17,14 +18,14 @@ WHISPER_MODEL = {
 class Transcription:
     def __init__(self, model="small"):
         "initialising whisper model to be used"
-        logger.debug("initialising")
+        logger.debug("initialising whisper model")
 
         model_name = WHISPER_MODEL[model]
 
         self.model_str = model_name
 
         try:
-            self.model = whisper.load_model(model_name+"moshe")
+            self.model = whisper.load_model(model_name)
         except KeyboardInterrupt:
             raise
         except Exception as e:
@@ -58,7 +59,7 @@ class Transcription:
 
         # check whether inputted audio file exists
         if not path.isfile(audio_file):
-            error.push_log("Audio file not found", e, sys.exc_info())
+            error.push_log("Audio file not found")
             return None
 
         # running the transcription on the audio file
@@ -81,7 +82,7 @@ class Transcription:
 
         # check whether inputted video file exists
         if not path.isfile(video_file):
-            error.push_log("Video file not found", e, sys.exc_info())
+            error.push_log("Video file not found")
             return None
 
         # open video file and write audio to temp file
@@ -102,24 +103,23 @@ class Transcription:
         # transcribe the audio
         result = self.trans_audio(temp_audio_file.name)
         if result == None:  # error handling
+            error.push_log("failed to transcribe audio")
             return None
 
         return result
     
 
 def test():
-    from app import app
-    with app.app_context():
-        transcriber = Transcription()
+    transcriber = Transcription()
 
-        # result_dict = transcriber.trans_audio("harvard.wav")
-        result_dict = transcriber.trans_audio("text_file.txt")
-        if result_dict != None:
-            segments = [{"id":x["id"],"start":x["start"],"end":x["end"],"text":x["text"]} for x in result_dict["segments"]]
-            print(segments)
+    # result_dict = transcriber.trans_audio("harvard.wav")
+    # result_dict = transcriber.trans_audio("text_file.txt")
+    # if result_dict != None:
+    #     segments = [{"id":x["id"],"start":x["start"],"end":x["end"],"text":x["text"]} for x in result_dict["segments"]]
+    #     print(segments)
 
-        result_dict = transcriber.trans_video("sample_video.mp4")
-        print(result_dict)
+    result_dict = transcriber.trans_video("app/sample_video.mp4")
+    print(result_dict)
 
 
 

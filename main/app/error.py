@@ -1,4 +1,7 @@
 from app import session_globals
+from .logger_config import get_logger
+
+logger = get_logger(__name__)
 
 
 class LogicalStack:
@@ -24,17 +27,19 @@ def push_error(e):
     if stack not yet in session then adds it to session"""
     error_stack = session_globals.get("error_stack")
     if not error_stack:
-        new_error_stack = LogicalStack()
-        new_error_stack.push(e)
-        session_globals.set("error_stack", new_error_stack)
+        error_stack = LogicalStack()
+        error_stack.push(e)
+        session_globals.set("error_stack", error_stack)
     error_stack.push(e)
 
 
-def push_log(msg, e, exc_info):
+def push_log(msg, e=None, exc_info=None):
     """pushes error to stack in session and logs it"""
     # push error and then msg to error stack
-    push_error(str(e))
-    push_error(msg)
+    if e:
+        push_error(str(e))
+    if exc_info:
+        push_error(msg)
 
     # log error
     logger.error(msg, exc_info=exc_info)

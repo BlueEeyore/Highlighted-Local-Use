@@ -1,10 +1,10 @@
 from .database import Class
-from app.routes import db
-import logging
+from app.database import db
+from .logger_config import get_logger
 from app import error
 import sys
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def print_cols():
