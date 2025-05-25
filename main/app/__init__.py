@@ -30,6 +30,14 @@ def create_app():
     session_config(app)
 
 
+    # config upload folder
+    app.config["UPLOAD_FOLDER"] = "app/static/files"
+
+
+    # config secret key
+    app.config["SECRET_KEY"] = "super-secret-key"
+
+
     # running routes
     # logger.debug("running app")
     # from app import routes
