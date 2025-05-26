@@ -25,8 +25,14 @@ def create_app():
 
 
     # register blueprints from different modules
+    from app.admin.routes import admin_bp
+    from app.auth.routes import auth_bp
     from app.classes.routes import classes_bp
+    from app.home.routes import home_bp
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(auth_bp)
     app.register_blueprint(classes_bp)
+    app.register_blueprint(home_bp)
 
 
     # configuring session
