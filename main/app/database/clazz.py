@@ -1,6 +1,6 @@
-from .database import Class
-from app.database import db
-from .logger_config import get_logger
+from app.database.models import Class
+from app.database.models import db
+from app.logger_config import get_logger
 from app import error
 import sys
 
@@ -68,8 +68,6 @@ def get_users(cid):
         return None
 
     return users
-
-
 
 
 def insert(name, joincode, starttime):

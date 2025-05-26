@@ -1,6 +1,6 @@
-from .database import Lesson
-from app.database import db
-from .logger_config import get_logger
+from app.database.models import Lesson
+from app.database.models import db
+from app.logger_config import get_logger
 from app import error
 import sys
 
@@ -20,6 +20,16 @@ def all_lessons():
     logger.debug("getting all lesson columns")
     try:
         return Lesson.query.all()
+    except Exception as e:
+        error.push_log("failed to query lessons", e, sys.exc_info())
+        return None
+
+
+def get_lesson(lid):
+    """returns lesson for given lid"""
+    logger.debug(f"getting lesson with lid {lid}")
+    try:
+        return Lesson.query.get(lid)
     except Exception as e:
         error.push_log("failed to query lessons", e, sys.exc_info())
         return None

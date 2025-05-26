@@ -1,6 +1,6 @@
-from .database import Transcript
-from app.database import db
-from .logger_config import get_logger
+from app.database.models import Transcript
+from app.database.models import db
+from app.logger_config import get_logger
 from app import error
 import sys
 
