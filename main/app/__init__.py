@@ -24,6 +24,11 @@ def create_app():
     db.init_app(app)
 
 
+    # register blueprints from different modules
+    from app.classes.routes import classes_bp
+    app.register_blueprint(classes_bp)
+
+
     # configuring session
     logger.debug("configuring session")
     from .session_globals import session_config
