@@ -1,8 +1,10 @@
-from app import app, user, clazz, userclass, lesson
-from app.database import db
+from app import create_app
+from app.database import user, clazz, userclass, lesson
+from app.database.models import db
 from faker import Faker
 import string
 import random
+from app.auth.hashing import consistent_hash
 
 
 fake = Faker()
@@ -19,17 +21,27 @@ def unique_joincode(length):
 
 def add_users(n=100):
     """adds fake users"""
-    for x in range(n):
+    for x in range(n-1):
         user.insert(
                 email=fake.email(),
-                password=fake.password(),
+                password=consistent_hash(fake.password()),
                 firstname=fake.first_name(),
                 lastname=fake.last_name(),
                 bio=fake.text(max_nb_chars=100),
                 school=fake.company(),
-                pfp=fake.image(),
+                pfp=None,
                 notifications=fake.text(max_nb_chars=5)
         )
+    user.insert(
+            email="test@gmail.com",
+            password=consistent_hash("password"),
+            firstname="firstname",
+            lastname="lastname",
+            bio="random bio",
+            school="burnside high school",
+            pfp=None,
+            notifications=fake.text(max_nb_chars=5)
+    )
     db.session.commit()
 
 
@@ -130,8 +142,8 @@ def add_comments():
         
 
 
-
 if __name__ == "__main__":
+    app = create_app()
     with app.app_context():
         with app.test_request_context():
             db.drop_all()

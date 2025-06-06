@@ -1,5 +1,6 @@
-from flask import render_template, abort, current_app, Blueprint
+from flask import render_template, abort, current_app, Blueprint, redirect
 import os
+from app import session_globals
 from app.logger_config import get_logger
 from app.database import clazz, user, lesson
 from app.classes.forms import VideoForm
@@ -12,10 +13,21 @@ logger = get_logger(__name__)
 classes_bp = Blueprint('classes', __name__, url_prefix='/classes', template_folder='templates')
 
 
-@classes_bp.route("/<int:uid>", methods=['GET', 'POST'])
-def classes(uid):
+# cannot have uid in route because it redirects to login if not logged in
+@classes_bp.route("/", methods=['GET', 'POST'])
+def classes():
     logger.debug("in classes")
 
+    # getting uid
+    logger.info(f"session globals dict is now {session_globals._get_globs()}")
+    uid = session_globals.get("uid")
+
+    # checking if uid isn't in session, then redirects to login
+    if not uid:
+        return redirect("/auth/login")
+
+    # getting all classes belonging to user
+    logger.debug("getting user classes")
     user_classes = user.get_classes(uid)
 
     return render_template("classes.html", classes=user_classes)

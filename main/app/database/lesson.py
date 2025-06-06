@@ -47,3 +47,4 @@ def insert(creatorid, classid, name, videofn, creationtime):
         db.session.add(new_lesson)
     except Exception as e:
         error.push_log(f"failed to add new lesson {new_lesson} to db", e, sys.exc_info())
+        db.session.rollback()

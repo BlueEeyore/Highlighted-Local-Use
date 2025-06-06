@@ -28,10 +28,13 @@ def _get_globs():
 
 def set(key, value):
     """assigns key to value"""
-    logger.debug(f"setting {key} to {value}")
+    logger.debug(f"setting {key} to {value} in session")
 
     globs = _get_globs()
     globs[key] = value
+
+    # commit session change
+    session.modified = True
 
 
 def get(key):

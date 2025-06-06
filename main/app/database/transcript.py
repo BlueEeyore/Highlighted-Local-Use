@@ -47,6 +47,7 @@ def get_transcript_by(col_name, val):
         return None
 
     # returning all transcripts filtered by that column
+    logger.debug(f"returning all transcripts filtered by column {col_name}")
     return Transcript.query.filter(col_attr==val).all()
 
 
@@ -62,3 +63,4 @@ def insert(lid, timestamp, text):
         db.session.add(new_transcript)
     except Exception as e:
         error.push_log(f"failed to insert transcript {new_transcript} to db", e, sys.exc_info())
+        db.session.rollback()

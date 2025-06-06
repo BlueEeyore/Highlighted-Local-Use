@@ -6,10 +6,10 @@ logger = get_logger(__name__)
 # basedir = os.path.abspath(os.path.dirname(__file__))
       
 
-home_bp = Blueprint('home', __name__, template_folder='templates')
+main_bp = Blueprint('main', __name__, template_folder='templates')
 
 
-@home_bp.route("/", methods=['GET', 'POST'])
+@main_bp.route("/", methods=['GET', 'POST'])
 def home():
     logger.debug("in home")
 

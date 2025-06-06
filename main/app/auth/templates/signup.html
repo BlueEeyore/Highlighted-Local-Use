@@ -1,5 +1,28 @@
 {% extends "layout.html" %}
 {% block content %}
 
+{% if error_msg %}
+	<p>{{error_msg}}</p>
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data">
+	{{form.hidden_tag()}}
+	{{form.email.label}}
+	{{form.email()}}
+	{{form.password.label}}
+	{{form.password()}}
+	{{form.first_name.label}}
+	{{form.first_name()}}
+	{{form.last_name.label}}
+	{{form.last_name()}}
+	{{form.school.label}}
+	{{form.school()}}
+	{{form.bio.label}}
+	{{form.bio()}}
+	{{form.pfp.label}}
+	{{form.pfp()}}
+	{{form.submit()}}
+</form>
+
 
 {% endblock %}

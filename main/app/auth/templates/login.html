@@ -1,5 +1,18 @@
 {% extends "layout.html" %}
 {% block content %}
 
+{% if invalid %}
+	<p>Invalid username or password</p>
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data">
+	{{form.hidden_tag()}}
+	{{form.email.label}}
+	{{form.email()}}
+	{{form.password.label}}
+	{{form.password()}}
+	{{form.submit()}}
+</form>
+
 
 {% endblock %}

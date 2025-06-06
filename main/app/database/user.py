@@ -42,11 +42,12 @@ def get_user_by(col_name, val):
     logger.debug(f"getting attribute for column {col_name} in User")
     try:
         col_attr = getattr(User, col_name)
-    except AttributeError as e:
-        error.push_log(f"failed to get attribute for col {col_name} in User", e, sys.exc(info))
+    except Exception as e:
+        error.push_log(f"failed to get attribute for col {col_name} in User", e, sys.exc_info())
         return None
 
-    # returning all users filtered by that column
+    # returning all users filtered by that column, returns None if don't exist
+    logger.debug(f"returning all users filtered by column {col_name}")
     return User.query.filter(col_attr==val).all()
 
 
@@ -81,5 +82,10 @@ def insert(email, password, firstname, lastname, bio, school, pfp, notifications
     try:
         db.session.add(new_user)
     except Exception as e:
-        error.push_log(f"failed to add new user {new_user} to db", e, sys.exc_info)
+        error.push_log(f"failed to add new user {new_user} to db", e, sys.exc_info())
+        db.session.rollback()
         return None
+
+
+def test():
+    print(get_user_by("firstname", "John"))

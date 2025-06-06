@@ -47,6 +47,7 @@ def get_comment_by(col_name, val):
         return None
 
     # returning all comments filtered by that column
+    logger.debug(f"returning all comments filtered by column {col_name}")
     return Comment.query.filter(col_attr==val).all()
 
 
@@ -82,4 +83,5 @@ def insert(uid, lid, parentid, content, uploadtime, anonymous, private, comtype,
         db.session.add(new_comment)
     except Exception as e:
         error.push_log(f"failed to add new comment {new_comment} to db", e, sys.exc_info)
+        db.session.rollback()
         return None

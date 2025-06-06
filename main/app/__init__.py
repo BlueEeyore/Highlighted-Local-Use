@@ -1,5 +1,5 @@
 from flask import Flask
-from .database import db
+from app.database.models import db
 from .logger_config import get_logger
 
 
@@ -28,11 +28,11 @@ def create_app():
     from app.admin.routes import admin_bp
     from app.auth.routes import auth_bp
     from app.classes.routes import classes_bp
-    from app.home.routes import home_bp
+    from app.main.routes import main_bp
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(classes_bp)
-    app.register_blueprint(home_bp)
+    app.register_blueprint(main_bp)
 
 
     # configuring session

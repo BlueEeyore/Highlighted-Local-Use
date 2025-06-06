@@ -46,6 +46,7 @@ def get_class_by(col_name, val):
         return None
 
     # returning all classes filtered by that column
+    logger.debug(f"returning all classes filtered by column {col_name}")
     return Class.query.filter(col_attr==val).all()
 
 
@@ -82,3 +83,4 @@ def insert(name, joincode, starttime):
         db.session.add(new_class)
     except Exception as e:
         error.push_log(f"failed to add new class {new_class} to db", e, sys.exc_info())
+        db.session.rollback()
