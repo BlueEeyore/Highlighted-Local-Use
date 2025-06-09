@@ -48,6 +48,7 @@ class Lesson(db.Model):
     classid = db.Column(db.Integer, db.ForeignKey("classes.id"), nullable=False)
     name = db.Column(db.String(255))
     videofn = db.Column(db.String(255))
+    mimetype = db.Column(db.String(255))
     creationtime = db.Column(db.String(255), nullable=False)
 
     transcripts = db.relationship("Transcript", backref="lesson")

@@ -1,6 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<video width="240" height="240" controls>
+    <source src="{{url_for('static', filename='files/' + results['videofn'])}}" type="{{results['mime_type']}}">
+</video>
 
 {% for segment in results["transcripts"] %}
     {{segment.text}}

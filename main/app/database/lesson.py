@@ -35,13 +35,13 @@ def get_lesson(lid):
         return None
 
 
-def insert(creatorid, classid, name, videofn, creationtime):
+def insert(creatorid, classid, name, videofn, mimetype, creationtime):
     """inserts a lesson"""
-    logger.debug(f"adding lesson with {[creatorid, classid, name, videofn, creationtime]}")
+    logger.debug(f"adding lesson with {[creatorid, classid, name, videofn, mimetype, creationtime]}")
 
     # setting new lesson instance
     try:
-        new_lesson = Lesson(creatorid=creatorid, classid=classid, name=name, videofn=videofn, creationtime=creationtime)
+        new_lesson = Lesson(creatorid=creatorid, classid=classid, name=name, videofn=videofn, mimetype=mimetype, creationtime=creationtime)
     except Exception as e:
         error.push_log(f"filed to create Lesson row instance", e, sys.exc_info()) 
 

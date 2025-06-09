@@ -112,6 +112,7 @@ def add_lessons(min_cons=0, max_cons=3):
                     classid=iclazz.id,
                     name=fake.text(max_nb_chars=20),
                     videofn=fake.file_path(),
+                    mimetype=fake.mime_type(),
                     creationtime=fake.date_time().isoformat()
             )
     db.session.commit()

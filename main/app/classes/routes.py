@@ -74,9 +74,12 @@ def create_lesson(cid):
         file_path = os.path.join(os.path.abspath(current_app.config["UPLOAD_FOLDER"]), fn)
         video.save(file_path)
 
+        # get mime type for video
+        mime_type = video.mimetype
+
         # insert lesson into db
         uid = session_globals.get("uid")
-        new_lesson = lesson.insert(uid, cid, "name", fn, "_")  # insert returns id for new row
+        new_lesson = lesson.insert(uid, cid, "name", fn, mime_type, "_")  # insert returns id for new row
         db.session.commit()
         
         # transcribe video
@@ -86,7 +89,10 @@ def create_lesson(cid):
 
         # get the id for the lesson just inserted
         lid = new_lesson.id
+
+
         return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
+
 
     return render_template("create_lesson.html", form=form)
 
@@ -102,8 +108,12 @@ def individual_lesson(cid, lid):
     results["name"] = this_lesson.name
     results["videofn"] = this_lesson.videofn
     results["creationtime"] = this_lesson.creationtime
+    results["mime_type"] = this_lesson.mimetype
+
+    # results["video_path"] = os.path.join(os.path.abspath(current_app.config["UPLOAD_FOLDER"]), this_lesson.videofn)
 
     results["transcripts"] = this_lesson.transcripts
     results["comments"] = this_lesson.comments
+
 
     return render_template("lesson.html", results=results)
