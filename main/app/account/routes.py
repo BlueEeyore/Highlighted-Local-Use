@@ -15,7 +15,7 @@ def profile(uid):
     logger.debug("in profile")
 
     logger.debug("getting user")
-    user_info = user.get_user(uid).query.all()
+    user_info = user.get_user(uid)
 
     return render_template("profile.html", user_info=user_info)
 

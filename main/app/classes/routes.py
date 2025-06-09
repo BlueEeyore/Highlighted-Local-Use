@@ -1,8 +1,10 @@
-from flask import render_template, abort, current_app, Blueprint, redirect
+from flask import render_template, abort, current_app, Blueprint, redirect, url_for
 import os
 from app import session_globals
+from app.transcription import Transcription
 from app.logger_config import get_logger
-from app.database import clazz, user, lesson
+from app.database import clazz, user, lesson, transcript
+from app.database.models import db
 from app.classes.forms import VideoForm
 from werkzeug.utils import secure_filename
 
@@ -68,28 +70,40 @@ def create_lesson(cid):
 
         # grab video file and save to static folder
         video = form.video.data
-        video.save(os.path.join(os.path.abspath(current_app.config["UPLOAD_FOLDER"]),secure_filename(video.filename)))
+        fn = secure_filename(video.filename)
+        file_path = os.path.join(os.path.abspath(current_app.config["UPLOAD_FOLDER"]), fn)
+        video.save(file_path)
 
+        # insert lesson into db
+        uid = session_globals.get("uid")
+        new_lesson = lesson.insert(uid, cid, "name", fn, "_")  # insert returns id for new row
+        db.session.commit()
+        
+        # transcribe video
+        transcriber = Transcription()
+        transcript_dict = transcriber.trans_video(file_path)
+        transcript.insert_transcript(new_lesson.id, transcript_dict)
 
-        # [save video to database here]
-
+        # get the id for the lesson just inserted
+        lid = new_lesson.id
+        return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
 
     return render_template("create_lesson.html", form=form)
 
 
 @classes_bp.route("/<int:cid>/<int:lid>", methods=['GET', 'POST'])
-def lesson(cid, lid):
-    logger.debug("in lesson")
+def individual_lesson(cid, lid):
+    logger.debug("in individual lesson route")
 
     this_lesson = lesson.get_lesson(lid)
+    results = {}
 
-    creator = this_lesson.user
-    name = this_lesson.name
-    videofn = this_lesson.videofn
-    creationtime = this_lesson.creationtime
+    results["creator"] = this_lesson.creatorid
+    results["name"] = this_lesson.name
+    results["videofn"] = this_lesson.videofn
+    results["creationtime"] = this_lesson.creationtime
 
-    transcripts = this_lesson.transcripts
-    comments = this_lesson.comments
+    results["transcripts"] = this_lesson.transcripts
+    results["comments"] = this_lesson.comments
 
-
-    return render_template("lesson.html")
+    return render_template("lesson.html", results=results)

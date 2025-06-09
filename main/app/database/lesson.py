@@ -40,7 +40,10 @@ def insert(creatorid, classid, name, videofn, creationtime):
     logger.debug(f"adding lesson with {[creatorid, classid, name, videofn, creationtime]}")
 
     # setting new lesson instance
-    new_lesson = Lesson(creatorid=creatorid, classid=classid, name=name, videofn=videofn, creationtime=creationtime)
+    try:
+        new_lesson = Lesson(creatorid=creatorid, classid=classid, name=name, videofn=videofn, creationtime=creationtime)
+    except Exception as e:
+        error.push_log(f"filed to create Lesson row instance", e, sys.exc_info()) 
 
     # adding new lesson to db
     try:
@@ -48,3 +51,5 @@ def insert(creatorid, classid, name, videofn, creationtime):
     except Exception as e:
         error.push_log(f"failed to add new lesson {new_lesson} to db", e, sys.exc_info())
         db.session.rollback()
+
+    return new_lesson

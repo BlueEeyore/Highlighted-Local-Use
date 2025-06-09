@@ -29,10 +29,12 @@ def create_app():
     from app.auth.routes import auth_bp
     from app.classes.routes import classes_bp
     from app.main.routes import main_bp
+    from app.account.routes import account_bp
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(classes_bp)
     app.register_blueprint(main_bp)
+    app.register_blueprint(account_bp)
 
 
     # configuring session

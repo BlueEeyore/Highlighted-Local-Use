@@ -22,7 +22,7 @@ def login():
     # login route is the default for the profile page
     # If uid is already in session then the user is already logged in
     if session_globals.get("uid"):
-        return redirect(url_for("user.profile", uid=session_globals.get("uid")))
+        return redirect(url_for("account.profile", uid=session_globals.get("uid")))
 
     form = LoginForm()
     if form.validate_on_submit():   # when form is submitted

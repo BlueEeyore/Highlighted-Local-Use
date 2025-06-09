@@ -26,11 +26,11 @@ def all_transcripts():
 
 def get_transcript(tid):
     """returns transcript for given tid"""
-    logger.debug(f"getting user with uid {uid}")
+    logger.debug(f"getting transcript with tid {tid}")
     try:
-        return User.query.get(uid)
+        return Transcript.query.get(tid)
     except Exception as e:
-        error.push_log("failed to query users", e, sys.exc_info())
+        error.push_log("failed to query transcripts", e, sys.exc_info())
         return None
 
 
@@ -56,7 +56,7 @@ def insert(lid, timestamp, text):
     logger.debug(f"adding trancsript with {[lid, timestamp, text]}")
 
     # setting new transcript instance
-    new_transcript = Transcrept(lid=lid, timestamp=timestamp, text=text)
+    new_transcript = Transcript(lid=lid, timestamp=timestamp, text=text)
 
     # adding new transcript to db
     try:
@@ -64,3 +64,22 @@ def insert(lid, timestamp, text):
     except Exception as e:
         error.push_log(f"failed to insert transcript {new_transcript} to db", e, sys.exc_info())
         db.session.rollback()
+
+
+def insert_transcript(lid, transcript_dict):
+    """takes a transcription results dict and inserts everything into db"""
+    logger.debug(f"adding transcription")
+
+    # transcript_dict has all the info about the transcription
+    # this gets just the segments
+    segments = transcript_dict["segments"]
+    # inserting each segment into the transcript table
+    for segment in segments:
+        print(segment)
+        ts = f"{segment['start']}, {segment['end']}"
+        insert(lid, ts, segment["text"])
+    
+    try:
+        db.session.commit()
+    except Exception as e:
+        error.push_log(f"failed to commit db changes", e, sys.exc_info())
