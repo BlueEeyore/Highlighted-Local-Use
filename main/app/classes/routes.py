@@ -1,6 +1,6 @@
-from flask import render_template, abort, current_app, Blueprint, redirect, url_for
+from flask import render_template, abort, current_app, Blueprint, redirect, url_for, request, jsonify
 import os
-from app import session_globals
+from app import session_globals, error
 from app.transcription import Transcription
 from app.logger_config import get_logger
 from app.database import clazz, user, lesson, transcript
@@ -90,7 +90,6 @@ def create_lesson(cid):
         # get the id for the lesson just inserted
         lid = new_lesson.id
 
-
         return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
 
 
@@ -100,6 +99,14 @@ def create_lesson(cid):
 @classes_bp.route("/<int:cid>/<int:lid>", methods=['GET', 'POST'])
 def individual_lesson(cid, lid):
     logger.debug("in individual lesson route")
+
+    if request.method == "POST":
+        print('information posted')
+        if request.is_json:
+            data = request.get_json()
+            print(f"text highlighted: {data['text']}")
+            return jsonify(data)
+
 
     this_lesson = lesson.get_lesson(lid)
     results = {}
@@ -115,5 +122,7 @@ def individual_lesson(cid, lid):
     results["transcripts"] = this_lesson.transcripts
     results["comments"] = this_lesson.comments
 
+    results["cid"] = cid
+    results["lid"] = lid
 
     return render_template("lesson.html", results=results)

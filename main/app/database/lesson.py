@@ -44,6 +44,7 @@ def insert(creatorid, classid, name, videofn, mimetype, creationtime):
         new_lesson = Lesson(creatorid=creatorid, classid=classid, name=name, videofn=videofn, mimetype=mimetype, creationtime=creationtime)
     except Exception as e:
         error.push_log(f"filed to create Lesson row instance", e, sys.exc_info()) 
+        return False
 
     # adding new lesson to db
     try:
@@ -51,5 +52,6 @@ def insert(creatorid, classid, name, videofn, mimetype, creationtime):
     except Exception as e:
         error.push_log(f"failed to add new lesson {new_lesson} to db", e, sys.exc_info())
         db.session.rollback()
+        return False
 
     return new_lesson
