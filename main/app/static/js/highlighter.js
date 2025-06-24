@@ -71,10 +71,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     start_offset: offsets.start,
                     end_offset: offsets.end,
-                    text: currentRange.toString(), // Also useful to save the text itself
+                    selected_text: currentRange.toString(), // Also useful to save the text itself
                     comtype: 'highlight'
                 })
             });
+
+            // Navigate to the same page with parameters for the backend
+            // window.location.href = `${currentURL}?${params.toString()}`;
+            window.location.href = `${currentURL}`;
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -236,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams({
                 start_offset: offsets.start,
                 end_offset: offsets.end,
-                selected_text: currentRange.toString()
+                selected_text: currentRange.toString(),
             });
 
             // Navigate to the same page with parameters for the backend

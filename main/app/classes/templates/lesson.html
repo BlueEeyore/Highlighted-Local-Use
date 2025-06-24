@@ -28,10 +28,12 @@
         <div class="row">
             <div id="comment-sidebar">
                 {% for comment in results.highlights %}
-                    <div class="comment">
-                        <div class="comment-creator">{{comment.uid}}</div>
-                        <div class="comment-content">{{comment.content}}</div>
-                    </div>
+                    {% if comment.comtype == "comment" %}
+                        <div class="comment">
+                            <div class="comment-creator">{{comment.uid}}</div>
+                            <div class="comment-content">{{comment.content}}</div>
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
         </div>
@@ -43,10 +45,11 @@
 {% if results.comment_form_data %}
 <div class="row">
     <div class="comment-form">
-        <form method="POST">
+        <form action="/classes/{{results.cid}}/{{results.lid}}" method="POST">
             <input type="hidden" name="start_offset" value="{{ results.comment_form_data.start_offset }}">
             <input type="hidden" name="end_offset" value="{{ results.comment_form_data.end_offset }}">
             <input type="hidden" name="selected_text" value="{{ results.comment_form_data.selected_text }}">
+            <input type="hidden" name="comtype" value="comment">
             
             <label>Add your comment for: "{{ results.comment_form_data.selected_text }}"</label>
             <textarea name="comment_text" required></textarea>

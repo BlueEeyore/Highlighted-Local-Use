@@ -102,74 +102,59 @@ def individual_lesson(cid, lid):
     logger.debug("in individual lesson route")
     
     # getting uid
-    logger.info(f"session globals dict is now {session_globals._get_globs()}")
+    logger.debug("getting uid")
     uid = session_globals.get("uid")
 
     # checking if uid isn't in session, then redirects to login
     if not uid:
+        logger.debug("not logged in, redirecting to login")
         return redirect(url_for("auth.login", next=request.url))
 
     if request.method == "POST":
-        print('information posted')
+        logger.debug("information posted to individual_lesson")
+        
+        # when user highlights text and either selects "highlight" or "comment"
         if request.is_json:
+            logger.debug("information posted from javascript meaning user highlighted text and selected an action")
             data = request.get_json()
-            print(f"text highlighted: {data['text']}")
-            
-            start = data.get("start_offset")
-            end = data.get("end_offset")
-            comtype = data.get("comtype")
-
-            if comtype == "comment":
-                comment_content = data.get("comment")
-            else:
-                comment_content = None
-
-            new_comment = comment.insert(
-                uid=uid,
-                lid=lid,
-                parentid=None,
-                content=comment_content,
-                uploadtime=None,
-                anonymous=None,
-                private=None,
-                comtype=comtype,
-                tsrange=None,
-                ts_start_offset=start,
-                ts_end_offset=end,
-                length=None
-            )
-            db.session.commit()
-
-            print(new_comment.to_dict())
-            return jsonify({"status": "success", "highlight": new_comment.to_dict()})
-
         else:
-            start_offset = int(request.form["start_offset"])
-            end_offset = int(request.form["end_offset"])
-            selected_text = request.form["selected_text"]
-            comment_content = request.form["comment_text"]
+            data = request.form
+            
+        start_offset = int(data.get("start_offset"))
+        end_offset = int(data.get("end_offset"))
+        selected_text = data.get("selected_text")
+        comtype = data.get("comtype")
 
-            new_comment = comment.insert(
-                uid=uid,
-                lid=lid,
-                parentid=None,
-                content=comment_content,
-                uploadtime=None,
-                anonymous=None,
-                private=None,
-                comtype="comment",
-                tsrange=None,
-                ts_start_offset=start_offset,
-                ts_end_offset=end_offset,
-                length=None
-            )
-            db.session.commit()
+        print(f"text highlighted: {data['selected_text']}")
 
-            return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
+        if comtype == "comment":
+            comment_content = data.get("comment_text")
+        else:
+            comment_content = None
 
-    start_offset = request.args.get("start_offset")
-    end_offset = request.args.get("end_offset")
-    selected_text = request.args.get("selected_text")
+        new_comment = comment.insert(
+            uid=uid,
+            lid=lid,
+            parentid=None,
+            content=comment_content,
+            uploadtime=None,
+            anonymous=None,
+            private=None,
+            comtype=comtype,
+            tsrange=None,
+            ts_start_offset=start_offset,
+            ts_end_offset=end_offset,
+            length=None
+        )
+        db.session.commit()
+
+        print(new_comment.to_dict())
+        if request.is_json:
+            logger.debug("sending back succes to javascript frontend")
+            return jsonify({"status": "success", "highlight": new_comment.to_dict()})
+        logger.debug("redirecting back to same page for re-rendering")
+        return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
+
 
     this_lesson = lesson.get_lesson(lid)
     saved_comments = comment.get_comment_by("lid", lid)
@@ -190,7 +175,11 @@ def individual_lesson(cid, lid):
     results["lid"] = lid
 
     results["highlights"] = [h.to_dict() for h in saved_comments]
-
+    
+    start_offset = request.args.get("start_offset")
+    end_offset = request.args.get("end_offset")
+    selected_text = request.args.get("selected_text")
+    
     if start_offset and end_offset:
         results["comment_form_data"] = {
             "start_offset": start_offset,
