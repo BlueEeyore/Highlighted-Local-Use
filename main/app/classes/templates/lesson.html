@@ -2,79 +2,42 @@
 
 {% block content %}
 
-<video width="240" height="240" controls>
-    <source src="{{url_for('static', filename='files/' + results['videofn'])}}" type="{{results['mime_type']}}">
-</video>
-
-<div class="statement">
-{% for segment in results["transcripts"] %}
-    {{segment.text}}
-{% endfor %}
+<div class="row">
+    <video width="240" height="240" controls>
+        <source src="{{url_for('static', filename='files/' + results['videofn'])}}" type="{{results['mime_type']}}">
+    </video>
 </div>
 
-<div id='annotation-list'></div>
+<div class="row">
+    <div id="text-container">
+        <p>
+            {% for segment in results["transcripts"] %}
+                <span class="transcript-segment">{{segment.text}}</span>
+            {% endfor %}
+        </p>
+    </div>
+
+    <!-- This is the pop-up menu. It's hidden by default with CSS. -->
+    <div id="highlight-menu">
+        <button id="highlight-btn">Highlight</button>
+        <!-- add more options here like "comment" etc -->
+    </div>
+
+<!-- <div id='annotation-list'></div> -->
+
+</div>
+
 
 {% endblock %}
 
 {% block scripts %}
 <script>
-    // Store for annotations
-    let currentAnnotations = [];
-    let annotationId = 1000;
-
-    // Get the statement element
-    const statementBody = () => {
-        return document.querySelector(".statement");
-    };
-
-    // Listen for text selection
-    const setupSelectionListener = () => {
-        statementBody().addEventListener('mouseup', getSelectionInfo);
-    };
-
-    // Get selection info and send to server
-    const getSelectionInfo = async () => {
-        const selection = window.getSelection();
-        const selectedText = selection.toString().trim();
-        
-        if (selectedText.length > 0) {
-            const newAnnotation = {
-                id: ++annotationId,
-                text: selectedText,
-                start: selection.anchorOffset,
-                end: selection.focusOffset
-            };
-            
-            currentAnnotations.push(newAnnotation);
-            
-            // Send to Flask backend
-            try {
-                const response = await fetch("{{url_for('classes.individual_lesson', cid=results['cid'], lid=results['lid'])}}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(newAnnotation)
-                });
-                
-                const result = await response.json();
-                displayAnnotation(result);
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-    };
-
-    // Display the annotation
-    const displayAnnotation = (annotation) => {
-        const list = document.getElementById('annotation-list');
-        const item = document.createElement('li');
-        item.textContent = `Annotation #${annotation.id}: "${annotation.text}"`;
-        list.appendChild(item);
-    };
-
-    // Initialize when page loads
-    document.addEventListener('DOMContentLoaded', setupSelectionListener);
+    // Pass the highlights data from Flask/Jinja2 into a JavaScript variable
+    // The `|tojson` filter is crucial for safely embedding the data.
+    const savedHighlights = {{ results.highlights|tojson }};
+    const currentURL = window.location.pathname; // This will be "/classes/<cid>/<lid>"
 </script>
+
+<script src="{{ url_for('static', filename='js/highlighter.js') }}"></script>
 
 {% endblock %}

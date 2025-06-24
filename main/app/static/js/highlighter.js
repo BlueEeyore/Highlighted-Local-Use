@@ -1,0 +1,200 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const textContainer = document.getElementById('text-container');
+    if (!textContainer) return;
+
+    const menu = document.getElementById('highlight-menu');
+    const highlightButton = document.getElementById('highlight-btn');
+    let currentRange = null;
+
+    // --- Event Listeners for Pop-up Menu ---
+
+    textContainer.addEventListener('mouseup', (event) => {
+        // Use a small timeout to allow the selection to finalize
+        setTimeout(() => {
+            const selection = window.getSelection();
+            // Ignore collapsed selections or selections outside the container
+            if (selection.isCollapsed || !textContainer.contains(selection.anchorNode)) {
+                menu.style.display = 'none';
+                return;
+            }
+
+            currentRange = selection.getRangeAt(0);
+            const rect = currentRange.getBoundingClientRect();
+            menu.style.display = 'block';
+            menu.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (menu.offsetWidth / 2)}px`;
+            menu.style.top = `${rect.top + window.scrollY - menu.offsetHeight - 5}px`;
+        }, 10);
+    });
+
+    document.addEventListener('mousedown', (event) => {
+        if (!menu.contains(event.target) && menu.style.display === 'block') {
+            menu.style.display = 'none';
+            // Optional: clear selection if you click away from the menu
+            // window.getSelection().removeAllRanges(); 
+        }
+    });
+
+    // --- Handle Highlight Button Click ---
+    highlightButton.addEventListener('click', async () => {
+        if (!currentRange) return;
+
+        try {
+            // 1. Calculate character offsets using our robust function
+            const offsets = getRangeCharacterOffset(textContainer, currentRange);
+
+            // 2. Send the offsets to the backend
+            const response = await fetch(currentURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    start_offset: offsets.start,
+                    end_offset: offsets.end,
+                    text: currentRange.toString() // Also useful to save the text itself
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to save highlight');
+            }
+
+            // 3. On success, apply the highlight visually right away
+            applyHighlight(currentRange);
+
+        } catch (error) {
+            console.error('Error saving highlight:', error);
+            alert('Could not save your highlight. Please try again.');
+        } finally {
+            // 4. Clean up
+            menu.style.display = 'none';
+            window.getSelection().removeAllRanges();
+            currentRange = null;
+        }
+    });
+
+    // --- NEW: Function to apply saved highlights on page load ---
+    function applySavedHighlights() {
+        if (!savedHighlights || savedHighlights.length === 0) {
+            return;
+        }
+
+        // Sort highlights to apply them in order of appearance
+        savedHighlights.sort((a, b) => a.ts_start_offset - b.ts_start_offset);
+
+        for (const highlight of savedHighlights) {
+            // Ensure the properties exist before using them
+            if (highlight.ts_start_offset == null || highlight.ts_end_offset == null) continue;
+            
+            try {
+                const range = createRangeFromOffsets(textContainer, highlight.ts_start_offset, highlight.ts_end_offset);
+                applyHighlight(range);
+            } catch (error) {
+                console.error('Could not apply saved highlight:', highlight, error);
+            }
+        }
+    }
+
+    // --- Helper Functions ---
+
+    function applyHighlight(range) {
+        const highlightSpan = document.createElement('span');
+        highlightSpan.className = 'highlight';
+        try {
+            // This is the ideal way to wrap a selection
+            range.surroundContents(highlightSpan);
+        } catch (e) {
+            // This can happen if the range spans across incompatible element boundaries.
+            // A fallback is to extract, wrap, and re-insert.
+            console.warn("Could not use surroundContents, using fallback. Error:", e);
+            const content = range.extractContents();
+            highlightSpan.appendChild(content);
+            range.insertNode(highlightSpan);
+        }
+    }
+
+    /**
+     * Creates a DOM Range object from character offsets within a container.
+     * This function is the "loader".
+     * @param {Node} container - The element containing the text.
+     * @param {number} startOffset - The starting character offset.
+     * @param {number} endOffset - The ending character offset.
+     * @returns {Range}
+     */
+    function createRangeFromOffsets(container, startOffset, endOffset) {
+        const range = document.createRange();
+        const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+        let charCount = 0;
+        let startNode, endNode, startNodeOffset, endNodeOffset;
+
+        while (walker.nextNode()) {
+            const node = walker.currentNode;
+            const nodeLength = node.textContent.length;
+
+            if (startNode === undefined && startOffset < charCount + nodeLength) {
+                startNode = node;
+                startNodeOffset = startOffset - charCount;
+            }
+
+            if (endNode === undefined && endOffset <= charCount + nodeLength) {
+                endNode = node;
+                endNodeOffset = endOffset - charCount;
+                break; // Found both points, we can stop
+            }
+
+            charCount += nodeLength;
+        }
+
+        if (startNode && endNode) {
+            range.setStart(startNode, startNodeOffset);
+            range.setEnd(endNode, endNodeOffset);
+            return range;
+        }
+        throw new Error("Could not create range from offsets. The text may have changed.");
+    }
+
+    /**
+     * REWRITTEN: Gets the start and end character offsets of a Range within a container.
+     * This function is the "saver" and is the symmetrical inverse of the loader.
+     * @param {Node} container - The element containing the text.
+     * @param {Range} range - The range to measure.
+     * @returns {{start: number, end: number}}
+     */
+    function getRangeCharacterOffset(container, range) {
+        const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+        let charCount = 0;
+        let start = -1;
+        let end = -1;
+
+        while (walker.nextNode()) {
+            const node = walker.currentNode;
+            if (node === range.startContainer) {
+                start = charCount + range.startOffset;
+            }
+            if (node === range.endContainer) {
+                end = charCount + range.endOffset;
+                break; // Found both, we're done
+            }
+            charCount += node.textContent.length;
+        }
+
+        // If the selection spans multiple nodes, end won't be found in the first loop.
+        // We need to calculate it based on the start and the length of the selected text.
+        if (start !== -1 && end === -1) {
+             end = start + range.toString().length;
+        }
+       
+        // Fallback for single-node selections where the loop exits early
+        if (start !== -1 && end === -1) {
+            end = start + (range.endOffset - range.startOffset);
+        }
+
+        if (start === -1 || end === -1) {
+            throw new Error("Could not calculate offsets for the given range.");
+        }
+
+        return { start, end };
+    }
+
+    // --- Initial Execution ---
+    applySavedHighlights();
+});

@@ -8,9 +8,9 @@ logger = get_logger(__name__)
 
 
 def print_cols():
-    """prints the columns of User"""
-    logger.debug("printing user columns")
-    for column in User.__table__.columns:
+    """prints the columns of comment"""
+    logger.debug("printing comment columns")
+    for column in Comment.__table__.columns:
         print(column.name, column.type)
 
 
@@ -71,12 +71,12 @@ def get_classes(cid):
 
     return classes
 
-def insert(uid, lid, parentid, content, uploadtime, anonymous, private, comtype, tsrange, ts_offset, length):
+def insert(uid, lid, parentid, content, uploadtime, anonymous, private, comtype, tsrange, ts_start_offset, ts_end_offset, length):
     """inserts a comment"""
-    logger.debug(f"adding comment with {[uid, lid, parentid, content, uploadtime, anonymous, private, comtype, tsrange, ts_offset, length]}")
+    logger.debug(f"adding comment with {[uid, lid, parentid, content, uploadtime, anonymous, private, comtype, tsrange, ts_start_offset, ts_end_offset, length]}")
 
     # set new comment instance
-    new_comment = Comment(uid=uid, lid=lid, parentid=parentid, content=contnt, uploadtime=uploadtime, anonymous=anonymou, private=private, compyte=comtype, tsrange=tsrange, ts_offset=ts_offset, length=length)
+    new_comment = Comment(uid=uid, lid=lid, parentid=parentid, content=content, uploadtime=uploadtime, anonymous=anonymous, private=private, comtype=comtype, tsrange=tsrange, ts_start_offset=ts_start_offset, ts_end_offset=ts_end_offset, length=length)
 
     # add new comment to db
     try:
@@ -85,3 +85,5 @@ def insert(uid, lid, parentid, content, uploadtime, anonymous, private, comtype,
         error.push_log(f"failed to add new comment {new_comment} to db", e, sys.exc_info)
         db.session.rollback()
         return None
+    
+    return new_comment

@@ -1,0 +1,49 @@
+
+dy {
+    font-family: sans-serif;
+    line-height: 1.6;
+    padding: 2em;
+    background-color: #f9f9f9;
+}
+
+#text-container {
+    max-width: 800px;
+    margin: 2em auto;
+    padding: 2em;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* This is the style for our highlighted text */
+.highlight {
+    background-color: #ffd700; /* A nice gold yellow */
+    border-radius: 3px;
+    padding: 1px 0;
+}
+
+/* This is the pop-up menu */
+#highlight-menu {
+    position: absolute; /* Crucial for placing it near the selection */
+    display: none;      /* Hidden by default */
+    background-color: #333;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+#highlight-btn {
+    background-color: #555;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+#highlight-btn:hover {
+    background-color: #666;
+}

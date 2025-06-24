@@ -74,8 +74,27 @@ class Comment(db.Model):
     anonymous = db.Column(db.Boolean)
     private = db.Column(db.Boolean)
     comtype = db.Column(db.String(50))
-    tsrange = db.Column(db.Text)
-    ts_offset = db.Column(db.Integer)
+    tsrange = db.Column(db.Text)    # delete later
+    ts_start_offset = db.Column(db.Integer)
+    ts_end_offset = db.Column(db.Integer)
     length = db.Column(db.Integer)
 
     parents = db.relationship("Comment", remote_side=[id], backref="replies")
+
+    def to_dict(self):
+        """helper to convert the object to a dictionary"""
+        return {
+            "id": self.id,
+            "uid": self.uid,
+            "lid": self.lid,
+            "parentid": self.parentid,
+            "content": self.content,
+            "uploadtime": self.uploadtime,
+            "anonymous": self.anonymous,
+            "private": self.private,
+            "comtype": self.comtype,
+            "tsrange": self.tsrange,
+            "ts_start_offset": self.ts_start_offset,
+            "ts_end_offset": self.ts_end_offset,
+            "length": self.length
+        }

@@ -3,7 +3,7 @@ import os
 from app import session_globals, error
 from app.transcription import Transcription
 from app.logger_config import get_logger
-from app.database import clazz, user, lesson, transcript
+from app.database import clazz, user, lesson, transcript, comment
 from app.database.models import db
 from app.classes.forms import VideoForm
 from werkzeug.utils import secure_filename
@@ -105,10 +105,31 @@ def individual_lesson(cid, lid):
         if request.is_json:
             data = request.get_json()
             print(f"text highlighted: {data['text']}")
-            return jsonify(data)
+            
+            start = data.get("start_offset")
+            end = data.get("end_offset")
+
+            new_comment = comment.insert(
+                uid=session_globals.get("uid"),
+                lid=lid,
+                parentid=None,
+                content=None,
+                uploadtime=None,
+                anonymous=None,
+                private=None,
+                comtype="abc",
+                tsrange=None,
+                ts_start_offset=start,
+                ts_end_offset=end,
+                length=None
+            )
+            db.session.commit()
+            print(new_comment.to_dict())
+            return jsonify({"status": "success", "highlight": new_comment.to_dict()})
 
 
     this_lesson = lesson.get_lesson(lid)
+    saved_comments = comment.get_comment_by("lid", lid)
     results = {}
 
     results["creator"] = this_lesson.creatorid
@@ -124,5 +145,7 @@ def individual_lesson(cid, lid):
 
     results["cid"] = cid
     results["lid"] = lid
+
+    results["highlights"] = [h.to_dict() for h in saved_comments]
 
     return render_template("lesson.html", results=results)
