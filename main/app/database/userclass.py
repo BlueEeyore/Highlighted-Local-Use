@@ -26,3 +26,5 @@ def insert(uid, cid, role):
     except Exception as e:
         error.push_log(f"failed to add new userclass {new_userclass} to db", e, sys.exc_info())
         db.session.rollback()
+        return None
+    return new_userclass

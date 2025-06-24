@@ -85,6 +85,7 @@ def insert(email, password, firstname, lastname, bio, school, pfp, notifications
         error.push_log(f"failed to add new user {new_user} to db", e, sys.exc_info())
         db.session.rollback()
         return None
+    return new_user
 
 
 def test():

@@ -26,7 +26,7 @@ def classes():
 
     # checking if uid isn't in session, then redirects to login
     if not uid:
-        return redirect("/auth/login")
+        return redirect(url_for("auth.login", next=request.url))
 
     # getting all classes belonging to user
     logger.debug("getting user classes")
@@ -56,8 +56,9 @@ def create_class():
 def individual_class(cid):
     logger.debug("in individual_class")
 
+    lessons = clazz.get_lessons(cid)
 
-    return render_template("class.html")
+    return render_template("class.html", lessons=lessons, cid=cid)
 
 
 @classes_bp.route("/<int:cid>/createlesson", methods=['GET', 'POST'])
@@ -99,6 +100,14 @@ def create_lesson(cid):
 @classes_bp.route("/<int:cid>/<int:lid>", methods=['GET', 'POST'])
 def individual_lesson(cid, lid):
     logger.debug("in individual lesson route")
+    
+    # getting uid
+    logger.info(f"session globals dict is now {session_globals._get_globs()}")
+    uid = session_globals.get("uid")
+
+    # checking if uid isn't in session, then redirects to login
+    if not uid:
+        return redirect(url_for("auth.login", next=request.url))
 
     if request.method == "POST":
         print('information posted')
@@ -108,25 +117,59 @@ def individual_lesson(cid, lid):
             
             start = data.get("start_offset")
             end = data.get("end_offset")
+            comtype = data.get("comtype")
+
+            if comtype == "comment":
+                comment_content = data.get("comment")
+            else:
+                comment_content = None
 
             new_comment = comment.insert(
-                uid=session_globals.get("uid"),
+                uid=uid,
                 lid=lid,
                 parentid=None,
-                content=None,
+                content=comment_content,
                 uploadtime=None,
                 anonymous=None,
                 private=None,
-                comtype="abc",
+                comtype=comtype,
                 tsrange=None,
                 ts_start_offset=start,
                 ts_end_offset=end,
                 length=None
             )
             db.session.commit()
+
             print(new_comment.to_dict())
             return jsonify({"status": "success", "highlight": new_comment.to_dict()})
 
+        else:
+            start_offset = int(request.form["start_offset"])
+            end_offset = int(request.form["end_offset"])
+            selected_text = request.form["selected_text"]
+            comment_content = request.form["comment_text"]
+
+            new_comment = comment.insert(
+                uid=uid,
+                lid=lid,
+                parentid=None,
+                content=comment_content,
+                uploadtime=None,
+                anonymous=None,
+                private=None,
+                comtype="comment",
+                tsrange=None,
+                ts_start_offset=start_offset,
+                ts_end_offset=end_offset,
+                length=None
+            )
+            db.session.commit()
+
+            return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
+
+    start_offset = request.args.get("start_offset")
+    end_offset = request.args.get("end_offset")
+    selected_text = request.args.get("selected_text")
 
     this_lesson = lesson.get_lesson(lid)
     saved_comments = comment.get_comment_by("lid", lid)
@@ -141,11 +184,18 @@ def individual_lesson(cid, lid):
     # results["video_path"] = os.path.join(os.path.abspath(current_app.config["UPLOAD_FOLDER"]), this_lesson.videofn)
 
     results["transcripts"] = this_lesson.transcripts
-    results["comments"] = this_lesson.comments
+    # results["comments"] = this_lesson.comments
 
     results["cid"] = cid
     results["lid"] = lid
 
     results["highlights"] = [h.to_dict() for h in saved_comments]
+
+    if start_offset and end_offset:
+        results["comment_form_data"] = {
+            "start_offset": start_offset,
+            "end_offset": end_offset,
+            "selected_text": selected_text
+        }
 
     return render_template("lesson.html", results=results)

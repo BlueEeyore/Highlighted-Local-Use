@@ -61,7 +61,7 @@ def get_users(cid):
         error.push_log("failed to query class", e, sys.exc_info())
         return None
 
-    # get classes associated with queried class
+    # get users associated with queried class
     try:
         users = [uc.user for uc in clazz.userclasses]
     except Exception as e:
@@ -69,6 +69,27 @@ def get_users(cid):
         return None
 
     return users
+
+
+def get_lessons(cid):
+    """returns lessons that are in a class"""
+    logger.debug(f"getting lessons in class with {cid}")
+
+    # query class with cid
+    try:
+        clazz = Class.query.get(cid)
+    except Exception as e:
+        error.push_log("failed to query class", e, sys.exc_info())
+        return None
+
+    # get lessons associated with queried class
+    try:
+        lessons = clazz.lessons
+    except Exception as e:
+        error.push_log("failed to query class for lessons", e, sys.exc_info())
+        return None
+
+    return lessons
 
 
 def insert(name, joincode, starttime):
@@ -84,3 +105,5 @@ def insert(name, joincode, starttime):
     except Exception as e:
         error.push_log(f"failed to add new class {new_class} to db", e, sys.exc_info())
         db.session.rollback()
+        return None
+    return new_class

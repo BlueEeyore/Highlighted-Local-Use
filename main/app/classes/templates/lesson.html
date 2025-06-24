@@ -4,28 +4,58 @@
 
 <div class="row">
     <video width="240" height="240" controls>
-        <source src="{{url_for('static', filename='files/' + results['videofn'])}}" type="{{results['mime_type']}}">
+        <source src="{{url_for('static', filename='files/' + results.videofn)}}" type="{{results.mimetype}}">
     </video>
 </div>
 
 <div class="row">
-    <div id="text-container">
-        <p>
-            {% for segment in results["transcripts"] %}
-                <span class="transcript-segment">{{segment.text}}</span>
-            {% endfor %}
-        </p>
+    <div class="col-md-10">
+        <div id="text-container">
+            <p>
+                {% for segment in results["transcripts"] %}
+                    <span class="transcript-segment">{{segment.text}}</span>
+                {% endfor %}
+            </p>
+        </div>
+
+        <!-- This is the pop-up menu. It's hidden by default with CSS. -->
+        <div id="highlight-menu">
+            <button id="highlight-btn">Highlight</button>
+            <button id="comment-btn">Comment</button>
+        </div>
     </div>
-
-    <!-- This is the pop-up menu. It's hidden by default with CSS. -->
-    <div id="highlight-menu">
-        <button id="highlight-btn">Highlight</button>
-        <!-- add more options here like "comment" etc -->
+    <div class="col-md-2">
+        <div class="row">
+            <div id="comment-sidebar">
+                {% for comment in results.highlights %}
+                    <div class="comment">
+                        <div class="comment-creator">{{comment.uid}}</div>
+                        <div class="comment-content">{{comment.content}}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
-
-<!-- <div id='annotation-list'></div> -->
-
 </div>
+
+
+
+{% if results.comment_form_data %}
+<div class="row">
+    <div class="comment-form">
+        <form method="POST">
+            <input type="hidden" name="start_offset" value="{{ results.comment_form_data.start_offset }}">
+            <input type="hidden" name="end_offset" value="{{ results.comment_form_data.end_offset }}">
+            <input type="hidden" name="selected_text" value="{{ results.comment_form_data.selected_text }}">
+            
+            <label>Add your comment for: "{{ results.comment_form_data.selected_text }}"</label>
+            <textarea name="comment_text" required></textarea>
+            
+            <button type="submit">Save Comment</button>
+        </form>
+    </div>
+</div>
+{% endif %}
 
 
 {% endblock %}

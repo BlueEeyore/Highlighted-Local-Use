@@ -1,4 +1,4 @@
-from flask import render_template, abort, current_app, Blueprint, redirect, url_for
+from flask import render_template, abort, current_app, Blueprint, redirect, url_for, request
 import os
 from app import session_globals
 from app.database.models import db
@@ -46,8 +46,10 @@ def login():
 
         # add uid to session
         session_globals.set("uid", uid)
-        logger.debug(f"the session globals dict is now {session_globals._get_globs()}")
-        logger.debug(f"the uid in session globals dict is now {session_globals.get('uid')}")
+        next_page = request.args.get("next")
+        if next_page:
+            logger.debug(f"login successful - redirecting to previous url {next_page} for user with uid {uid}")
+            return redirect(next_page)
         logger.debug(f"login successful - redirecting to classes page for user with uid {uid}")
         return redirect(url_for("classes.classes", uid=uid))
 

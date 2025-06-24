@@ -1,5 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
 
+{% for lesson in lessons %}
+    <a href="/classes/{{cid}}/{{lesson.id}}" class="btn btn-primary">{{lesson.name}}</a>
+{% endfor %}
 
 {% endblock %}

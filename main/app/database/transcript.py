@@ -64,6 +64,8 @@ def insert(lid, timestamp, text):
     except Exception as e:
         error.push_log(f"failed to insert transcript {new_transcript} to db", e, sys.exc_info())
         db.session.rollback()
+        return None
+    return new_transcript
 
 
 def insert_transcript(lid, transcript_dict):
@@ -83,3 +85,6 @@ def insert_transcript(lid, transcript_dict):
         db.session.commit()
     except Exception as e:
         error.push_log(f"failed to commit db changes", e, sys.exc_info())
+        db.session.rollback()
+        return None
+    return True

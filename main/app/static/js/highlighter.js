@@ -9,22 +9,44 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Listeners for Pop-up Menu ---
 
     textContainer.addEventListener('mouseup', (event) => {
-        // Use a small timeout to allow the selection to finalize
         setTimeout(() => {
             const selection = window.getSelection();
-            // Ignore collapsed selections or selections outside the container
             if (selection.isCollapsed || !textContainer.contains(selection.anchorNode)) {
                 menu.style.display = 'none';
                 return;
             }
-
+    
             currentRange = selection.getRangeAt(0);
             const rect = currentRange.getBoundingClientRect();
+    
+            // Step 1: Make menu visible but hidden to measure size
+            menu.style.visibility = 'hidden';
             menu.style.display = 'block';
-            menu.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (menu.offsetWidth / 2)}px`;
-            menu.style.top = `${rect.top + window.scrollY - menu.offsetHeight - 5}px`;
+    
+            const menuWidth = menu.offsetWidth;
+            const menuHeight = menu.offsetHeight;
+    
+            // Step 2: Calculate initial centered position
+            let left = rect.left + window.scrollX + (rect.width / 2) - (menuWidth / 2);
+            let top = rect.top + window.scrollY - menuHeight - 5;
+    
+            // Step 3: Clamp position to prevent off-screen
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+    
+            // Clamp horizontally
+            left = Math.max(5, Math.min(left, viewportWidth - menuWidth - 5));
+    
+            // Clamp vertically (optional, but avoids negative top)
+            top = Math.max(5, top);
+    
+            // Step 4: Apply final position and show menu
+            menu.style.left = `${left}px`;
+            menu.style.top = `${top}px`;
+            menu.style.visibility = 'visible';
         }, 10);
     });
+    
 
     document.addEventListener('mousedown', (event) => {
         if (!menu.contains(event.target) && menu.style.display === 'block') {
@@ -49,7 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     start_offset: offsets.start,
                     end_offset: offsets.end,
-                    text: currentRange.toString() // Also useful to save the text itself
+                    text: currentRange.toString(), // Also useful to save the text itself
+                    comtype: 'highlight'
                 })
             });
 
@@ -197,4 +220,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initial Execution ---
     applySavedHighlights();
+
+
+    const commentButton = document.getElementById('comment-btn');
+
+    commentButton.addEventListener('click', () => {
+        if (!currentRange) {
+            alert("Please highlight text before adding a comment.");
+            return;
+        }
+
+        try {
+            const offsets = getRangeCharacterOffset(textContainer, currentRange);
+
+            const params = new URLSearchParams({
+                start_offset: offsets.start,
+                end_offset: offsets.end,
+                selected_text: currentRange.toString()
+            });
+
+            // Navigate to the same page with parameters for the backend
+            window.location.href = `${currentURL}?${params.toString()}`;
+
+        } catch (error) {
+            console.error("Error calculating offsets for comment:", error);
+            alert("Could not prepare comment. Please try again.");
+        }
+    });
 });
