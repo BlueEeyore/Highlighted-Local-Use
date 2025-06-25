@@ -29,7 +29,7 @@
             {% for comment in results.highlights %}
                 {% if comment.comtype == "comment" %}
                     <div class="comment" data-comment-id="{{comment.id}}">
-                        <div class="comment-creator">{{comment.uid}}</div>
+                        <div class="comment-creator">{{comment.creator}}</div>
                         <div class="comment-content">{{comment.content}}</div>
                     </div>
                 {% endif %}

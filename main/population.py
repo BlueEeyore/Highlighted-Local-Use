@@ -35,8 +35,8 @@ def add_users(n=100):
     user.insert(
             email="test@gmail.com",
             password=consistent_hash("password"),
-            firstname="firstname",
-            lastname="lastname",
+            firstname="John",
+            lastname="Smith",
             bio="random bio",
             school="burnside high school",
             pfp=None,

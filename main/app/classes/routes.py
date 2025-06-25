@@ -197,8 +197,10 @@ def individual_lesson(cid, lid):
     results["cid"] = cid
     results["lid"] = lid
 
-    # gets dictionary form for every comment
+    # gets every comment in dictionary form
     results["highlights"] = [h.to_dict() for h in saved_comments]
+    # sorts by start offset and then end offset and then id
+    results["highlights"].sort(key = lambda x : [x["ts_start_offset"], x["ts_end_offset"], x["id"]])
     
     # javascript sends get request when user selects "comment"
     # if user didn't select "comment", these values will just be None

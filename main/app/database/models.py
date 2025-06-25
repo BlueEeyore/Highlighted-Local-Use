@@ -27,6 +27,7 @@ class User(db.Model):
 
     lessons = db.relationship("Lesson", backref="user")    
     userclasses = db.relationship("UserClass", back_populates="user")
+    comments = db.relationship("Comment", back_populates="user")
 
 
 class Class(db.Model):
@@ -80,6 +81,7 @@ class Comment(db.Model):
     length = db.Column(db.Integer)
 
     parents = db.relationship("Comment", remote_side=[id], backref="replies")
+    user = db.relationship("User", back_populates="comments")
 
     def to_dict(self):
         """helper to convert the object to a dictionary"""
@@ -96,5 +98,6 @@ class Comment(db.Model):
             "tsrange": self.tsrange,
             "ts_start_offset": self.ts_start_offset,
             "ts_end_offset": self.ts_end_offset,
-            "length": self.length
+            "length": self.length,
+            "creator": f"{self.user.firstname} {self.user.lastname}"
         }
