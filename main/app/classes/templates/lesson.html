@@ -25,17 +25,15 @@
         </div>
     </div>
     <div class="col-md-2">
-        <div class="row">
-            <div id="comment-sidebar">
-                {% for comment in results.highlights %}
-                    {% if comment.comtype == "comment" %}
-                        <div class="comment">
-                            <div class="comment-creator">{{comment.uid}}</div>
-                            <div class="comment-content">{{comment.content}}</div>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
+        <div id="comment-sidebar w-100">
+            {% for comment in results.highlights %}
+                {% if comment.comtype == "comment" %}
+                    <div class="comment" data-comment-id="{{comment.id}}">
+                        <div class="comment-creator">{{comment.uid}}</div>
+                        <div class="comment-content">{{comment.content}}</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
 </div>

@@ -99,7 +99,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- NEW: Function to apply saved highlights on page load ---
+    // Handle when existing highlight is clicked
+    textContainer.addEventListener('click', (e) => {
+        const target = e.target;
+    
+        if (target.classList.contains('highlight') && target.dataset.commentId) {
+            const commentId = target.dataset.commentId;
+            focusComment(commentId);
+        }
+    });
+
+    // Function to "focus" comment associated with clicked highlight
+    function focusComment(commentId) {
+        const comment = document.querySelector(`.comment[data-comment-id='${commentId}']`);
+
+        if (comment) {
+            // Scroll comment sidebar to bring it into view
+            comment.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Add emphasis effect
+            comment.classList.add('focused-comment');
+
+            // Remove emphasis when clicking outside
+            function handleClickOutside(e) {
+                if (!comment.contains(e.target)) {
+                    comment.classList.remove('focused-comment');
+                    document.removeEventListener('mousedown', handleClickOutside);
+                }
+            }
+
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+    }
+
+    // --- Function to apply saved highlights on page load ---
     function applySavedHighlights() {
         if (!savedHighlights || savedHighlights.length === 0) {
             return;
@@ -114,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             try {
                 const range = createRangeFromOffsets(textContainer, highlight.ts_start_offset, highlight.ts_end_offset);
-                applyHighlight(range);
+                applyHighlight(range, highlight.id);
             } catch (error) {
                 console.error('Could not apply saved highlight:', highlight, error);
             }
@@ -123,9 +156,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Helper Functions ---
 
-    function applyHighlight(range) {
+    function applyHighlight(range, commentId = null) {
         const highlightSpan = document.createElement('span');
         highlightSpan.className = 'highlight';
+        
+        if (commentId) {
+            highlightSpan.dataset.commentId = commentId;
+        }
+
         try {
             // This is the ideal way to wrap a selection
             range.surroundContents(highlightSpan);

@@ -110,28 +110,46 @@ def individual_lesson(cid, lid):
         logger.debug("not logged in, redirecting to login")
         return redirect(url_for("auth.login", next=request.url))
 
+    # post request is sent either when user selects "highlight option"
+    # or submits a comment
     if request.method == "POST":
         logger.debug("information posted to individual_lesson")
         
-        # when user highlights text and either selects "highlight" or "comment"
-        if request.is_json:
-            logger.debug("information posted from javascript meaning user highlighted text and selected an action")
-            data = request.get_json()
-        else:
-            data = request.form
+        # when user highlights text and either selects "highlight",
+        # a request is sent from javascript rather than html
+        try:
+            if request.is_json:
+                logger.debug("""information posted from javascript (meaning
+                            user selected highlight)""")
+                data = request.get_json()
+
+            # when user submits a comment, post request is sent from html
+            else:
+                logger.debug("""information posted from html (meaning user 
+                             selected comment""")
+                data = request.form
+        except Exception as e:
+            # handle error
+            pass
             
-        start_offset = int(data.get("start_offset"))
-        end_offset = int(data.get("end_offset"))
-        selected_text = data.get("selected_text")
-        comtype = data.get("comtype")
+        # grabbing information from frontend
+        try:
+            start_offset = int(data.get("start_offset"))
+            end_offset = int(data.get("end_offset"))
+            selected_text = data.get("selected_text")   # for debugging
+            comtype = data.get("comtype")
 
-        print(f"text highlighted: {data['selected_text']}")
+            # this could be done earlier in the "if request.is_json" but
+            # leaving it separate in case I add more options later
+            if comtype == "comment":
+                comment_content = data.get("comment_text")
+            else:
+                comment_content = None
+        except Exception as e:
+            # handle error
+            pass
 
-        if comtype == "comment":
-            comment_content = data.get("comment_text")
-        else:
-            comment_content = None
-
+        logger.debug("inserting new comment")
         new_comment = comment.insert(
             uid=uid,
             lid=lid,
@@ -146,18 +164,23 @@ def individual_lesson(cid, lid):
             ts_end_offset=end_offset,
             length=None
         )
+        if not new_comment:
+            # handle error
+            pass
         db.session.commit()
 
-        print(new_comment.to_dict())
-        if request.is_json:
-            logger.debug("sending back succes to javascript frontend")
-            return jsonify({"status": "success", "highlight": new_comment.to_dict()})
+        # if request.is_json:
+        #     logger.debug("sending back succes to javascript frontend")
+        #     return jsonify({"status": "success", "highlight": new_comment.to_dict()})
         logger.debug("redirecting back to same page for re-rendering")
         return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
 
-
+    logger.debug("in 'get' section")
     this_lesson = lesson.get_lesson(lid)
-    saved_comments = comment.get_comment_by("lid", lid)
+    if not this_lesson:
+        # handle error
+        pass
+    saved_comments = this_lesson.comments
     results = {}
 
     results["creator"] = this_lesson.creatorid
@@ -174,17 +197,23 @@ def individual_lesson(cid, lid):
     results["cid"] = cid
     results["lid"] = lid
 
+    # gets dictionary form for every comment
     results["highlights"] = [h.to_dict() for h in saved_comments]
     
+    # javascript sends get request when user selects "comment"
+    # if user didn't select "comment", these values will just be None
     start_offset = request.args.get("start_offset")
     end_offset = request.args.get("end_offset")
     selected_text = request.args.get("selected_text")
     
+    # only occurs when user selected "comment"
     if start_offset and end_offset:
+        # make a dictionary with the info for the comment form
         results["comment_form_data"] = {
             "start_offset": start_offset,
             "end_offset": end_offset,
             "selected_text": selected_text
         }
 
+    logger.debug("rendering individual lesson page")
     return render_template("lesson.html", results=results)
