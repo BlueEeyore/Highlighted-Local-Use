@@ -10,8 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     textContainer.addEventListener('mouseup', (event) => {
         setTimeout(() => {
+            console.log("Mouseup detected");
             const selection = window.getSelection();
-            if (selection.isCollapsed || !textContainer.contains(selection.anchorNode)) {
+            const anchorNode = selection.anchorNode;
+            const focusNode = selection.focusNode;
+
+            if (selection.isCollapsed || !anchorNode || !textContainer.contains(anchorNode) || !focusNode || !textContainer.contains(focusNode)) {
                 menu.style.display = 'none';
                 return;
             }

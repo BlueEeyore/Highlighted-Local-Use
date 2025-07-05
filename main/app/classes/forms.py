@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, RadioField, SelectField, SelectMultipleField, TextAreaField, SubmitField, FileField
+from wtforms import StringField, RadioField, SelectField, SelectMultipleField, TextAreaField, SubmitField, FileField, HiddenField
 from wtforms.validators import InputRequired, DataRequired, Length
 
 
@@ -22,3 +22,13 @@ class VideoForm(FlaskForm):
     """form for uploading video"""
     video = FileField("Video", validators=[InputRequired()])
     submit = SubmitField("Upload File")
+    
+
+# comment reply form
+class CommentReplyForm(FlaskForm):
+    """form for replying to comments"""
+    msg = TextAreaField("Reply")
+    parentid = HiddenField()
+    start_offset = HiddenField()
+    end_offset = HiddenField()
+    submit = SubmitField("Submit Reply")

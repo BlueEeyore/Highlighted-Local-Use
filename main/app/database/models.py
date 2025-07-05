@@ -80,8 +80,14 @@ class Comment(db.Model):
     ts_end_offset = db.Column(db.Integer)
     length = db.Column(db.Integer)
 
-    parents = db.relationship("Comment", remote_side=[id], backref="replies")
     user = db.relationship("User", back_populates="comments")
+    replies = db.relationship(
+        "Comment",
+        backref=db.backref("parent", remote_side=[id]),
+        lazy="dynamic",
+        single_parent=True,
+        cascade="all, delete-orphan"    # deletes children when parent is deleted
+    )
 
     def to_dict(self):
         """helper to convert the object to a dictionary"""

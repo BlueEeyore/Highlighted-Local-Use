@@ -7,4 +7,4 @@ app.run(debug=True)
 
 with app.app_context():
     with app.test_request_context():
-        user.test()
+        pass

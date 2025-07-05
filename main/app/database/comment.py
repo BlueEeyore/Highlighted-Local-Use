@@ -43,7 +43,7 @@ def get_comment_by(col_name, val):
     try:
         col_attr = getattr(Comment, col_name)
     except AttributeError as e:
-        error.push_log(f"failed to get attribute for col {col_name} in Comment", e, sys.exc(info))
+        error.push_log(f"failed to get attribute for col {col_name} in Comment", e, sys.exc_info())
         return None
 
     # returning all comments filtered by that column
@@ -51,25 +51,25 @@ def get_comment_by(col_name, val):
     return Comment.query.filter(col_attr==val).all()
 
 
-def get_classes(cid):
-    """returns classes that the user is a part of"""
-    logger.debug(f"getting user classes for {uid}")
+def get_children(cid):
+    """gets all children and grandchildren for given comment id"""
+    logger.debug(f"in get_children for cid {cid}")
+    com = get_comment(cid)
+    children = com.replies.all()
+    logger.info(f"children: {children}")
+    curr_children = com.replies.all()
+    done = False
+    while not done:
+        next_children = []
+        for child in curr_children:
+            if child.replies.all():
+                next_children.extend(child.replies.all())
+        if len(next_children) == 0:
+            done = True
+        children.extend(next_children)
+        curr_children = next_children.copy()
+    return children
 
-    # query user with uid
-    try:
-        user = User.query.get(uid)
-    except Exception as e:
-        error.push_log("failed to query user", e, sys.exc_info())
-        return None
-
-    # get classes associated with queried user
-    try:
-        classes = [uc.clazz for uc in user.userclasses]
-    except Exception as e:
-        error.push_log("failed to query user for uc and then query uc for classes", e, sys.exc_info())
-        return None
-
-    return classes
 
 def insert(uid, lid, parentid, content, uploadtime, anonymous, private, comtype, tsrange, ts_start_offset, ts_end_offset, length):
     """inserts a comment"""

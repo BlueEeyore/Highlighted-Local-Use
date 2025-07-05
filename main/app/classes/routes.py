@@ -5,7 +5,7 @@ from app.transcription import Transcription
 from app.logger_config import get_logger
 from app.database import clazz, user, lesson, transcript, comment
 from app.database.models import db
-from app.classes.forms import VideoForm
+from app.classes.forms import VideoForm, CommentReplyForm
 from werkzeug.utils import secure_filename
 
 logger = get_logger(__name__)
@@ -67,7 +67,7 @@ def create_lesson(cid):
 
     form = VideoForm()
     if form.validate_on_submit():   # when form is submitted
-        logger.debug("form submitted")
+        logger.debug("video form submitted")
 
         # grab video file and save to static folder
         video = form.video.data
@@ -110,12 +110,54 @@ def individual_lesson(cid, lid):
         logger.debug("not logged in, redirecting to login")
         return redirect(url_for("auth.login", next=request.url))
 
-    # post request is sent either when user selects "highlight option"
-    # or submits a comment
+    results = {}
+
+    # gets every comment in dictionary form
+    this_lesson = lesson.get_lesson(lid)
+    saved_comments = this_lesson.comments
+    results["highlights"] = [h.to_dict() for h in saved_comments]
+
+    # sorts by start offset and then end offset and then id
+    results["highlights"].sort(key = lambda x : [x["ts_start_offset"], x["ts_end_offset"], x["id"]])
+
+    parentid = None # if the highlights aren't replies this will remain as None
+    reply_forms = {}
+    for highlight in results["highlights"]:
+        if highlight["comtype"] in ["comment", "reply"]:
+            # set up individual reply form for each comment
+            form = CommentReplyForm(prefix=f"{highlight['id']}-") # prefix to distinguish forms
+            form.start_offset.data = highlight["ts_start_offset"]
+            form.end_offset.data = highlight["ts_end_offset"]
+            form.parentid.data = highlight["id"]
+
+            reply_forms[highlight['id']] = (highlight, form)
+
+            # if comment reply form was submitted
+            if form.validate_on_submit():
+                logger.debug("comment reply form submitted")
+        
+                comment_content = form.msg.data
+                parentid = int(form.parentid.data)
+                start_offset = int(form.start_offset.data)
+                end_offset = int(form.end_offset.data)
+                comtype = "reply"
+    
+    children_forms = []
+    for com_id in reply_forms:
+        if reply_forms[com_id][0]["comtype"] == "comment":
+           replies = comment.get_children(com_id)
+           logger.info(f"replies: {replies}")
+           children_forms.append((reply_forms[com_id], (reply_forms[reply.id] for reply in replies)))
+           # children_forms is now of format [((parent_dict, form), ((child_dict1, form), (child_dict2, form)...))...]
+
+    # post request is sent when any of the following occur:
+    # - user selects "highlight option"
+    # - user submits a comment
+    # - a reply form was submitted
     if request.method == "POST":
         logger.debug("information posted to individual_lesson")
-        
-        # when user highlights text and either selects "highlight",
+
+        # when user highlights text and selects "highlight",
         # a request is sent from javascript rather than html
         try:
             if request.is_json:
@@ -126,7 +168,7 @@ def individual_lesson(cid, lid):
             # when user submits a comment, post request is sent from html
             else:
                 logger.debug("""information posted from html (meaning user 
-                             selected comment""")
+                            selected comment""")
                 data = request.form
         except Exception as e:
             # handle error
@@ -153,7 +195,7 @@ def individual_lesson(cid, lid):
         new_comment = comment.insert(
             uid=uid,
             lid=lid,
-            parentid=None,
+            parentid=parentid,
             content=comment_content,
             uploadtime=None,
             anonymous=None,
@@ -176,12 +218,9 @@ def individual_lesson(cid, lid):
         return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
 
     logger.debug("in 'get' section")
-    this_lesson = lesson.get_lesson(lid)
     if not this_lesson:
         # handle error
         pass
-    saved_comments = this_lesson.comments
-    results = {}
 
     results["creator"] = this_lesson.creatorid
     results["name"] = this_lesson.name
@@ -192,15 +231,9 @@ def individual_lesson(cid, lid):
     # results["video_path"] = os.path.join(os.path.abspath(current_app.config["UPLOAD_FOLDER"]), this_lesson.videofn)
 
     results["transcripts"] = this_lesson.transcripts
-    # results["comments"] = this_lesson.comments
 
     results["cid"] = cid
     results["lid"] = lid
-
-    # gets every comment in dictionary form
-    results["highlights"] = [h.to_dict() for h in saved_comments]
-    # sorts by start offset and then end offset and then id
-    results["highlights"].sort(key = lambda x : [x["ts_start_offset"], x["ts_end_offset"], x["id"]])
     
     # javascript sends get request when user selects "comment"
     # if user didn't select "comment", these values will just be None
@@ -216,6 +249,6 @@ def individual_lesson(cid, lid):
             "end_offset": end_offset,
             "selected_text": selected_text
         }
-
     logger.debug("rendering individual lesson page")
-    return render_template("lesson.html", results=results)
+    logger.info(f"children forms: {children_forms}")
+    return render_template("lesson.html", results=results, reply_forms=reply_forms, comment_forms=children_forms)
