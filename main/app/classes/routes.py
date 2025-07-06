@@ -7,6 +7,7 @@ from app.database import clazz, user, lesson, transcript, comment
 from app.database.models import db
 from app.classes.forms import VideoForm, CommentReplyForm
 from werkzeug.utils import secure_filename
+import sys
 
 logger = get_logger(__name__)
 # basedir = os.path.abspath(os.path.dirname(__file__))
@@ -110,10 +111,14 @@ def individual_lesson(cid, lid):
         logger.debug("not logged in, redirecting to login")
         return redirect(url_for("auth.login", next=request.url))
 
+    # preparing the results dict that will be passed to frontend
     results = {}
 
     # gets every comment in dictionary form
     this_lesson = lesson.get_lesson(lid)
+    if not this_lesson:
+        error.push_log("failed to find lesson that corresponds with url lid")
+        abort(500)
     saved_comments = this_lesson.comments
     results["highlights"] = [h.to_dict() for h in saved_comments]
 
@@ -136,6 +141,7 @@ def individual_lesson(cid, lid):
             if form.validate_on_submit():
                 logger.debug("comment reply form submitted")
         
+                # getting data from form submission
                 comment_content = form.msg.data
                 parentid = int(form.parentid.data)
                 start_offset = int(form.start_offset.data)
@@ -145,10 +151,13 @@ def individual_lesson(cid, lid):
     children_forms = []
     for com_id in reply_forms:
         if reply_forms[com_id][0]["comtype"] == "comment":
-           replies = comment.get_children(com_id)
-           logger.info(f"replies: {replies}")
-           children_forms.append((reply_forms[com_id], (reply_forms[reply.id] for reply in replies)))
-           # children_forms is now of format [((parent_dict, form), ((child_dict1, form), (child_dict2, form)...))...]
+            replies = comment.get_children(com_id)
+            if not replies:
+                error.push_log("failed to get comment replies")
+                abort(500)
+            children_forms.append((reply_forms[com_id], (reply_forms[reply.id] for reply in replies)))
+            # children_forms is now of format
+            # [((parent_dict, form), ((child_dict1, form), (child_dict2, form)...))...]
 
     # post request is sent when any of the following occur:
     # - user selects "highlight option"
@@ -159,20 +168,24 @@ def individual_lesson(cid, lid):
 
         # when user highlights text and selects "highlight",
         # a request is sent from javascript rather than html
-        try:
-            if request.is_json:
-                logger.debug("""information posted from javascript (meaning
-                            user selected highlight)""")
+        if request.is_json:
+            logger.debug("""information posted from javascript (meaning
+                        user selected highlight)""")
+            try:
                 data = request.get_json()
+            except Exception as e:
+                error.push_log("failed to get form from js frontend", e, sys.exc_info)
+                abort(500)
 
-            # when user submits a comment, post request is sent from html
-            else:
-                logger.debug("""information posted from html (meaning user 
-                            selected comment""")
+        # when user submits a comment, post request is sent from html
+        else:
+            logger.debug("""information posted from html (meaning user 
+                        selected comment""")
+            try:
                 data = request.form
-        except Exception as e:
-            # handle error
-            pass
+            except Exception as e:
+                error.push_log("failed to get form from html frontend", e, sys.exc_info)
+                abort(500)
             
         # grabbing information from frontend
         try:
@@ -188,10 +201,10 @@ def individual_lesson(cid, lid):
             else:
                 comment_content = None
         except Exception as e:
-            # handle error
-            pass
+            error.push_log("failed to grab data from frontend form", e, sys.exc_info)
+            abort(500)
 
-        logger.debug("inserting new comment")
+        # insert new comment/highlight
         new_comment = comment.insert(
             uid=uid,
             lid=lid,
@@ -207,20 +220,17 @@ def individual_lesson(cid, lid):
             length=None
         )
         if not new_comment:
-            # handle error
-            pass
+            error.push_log("failed to insert new comment")
+            abort(500)
         db.session.commit()
 
         # if request.is_json:
-        #     logger.debug("sending back succes to javascript frontend")
+        #     logger.debug("sending back success to javascript frontend")
         #     return jsonify({"status": "success", "highlight": new_comment.to_dict()})
         logger.debug("redirecting back to same page for re-rendering")
         return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
 
     logger.debug("in 'get' section")
-    if not this_lesson:
-        # handle error
-        pass
 
     results["creator"] = this_lesson.creatorid
     results["name"] = this_lesson.name
@@ -241,14 +251,14 @@ def individual_lesson(cid, lid):
     end_offset = request.args.get("end_offset")
     selected_text = request.args.get("selected_text")
     
-    # only occurs when user selected "comment"
-    if start_offset and end_offset:
+    
+    if start_offset and end_offset:     # only occurs when user selected "comment"
         # make a dictionary with the info for the comment form
         results["comment_form_data"] = {
             "start_offset": start_offset,
             "end_offset": end_offset,
             "selected_text": selected_text
         }
+
     logger.debug("rendering individual lesson page")
-    logger.info(f"children forms: {children_forms}")
     return render_template("lesson.html", results=results, reply_forms=reply_forms, comment_forms=children_forms)

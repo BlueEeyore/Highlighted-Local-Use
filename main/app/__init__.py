@@ -1,6 +1,7 @@
 from flask import Flask
 from app.database.models import db
 from .logger_config import get_logger
+from app.error_handlers import register_error_handlers
 
 
 def create_app():
@@ -49,6 +50,10 @@ def create_app():
 
     # config secret key
     app.config["SECRET_KEY"] = "super-secret-key"
+
+
+    # register error handlers
+    register_error_handlers(app)
 
 
     # running routes

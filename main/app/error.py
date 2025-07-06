@@ -36,10 +36,9 @@ def push_error(e):
 def push_log(msg, e=None, exc_info=None):
     """pushes error to stack in session and logs it"""
     # push error and then msg to error stack
+    push_error(msg)
     if e:
         push_error(str(e))
-    if exc_info:
-        push_error(msg)
 
     # log error
     logger.error(msg, exc_info=exc_info)

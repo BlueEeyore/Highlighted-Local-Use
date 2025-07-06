@@ -13,7 +13,7 @@
         <div id="text-container">
             <p>
                 {% for segment in results["transcripts"] %}
-                    <span class="transcript-segment">{{segment.text}}</span>
+                <span class="transcript-segment">{{segment.text}}</span>
                 {% endfor %}
             </p>
         </div>
@@ -51,45 +51,45 @@
                 {% endif %} 
             {% endfor %} #}
             {% for comment_form, replies in comment_forms %}
-                {% set comment, form = comment_form[0], comment_form[1] %}
-                <div class="comment" data-comment-id="{{comment.id}}">
-                    <div class="comment-creator">{{comment.creator}}</div>
-                    <div class="comment-content">{{comment.content}}</div>
+            {% set comment, form = comment_form[0], comment_form[1] %}
+            <div class="comment" data-comment-id="{{comment.id}}">
+                <div class="comment-creator">{{comment.creator}}</div>
+                <div class="comment-content">{{comment.content}}</div>
+                <div class="comment-reply">
+                    <form method="POST">
+                        {{form.hidden_tag()}}
+
+                        {{form.parentid(value=comment['id'])}}
+                        {{form.start_offset(value=comment.ts_start_offset)}}
+                        {{form.end_offset(value=comment.ts_end_offset)}}
+
+                        {{form.msg.label()}}
+                        {{form.msg()}}
+
+                        {{form.submit()}}
+                    </form>
+                </div>
+                <div class="comment-replies">
+                    {% for reply, reply_form in replies %}
+                    <div class="comment-creator">{{reply.creator}}</div>
+                    <div class="comment-content">{{reply.content}}</div>
                     <div class="comment-reply">
                         <form method="POST">
-                            {{form.hidden_tag()}}
+                            {{reply_form.hidden_tag()}}
 
-                            {{form.parentid(value=comment['id'])}}
-                            {{form.start_offset(value=comment.ts_start_offset)}}
-                            {{form.end_offset(value=comment.ts_end_offset)}}
+                            {{reply_form.parentid(value=reply['id'])}}
+                            {{reply_form.start_offset(value=reply.ts_start_offset)}}
+                            {{reply_form.end_offset(value=reply.ts_end_offset)}}
 
-                            {{form.msg.label()}}
-                            {{form.msg()}}
+                            {{reply_form.msg.label()}}
+                            {{reply_form.msg()}}
 
-                            {{form.submit()}}
+                            {{reply_form.submit()}}
                         </form>
                     </div>
-                    <div class="comment-replies">
-                        {% for reply, reply_form in replies %}
-                            <div class="comment-creator">{{reply.creator}}</div>
-                            <div class="comment-content">{{reply.content}}</div>
-                            <div class="comment-reply">
-                                <form method="POST">
-                                    {{reply_form.hidden_tag()}}
-    
-                                    {{reply_form.parentid(value=reply['id'])}}
-                                    {{reply_form.start_offset(value=reply.ts_start_offset)}}
-                                    {{reply_form.end_offset(value=reply.ts_end_offset)}}
-    
-                                    {{reply_form.msg.label()}}
-                                    {{reply_form.msg()}}
-    
-                                    {{reply_form.submit()}}
-                                </form>
-                            </div>
-                        {% endfor %}
-                    </div>
+                    {% endfor %}
                 </div>
+            </div>
             {% endfor %}
 
         </div>
@@ -106,10 +106,10 @@
             <input type="hidden" name="end_offset" value="{{ results.comment_form_data.end_offset }}">
             <input type="hidden" name="selected_text" value="{{ results.comment_form_data.selected_text }}">
             <input type="hidden" name="comtype" value="comment">
-            
+
             <label>Add your comment for: "{{ results.comment_form_data.selected_text }}"</label>
             <textarea name="comment_text" required></textarea>
-            
+
             <button type="submit">Save Comment</button>
         </form>
     </div>
@@ -123,7 +123,7 @@
 <script>
     // Pass the highlights data from Flask/Jinja2 into a JavaScript variable
     // The `|tojson` filter is crucial for safely embedding the data.
-    const savedHighlights = {{ results.highlights|tojson }};
+    const savedHighlights = {{ results.highlights| tojson }};
     const currentURL = window.location.pathname; // This will be "/classes/<cid>/<lid>"
 </script>
 

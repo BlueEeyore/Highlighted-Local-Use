@@ -55,15 +55,24 @@ def get_children(cid):
     """gets all children and grandchildren for given comment id"""
     logger.debug(f"in get_children for cid {cid}")
     com = get_comment(cid)
-    children = com.replies.all()
-    logger.info(f"children: {children}")
-    curr_children = com.replies.all()
+    if not com:
+        error.push_log("couldn't find comment")
+        return None
+    # this long sql query that is used several times throughout this function
+    # queries for the replies of the comment and then orders them by
+    # upload time
+    try:
+        children = com.replies.order_by(Comment.uploadtime).all()
+    except Exception as e:
+        error.push_log("couldn't query replies and order by uploadtime", e, sys.exc_info())
+        return None
+    curr_children = children.copy()
     done = False
     while not done:
         next_children = []
         for child in curr_children:
             if child.replies.all():
-                next_children.extend(child.replies.all())
+                next_children.extend(child.replies.order_by(Comment.uploadtime).all())
         if len(next_children) == 0:
             done = True
         children.extend(next_children)
