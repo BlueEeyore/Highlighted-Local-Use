@@ -53,7 +53,7 @@ def get_comment_by(col_name, val):
 
 def get_children(cid):
     """gets all children and grandchildren for given comment id"""
-    logger.debug(f"in get_children for cid {cid}")
+    logger.debug(f"getting children for comment with cid {cid}")
     com = get_comment(cid)
     if not com:
         error.push_log("couldn't find comment")
@@ -77,6 +77,7 @@ def get_children(cid):
             done = True
         children.extend(next_children)
         curr_children = next_children.copy()
+    logger.info(f"returning children {children}")
     return children
 
 

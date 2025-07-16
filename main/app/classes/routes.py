@@ -65,6 +65,15 @@ def individual_class(cid):
 @classes_bp.route("/<int:cid>/createlesson", methods=['GET', 'POST'])
 def create_lesson(cid):
     logger.debug("in create_lesson")
+    
+    # getting uid
+    logger.debug("getting uid")
+    uid = session_globals.get("uid")
+
+    # checking if uid isn't in session, then redirects to login
+    if not uid:
+        logger.debug("not logged in, redirecting to login")
+        return redirect(url_for("auth.login", next=request.url))
 
     form = VideoForm()
     if form.validate_on_submit():   # when form is submitted
@@ -85,7 +94,7 @@ def create_lesson(cid):
         db.session.commit()
         
         # transcribe video
-        transcriber = Transcription()
+        transcriber = session_globals.get_transcriber()
         transcript_dict = transcriber.trans_video(file_path)
         transcript.insert_transcript(new_lesson.id, transcript_dict)
 
@@ -130,10 +139,12 @@ def individual_lesson(cid, lid):
     for highlight in results["highlights"]:
         if highlight["comtype"] in ["comment", "reply"]:
             # set up individual reply form for each comment
-            form = CommentReplyForm(prefix=f"{highlight['id']}-") # prefix to distinguish forms
+            # form = CommentReplyForm(prefix=f"{highlight['id']}-") # prefix to distinguish forms
+            form = CommentReplyForm()
             form.start_offset.data = highlight["ts_start_offset"]
             form.end_offset.data = highlight["ts_end_offset"]
             form.parentid.data = highlight["id"]
+            form.comtype.data = highlight["comtype"]
 
             reply_forms[highlight['id']] = (highlight, form)
 
@@ -152,10 +163,12 @@ def individual_lesson(cid, lid):
     for com_id in reply_forms:
         if reply_forms[com_id][0]["comtype"] == "comment":
             replies = comment.get_children(com_id)
-            if not replies:
+            if replies is None:
                 error.push_log("failed to get comment replies")
                 abort(500)
-            children_forms.append((reply_forms[com_id], (reply_forms[reply.id] for reply in replies)))
+            logger.info(f"REPLY FORMS: {reply_forms}")
+            logger.info(f"REPLIES: {[reply.id for reply in replies]}")
+            children_forms.append((reply_forms[com_id], tuple([reply_forms[reply.id] for reply in replies])))
             # children_forms is now of format
             # [((parent_dict, form), ((child_dict1, form), (child_dict2, form)...))...]
 
@@ -193,6 +206,7 @@ def individual_lesson(cid, lid):
             end_offset = int(data.get("end_offset"))
             selected_text = data.get("selected_text")   # for debugging
             comtype = data.get("comtype")
+            logger.info(start_offset)
 
             # this could be done earlier in the "if request.is_json" but
             # leaving it separate in case I add more options later
@@ -261,4 +275,5 @@ def individual_lesson(cid, lid):
         }
 
     logger.debug("rendering individual lesson page")
+    # logger.info(f"COMMENT DICTS: {children_forms[2][0][1].start_offset}")
     return render_template("lesson.html", results=results, reply_forms=reply_forms, comment_forms=children_forms)

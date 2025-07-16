@@ -1,9 +1,14 @@
 from .logger_config import get_logger
 from flask import session
+from flask_session import Session
 from datetime import timedelta
+from app.transcription import Transcription
+import uuid
+import redis
 
 
 logger = get_logger(__name__)
+session_dicts = {}
 
 
 def session_config(app):
@@ -13,17 +18,19 @@ def session_config(app):
 
     # make the session last a certain amount of time rather than
     # just closing when the browser closes
-    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+    # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=0.5)  # commented for dev
 
 
 def _get_globs():
     """gets global dictionary"""
-    # checking if the global dictionary has been created yet. If not, creates it
-    if "global_dict" not in session:
-        logger.debug("creating global_dict")
-        session["global_dict"] = {}
+    # check whether the session already has a unique id
+    if "uuid" not in session:
+        # give the session a unique id
+        session["uuid"] = str(uuid.uuid4())
 
-    return session["global_dict"]
+        # assign a new empty global dictionary to the new session
+        session_dicts[session["uuid"]] = {}
+    return session_dicts[session["uuid"]]
 
 
 def set(key, value):
@@ -33,14 +40,11 @@ def set(key, value):
     globs = _get_globs()
     globs[key] = value
 
-    # commit session change
-    session.modified = True
-
 
 def get(key):
     """gets value associated with given key
     returns None if key doesn't exist"""
-    logger.debug(f"getting {key}")
+    logger.debug(f"getting {key} from session dict")
 
     globs = _get_globs()
 
@@ -84,6 +88,21 @@ def decrement(key):
     globs[key] -= 1
 
 
+def get_transcriber():
+    """
+    Gets Transcription object instance from session.
+    If instance doesn't exist, creates a new one
+    """
+    logger.debug("getting Transcription object from session")
+
+    transcriber = get("transcription")
+
+    if transcriber is None:
+        logger.debug("Transcription object does not exist in session. Creating new one")
+        transcriber = Transcription()
+        set("transcription", transcriber)
+    
+    return transcriber
 
 
 

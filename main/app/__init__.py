@@ -2,6 +2,7 @@ from flask import Flask
 from app.database.models import db
 from .logger_config import get_logger
 from app.error_handlers import register_error_handlers
+from app import session_globals
 
 
 def create_app():
@@ -40,16 +41,11 @@ def create_app():
 
     # configuring session
     logger.debug("configuring session")
-    from .session_globals import session_config
-    session_config(app)
+    session_globals.session_config(app)
 
 
     # config upload folder
     app.config["UPLOAD_FOLDER"] = "app/static/files"
-
-
-    # config secret key
-    app.config["SECRET_KEY"] = "super-secret-key"
 
 
     # register error handlers

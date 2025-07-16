@@ -59,9 +59,10 @@
                     <form method="POST">
                         {{form.hidden_tag()}}
 
-                        {{form.parentid(value=comment['id'])}}
-                        {{form.start_offset(value=comment.ts_start_offset)}}
-                        {{form.end_offset(value=comment.ts_end_offset)}}
+                        {{form.parentid()}}
+                        {{form.start_offset()}}
+                        {{form.end_offset()}}
+                        {{form.comtype()}}
 
                         {{form.msg.label()}}
                         {{form.msg()}}
@@ -72,14 +73,16 @@
                 <div class="comment-replies">
                     {% for reply, reply_form in replies %}
                     <div class="comment-creator">{{reply.creator}}</div>
+                    <div class="comment-replyto">To: {{results["highlights"][reply.parentid]}}</div>
                     <div class="comment-content">{{reply.content}}</div>
                     <div class="comment-reply">
                         <form method="POST">
                             {{reply_form.hidden_tag()}}
 
-                            {{reply_form.parentid(value=reply['id'])}}
-                            {{reply_form.start_offset(value=reply.ts_start_offset)}}
-                            {{reply_form.end_offset(value=reply.ts_end_offset)}}
+                            {{reply_form.parentid()}}
+                            {{reply_form.start_offset()}}
+                            {{reply_form.end_offset()}}
+                            {{reply_form.comtype()}}
 
                             {{reply_form.msg.label()}}
                             {{reply_form.msg()}}

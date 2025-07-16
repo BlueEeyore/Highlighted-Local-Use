@@ -31,4 +31,5 @@ class CommentReplyForm(FlaskForm):
     parentid = HiddenField()
     start_offset = HiddenField()
     end_offset = HiddenField()
+    comtype = HiddenField()
     submit = SubmitField("Submit Reply")

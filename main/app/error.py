@@ -25,11 +25,7 @@ class LogicalStack:
 def push_error(e):
     """pushes error to stack in session
     if stack not yet in session then adds it to session"""
-    error_stack = session_globals.get("error_stack")
-    if not error_stack:
-        error_stack = LogicalStack()
-        error_stack.push(e)
-        session_globals.set("error_stack", error_stack)
+    error_stack = get_stack()
     error_stack.push(e)
 
 
@@ -47,11 +43,12 @@ def push_log(msg, e=None, exc_info=None):
 def get_stack():
     """returns error stack in session if exists
     otherwise initialises in session and returns new stack"""
+    logger.debug("getting error stack")
     error_stack = session_globals.get("error_stack")
     if not error_stack:
-        new_error_stack = LogicalStack()
-        session_globals.set("error_stack", new_error_stack)
-        return session_globals.get("error_stack")
+        logger.debug("error stack not in session. Creating new one")
+        error_stack = LogicalStack()
+        session_globals.set("error_stack", error_stack)
     return error_stack
 
 
