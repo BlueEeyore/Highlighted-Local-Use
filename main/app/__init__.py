@@ -24,6 +24,11 @@ def create_app():
     logger.debug("initialising db")
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Hello_21!@localhost:3306/13dtp'
     db.init_app(app)
+    
+
+    # configuring session
+    logger.debug("configuring session")
+    session_globals.session_config(app)
 
 
     # register blueprints from different modules
@@ -37,11 +42,6 @@ def create_app():
     app.register_blueprint(classes_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(account_bp)
-
-
-    # configuring session
-    logger.debug("configuring session")
-    session_globals.session_config(app)
 
 
     # config upload folder

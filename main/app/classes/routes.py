@@ -94,16 +94,20 @@ def create_lesson(cid):
         db.session.commit()
         
         # transcribe video
+        logger.debug("about to transcribe video")
         transcriber = session_globals.get_transcriber()
         transcript_dict = transcriber.trans_video(file_path)
         transcript.insert_transcript(new_lesson.id, transcript_dict)
+        logger.info("successfully inserted transcript")
 
         # get the id for the lesson just inserted
         lid = new_lesson.id
 
+        logger.debug("redirecting to individual_lesson route")
         return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
 
 
+    logger.debug("rendering create_lesson template")
     return render_template("create_lesson.html", form=form)
 
 
