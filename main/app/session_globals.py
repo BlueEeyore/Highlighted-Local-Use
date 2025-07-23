@@ -129,21 +129,21 @@ def decrement(key):
     globs[key] -= 1
 
 
-def get_transcriber():
-    """
-    Gets Transcription object instance from session.
-    If instance doesn't exist, creates a new one
-    """
-    logger.debug("getting Transcription object from session")
+# def get_transcriber():
+#     """
+#     Gets Transcription object instance from session.
+#     If instance doesn't exist, creates a new one
+#     """
+#     logger.debug("getting Transcription object from session")
 
-    transcriber = get("transcription")
+#     transcriber = get("transcription")
 
-    if transcriber is None:
-        logger.debug("Transcription object does not exist in session. Creating new one")
-        transcriber = Transcription()
-        set("transcription", transcriber)
+#     if transcriber is None:
+#         logger.debug("Transcription object does not exist in session. Creating new one")
+#         transcriber = Transcription()
+#         set("transcription", transcriber)
     
-    return transcriber
+#     return transcriber
 
 
 

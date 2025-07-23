@@ -95,7 +95,7 @@ def create_lesson(cid):
         
         # transcribe video
         logger.debug("about to transcribe video")
-        transcriber = session_globals.get_transcriber()
+        transcriber = Transcription()
         transcript_dict = transcriber.trans_video(file_path)
         transcript.insert_transcript(new_lesson.id, transcript_dict)
         logger.info("successfully inserted transcript")

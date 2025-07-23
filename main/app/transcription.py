@@ -6,6 +6,7 @@ from .logger_config import get_logger
 from app import error
 import sys
 
+whisper_model = None
 logger = get_logger(__name__)
 
 WHISPER_MODEL = {
@@ -16,21 +17,25 @@ WHISPER_MODEL = {
 
 
 class Transcription:
-    def __init__(self, model="small"):
-        "initialising whisper model to be used"
-        logger.debug("initialising whisper model")
+    def __init__(self, model_size="small"):
+        """initialises Transcription class instance"""
+        global whisper_model
+        logger.debug("initialising Transcription class instance")
 
-        model_name = WHISPER_MODEL[model]
-
+        model_name = WHISPER_MODEL[model_size]
         self.model_str = model_name
 
-        try:
-            self.model = whisper.load_model(model_name)
-        except KeyboardInterrupt:
-            raise
-        except Exception as e:
-            error.push_log(f"Unexpected error while loading Whisper model {model_name}", e, sys.exc_info())
-            return None
+        logger.info(f"MODEL: {whisper_model}")
+        if whisper_model is None:
+            logger.info("whisper model not yet initialised. Initialising now")
+            try:
+                whisper_model = whisper.load_model(model_name)
+            except KeyboardInterrupt:
+                raise
+            except Exception as e:
+                error.push_log(f"Unexpected error while loading Whisper model {model_name}", e, sys.exc_info())
+                return None
+            logger.info("whisper model successfully initialised")
 	# except FileNotFoundError:
 	#     logger.exception("Model file not found or failed to download")
 	#     error.push_error("Model file missing or inaccessible")
@@ -55,6 +60,7 @@ class Transcription:
         
     def trans_audio(self, audio_file):
         """takes audio file as input and outputs transcription"""
+        global whisper_model
         logger.debug("transcribing audio")
 
         # check whether inputted audio file exists
@@ -64,7 +70,7 @@ class Transcription:
 
         # running the transcription on the audio file
         try:
-            result = self.model.transcribe(audio_file, fp16=False)
+            result = whisper_model.transcribe(audio_file, fp16=False)
         except KeyboardInterrupt:
             raise
         except Exception as e:
