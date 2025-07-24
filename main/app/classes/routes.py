@@ -22,7 +22,6 @@ def classes():
     logger.debug("in classes")
 
     # getting uid
-    logger.info(f"session globals dict is now {session_globals._get_globs()}")
     uid = session_globals.get("uid")
 
     # checking if uid isn't in session, then redirects to login
@@ -138,13 +137,13 @@ def individual_lesson(cid, lid):
     # sorts by start offset and then end offset and then id
     results["highlights"].sort(key = lambda x : [x["ts_start_offset"], x["ts_end_offset"], x["id"]])
 
-    parentid = None # if the highlights aren't replies this will remain as None
+    parentid = None # if the submittion isn't a replies this will remain as None
     reply_forms = {}
     for highlight in results["highlights"]:
         if highlight["comtype"] in ["comment", "reply"]:
             # set up individual reply form for each comment
-            # form = CommentReplyForm(prefix=f"{highlight['id']}-") # prefix to distinguish forms
-            form = CommentReplyForm()
+            form = CommentReplyForm(prefix=f"{highlight['id']}-") # prefix to distinguish forms
+            # form = CommentReplyForm()
             form.start_offset.data = highlight["ts_start_offset"]
             form.end_offset.data = highlight["ts_end_offset"]
             form.parentid.data = highlight["id"]
@@ -155,7 +154,7 @@ def individual_lesson(cid, lid):
             # if comment reply form was submitted
             if form.validate_on_submit():
                 logger.debug("comment reply form submitted")
-        
+
                 # getting data from form submission
                 comment_content = form.msg.data
                 parentid = int(form.parentid.data)
@@ -183,44 +182,46 @@ def individual_lesson(cid, lid):
     if request.method == "POST":
         logger.debug("information posted to individual_lesson")
 
-        # when user highlights text and selects "highlight",
-        # a request is sent from javascript rather than html
-        if request.is_json:
-            logger.debug("""information posted from javascript (meaning
-                        user selected highlight)""")
-            try:
-                data = request.get_json()
-            except Exception as e:
-                error.push_log("failed to get form from js frontend", e, sys.exc_info)
-                abort(500)
+        # parentid is None if submission wasn't a reply
+        if parentid is None:
+            # when user highlights text and selects "highlight",
+            # a request is sent from javascript rather than html
+            if request.is_json:
+                logger.debug("""information posted from javascript (meaning
+                            user selected highlight)""")
+                try:
+                    data = request.get_json()
+                except Exception as e:
+                    error.push_log("failed to get form from js frontend", e, sys.exc_info)
+                    abort(500)
 
-        # when user submits a comment, post request is sent from html
-        else:
-            logger.debug("""information posted from html (meaning user 
-                        selected comment""")
-            try:
-                data = request.form
-            except Exception as e:
-                error.push_log("failed to get form from html frontend", e, sys.exc_info)
-                abort(500)
-            
-        # grabbing information from frontend
-        try:
-            start_offset = int(data.get("start_offset"))
-            end_offset = int(data.get("end_offset"))
-            selected_text = data.get("selected_text")   # for debugging
-            comtype = data.get("comtype")
-            logger.info(start_offset)
-
-            # this could be done earlier in the "if request.is_json" but
-            # leaving it separate in case I add more options later
-            if comtype == "comment":
-                comment_content = data.get("comment_text")
+            # when user submits a comment, post request is sent from html
             else:
-                comment_content = None
-        except Exception as e:
-            error.push_log("failed to grab data from frontend form", e, sys.exc_info)
-            abort(500)
+                logger.debug("""information posted from html (meaning user 
+                            selected comment""")
+                try:
+                    data = request.form
+                except Exception as e:
+                    error.push_log("failed to get form from html frontend", e, sys.exc_info)
+                    abort(500)
+                
+            # grabbing information from frontend
+            try:
+                start_offset = int(data.get("start_offset"))
+                end_offset = int(data.get("end_offset"))
+                selected_text = data.get("selected_text")   # for debugging
+                comtype = data.get("comtype")
+                logger.info(start_offset)
+
+                # this could be done earlier in the "if request.is_json" but
+                # leaving it separate in case I add more options later
+                if comtype == "comment":
+                    comment_content = data.get("comment_text")
+                else:
+                    comment_content = None
+            except Exception as e:
+                error.push_log("failed to grab data from frontend form", e, sys.exc_info)
+                abort(500)
 
         # insert new comment/highlight
         new_comment = comment.insert(
@@ -277,7 +278,9 @@ def individual_lesson(cid, lid):
             "end_offset": end_offset,
             "selected_text": selected_text
         }
+    
+    parent_comments = [com[0][0] for com in children_forms]
 
     logger.debug("rendering individual lesson page")
     # logger.info(f"COMMENT DICTS: {children_forms[2][0][1].start_offset}")
-    return render_template("lesson.html", results=results, reply_forms=reply_forms, comment_forms=children_forms)
+    return render_template("lesson.html", results=results, comment_forms=children_forms, parent_comments_json=parent_comments)

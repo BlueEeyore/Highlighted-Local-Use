@@ -16,11 +16,18 @@ dy {
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-/* This is the style for our highlighted text */
+/* This is the style for a standard highlight */
 .highlight {
-    background-color: #ffd700; /* A nice gold yellow */
+    background-color: #fceb9f; /* A light, yellowish highlight color */
+    cursor: pointer;
     border-radius: 3px;
     padding: 1px 0;
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+/* This is the class for a darker, "focused" highlight */
+.focused-highlight {
+    background-color: #f7d94f; /* A darker, more saturated yellow */
 }
 
 /* This is the pop-up menu */
@@ -69,7 +76,7 @@ dy {
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     font-size: 14px;
-    /* cursor: pointer; */
+    cursor: pointer;
 }
 
 /* for when a comment comes into focus after its associated highlight is clicked */

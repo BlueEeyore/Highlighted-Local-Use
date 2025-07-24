@@ -26,75 +26,51 @@
     </div>
     <div class="col-md-2">
         <div id="comment-sidebar" class="w-100">
-            {# {% for comment, form, children_reply_forms in reply_forms %}
-                {% if comment.comtype == "comment" %}
-                    <div class="comment" data-comment-id="{{comment.id}}">
-                        <div class="comment-creator">{{comment.creator}}</div>
-                        <div class="comment-content">{{comment.content}}</div>
-                        <div class="comment-reply">
-                            <form method="POST">
-                                {{form.hidden_tag()}}
-
-                                {{form.parentid(value=comment['id'])}}
-                                {{form.start_offset(value=comment.ts_start_offset)}}
-                                {{form.end_offset(value=comment.ts_end_offset)}}
-
-                                {{form.msg.label()}}
-                                {{form.msg()}}
-
-                                {{form.submit()}}
-                            </form>
-                        </div>
-                        <div class="comment-replies">
-                        </div>
-                    </div>
-                {% endif %} 
-            {% endfor %} #}
             {% for comment_form, replies in comment_forms %}
             {% set comment, form = comment_form[0], comment_form[1] %}
-            <div class="comment" data-comment-id="{{comment.id}}">
-                <div class="comment-creator">{{comment.creator}}</div>
-                <div class="comment-content">{{comment.content}}</div>
-                <div class="comment-reply">
-                    <form method="POST">
-                        {{form.hidden_tag()}}
-
-                        {{form.parentid()}}
-                        {{form.start_offset()}}
-                        {{form.end_offset()}}
-                        {{form.comtype()}}
-
-                        {{form.msg.label()}}
-                        {{form.msg()}}
-
-                        {{form.submit()}}
-                    </form>
-                </div>
-                <div class="comment-replies">
-                    {% for reply, reply_form in replies %}
-                    <div class="comment-creator">{{reply.creator}}</div>
-                    <div class="comment-replyto">To: {{results["highlights"][reply.parentid]}}</div>
-                    <div class="comment-content">{{reply.content}}</div>
+                <div class="comment" data-comment-id="{{comment.id}}">
+                    {{comment.id}}
+                    <div class="comment-creator">{{comment.creator}}</div>
+                    <div class="comment-content">{{comment.content}}</div>
                     <div class="comment-reply">
                         <form method="POST">
-                            {{reply_form.hidden_tag()}}
+                            {{form.hidden_tag()}}
 
-                            {{reply_form.parentid()}}
-                            {{reply_form.start_offset()}}
-                            {{reply_form.end_offset()}}
-                            {{reply_form.comtype()}}
+                            {{form.parentid()}}
+                            {{form.start_offset()}}
+                            {{form.end_offset()}}
+                            {{form.comtype()}}
 
-                            {{reply_form.msg.label()}}
-                            {{reply_form.msg()}}
+                            {{form.msg.label()}}
+                            {{form.msg()}}
 
-                            {{reply_form.submit()}}
+                            {{form.submit()}}
                         </form>
                     </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endfor %}
+                    <div class="comment-replies">
+                        {% for reply, reply_form in replies %}
+                        <div class="comment-creator">{{reply.creator}}</div>
+                        <div class="comment-replyto">To: {{comment.creator}}</div>
+                        <div class="comment-content">{{reply.content}}</div>
+                        <div class="comment-reply">
+                            <form method="POST">
+                                {{reply_form.hidden_tag()}}
 
+                                {{reply_form.parentid()}}
+                                {{reply_form.start_offset()}}
+                                {{reply_form.end_offset()}}
+                                {{reply_form.comtype()}}
+
+                                {{reply_form.msg.label()}}
+                                {{reply_form.msg()}}
+
+                                {{reply_form.submit()}}
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     </div>
 </div>
@@ -126,7 +102,7 @@
 <script>
     // Pass the highlights data from Flask/Jinja2 into a JavaScript variable
     // The `|tojson` filter is crucial for safely embedding the data.
-    const savedHighlights = {{ results.highlights| tojson }};
+    const commentsData = {{ parent_comments_json| tojson }};
     const currentURL = window.location.pathname; // This will be "/classes/<cid>/<lid>"
 </script>
 
