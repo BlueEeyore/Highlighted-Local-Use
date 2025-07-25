@@ -40,6 +40,15 @@ class Class(db.Model):
     lessons = db.relationship("Lesson", backref="clazz")
     userclasses = db.relationship("UserClass", back_populates="clazz")
 
+    def to_dict(self):
+        """helper to convert object into dict"""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "joincode": self.joincode,
+            "starttime": self.starttime
+        }
+
 
 
 class Lesson(db.Model):
@@ -54,6 +63,19 @@ class Lesson(db.Model):
 
     transcripts = db.relationship("Transcript", backref="lesson")
     comments = db.relationship("Comment", backref="lesson")
+
+    def to_dict(self):
+        """helper function to convert object into dictionary form"""
+        return {
+            "id": self.id,
+            "creatorid": self.creatorid,
+            "classid": self.classid,
+            "name": self.name,
+            "videofn": self.videofn,
+            "mimetype": self.mimetype,
+            "creationtime": self.creationtime
+        }
+
 
 
 class Transcript(db.Model):

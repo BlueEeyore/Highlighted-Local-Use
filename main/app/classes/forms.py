@@ -33,3 +33,10 @@ class CommentReplyForm(FlaskForm):
     end_offset = HiddenField()
     comtype = HiddenField()
     submit = SubmitField("Submit Reply")
+
+
+# class button form (currently unused)
+class ClassForm(FlaskForm):
+    """gives the id of class clicked on classes page"""
+    class_id = HiddenField()
+    submit = SubmitField()

@@ -5,7 +5,7 @@ from app.transcription import Transcription
 from app.logger_config import get_logger
 from app.database import clazz, user, lesson, transcript, comment
 from app.database.models import db
-from app.classes.forms import VideoForm, CommentReplyForm
+from app.classes.forms import VideoForm, CommentReplyForm, ClassForm
 from werkzeug.utils import secure_filename
 import sys
 
@@ -28,11 +28,21 @@ def classes():
     if not uid:
         return redirect(url_for("auth.login", next=request.url))
 
+
     # getting all classes belonging to user
     logger.debug("getting user classes")
     user_classes = user.get_classes(uid)
 
-    return render_template("classes.html", classes=user_classes)
+    class_dicts = [user_class.to_dict() for user_class in user_classes]
+    # class_forms = []
+    # for user_class in user_classes:
+    #     class_form = ClassForm(prefix=f"{user_class.id}-")
+    #     class_form.class_id.data = user_class.id
+    #     class_forms.append(class_form)
+
+    # classes_data = list(zip(class_dicts, class_forms))
+
+    return render_template("classes.html", classes_data=class_dicts)
 
 
 @classes_bp.route("/join", methods=['GET', 'POST'])
