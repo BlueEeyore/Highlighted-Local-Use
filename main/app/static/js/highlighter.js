@@ -1,174 +1,185 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- ELEMENT SELECTORS ---
     const textContainer = document.getElementById('text-container');
     const commentSidebar = document.getElementById('comment-sidebar');
-    if (!textContainer || !commentSidebar) return;
-
     const menu = document.getElementById('highlight-menu');
     const highlightButton = document.getElementById('highlight-btn');
+    const commentButton = document.getElementById('comment-btn');
+
+    if (!textContainer || !commentSidebar || !menu) {
+        console.error("A critical element is missing from the page.");
+        return;
+    }
+
     let currentRange = null;
 
-    // --- Pop-up Menu Logic (No Changes) ---
+    // --- POP-UP MENU LOGIC (MODIFIED TO HANDLE OVERLAPS) ---
     textContainer.addEventListener('mouseup', (event) => {
         setTimeout(() => {
             const selection = window.getSelection();
-            if (selection.isCollapsed || !textContainer.contains(selection.anchorNode)) {
+
+            // Hide menu on simple clicks and do nothing.
+            if (selection.isCollapsed) {
                 menu.style.display = 'none';
                 return;
             }
-            currentRange = selection.getRangeAt(0);
-            const rect = currentRange.getBoundingClientRect();
-            menu.style.display = 'block';
-            menu.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (menu.offsetWidth / 2)}px`;
-            menu.style.top = `${rect.top + window.scrollY - menu.offsetHeight - 5}px`;
+
+            if (selection.rangeCount > 0 && textContainer.contains(selection.anchorNode)) {
+                currentRange = selection.getRangeAt(0);
+
+                // --- NEW: OVERLAP DETECTION LOGIC ---
+                let isOverlapping = false;
+                const existingHighlights = textContainer.querySelectorAll('.highlight');
+                for (const highlight of existingHighlights) {
+                    // The intersectsNode() method checks if the user's selection
+                    // crosses the boundary of an existing highlight.
+                    if (currentRange.intersectsNode(highlight)) {
+                        isOverlapping = true;
+                        break; // Found an overlap, no need to check further
+                    }
+                }
+
+                // Enable or disable buttons based on the overlap check.
+                if (isOverlapping) {
+                    highlightButton.disabled = true;
+                    commentButton.disabled = true;
+                } else {
+                    highlightButton.disabled = false;
+                    commentButton.disabled = false;
+                }
+                // --- END OF NEW LOGIC ---
+
+                // Position and show the menu regardless of button state.
+                const rect = currentRange.getBoundingClientRect();
+                menu.style.display = 'block';
+                menu.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (menu.offsetWidth / 2)}px`;
+                menu.style.top = `${rect.top + window.scrollY - menu.offsetHeight - 5}px`;
+            }
         }, 10);
     });
-    
-    // --- Highlight Button Logic (No Changes) ---
+
+    document.addEventListener('mousedown', (event) => {
+        if (!menu.contains(event.target)) {
+            menu.style.display = 'none';
+        }
+    });
+
+
+    // --- FOCUSING, INITIALIZATION, AND HELPER FUNCTIONS ---
+    // (The rest of the file remains the same as the previous version)
+
+    function setFocus(commentId, scrollTarget) {
+        const prevFocusedComment = document.querySelector('.focused-comment');
+        if (prevFocusedComment) prevFocusedComment.classList.remove('focused-comment');
+        const prevFocusedHighlight = document.querySelector('.focused-highlight');
+        if (prevFocusedHighlight) prevFocusedHighlight.classList.remove('focused-highlight');
+
+        if (!commentId) return;
+
+        const commentToFocus = document.querySelector(`.comment[data-comment-id='${commentId}']`);
+        const highlightToFocus = document.querySelector(`.highlight[data-comment-id='${commentId}']`);
+
+        if (commentToFocus) {
+            commentToFocus.classList.add('focused-comment');
+            if (scrollTarget === 'comment') commentToFocus.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        if (highlightToFocus) {
+            highlightToFocus.classList.add('focused-highlight');
+            if (scrollTarget === 'highlight') highlightToFocus.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    textContainer.addEventListener('click', (e) => {
+        const highlightSpan = e.target.closest('.highlight[data-comment-id]');
+        if (highlightSpan) setFocus(highlightSpan.dataset.commentId, 'comment');
+    });
+
+    commentSidebar.addEventListener('click', (e) => {
+        const clickedComment = e.target.closest('.comment');
+        if (clickedComment && clickedComment.dataset.commentId) setFocus(clickedComment.dataset.commentId, 'highlight');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.comment') && !e.target.closest('.highlight') && !e.target.closest('#highlight-menu')) {
+            setFocus(null);
+        }
+    }, true);
+
+    function initializeHighlights() {
+        if (commentsData && commentsData.length > 0) {
+            commentsData.sort((a, b) => a.ts_start_offset - b.ts_start_offset);
+            for (const comment of commentsData) {
+                if (comment.ts_start_offset == null || comment.ts_end_offset == null) continue;
+                try {
+                    applyHighlight(createRangeFromOffsets(textContainer, comment.ts_start_offset, comment.ts_end_offset), comment.id);
+                } catch (error) { console.error('Could not apply comment highlight:', comment, error); }
+            }
+        }
+        if (standaloneHighlights && standaloneHighlights.length > 0) {
+            standaloneHighlights.sort((a, b) => a.ts_start_offset - b.ts_start_offset);
+            for (const highlight of standaloneHighlights) {
+                if (highlight.ts_start_offset == null || highlight.ts_end_offset == null) continue;
+                try {
+                    applyHighlight(createRangeFromOffsets(textContainer, highlight.ts_start_offset, highlight.ts_end_offset), null);
+                } catch (error) { console.error('Could not apply standalone highlight:', highlight, error); }
+            }
+        }
+    }
+
     highlightButton.addEventListener('click', async () => {
         if (!currentRange) return;
         try {
             const offsets = getRangeCharacterOffset(textContainer, currentRange);
-            const response = await fetch(currentURL, {
+            await fetch(currentURL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({
-                    start_offset: offsets.start,
-                    end_offset: offsets.end,
-                    selected_text: currentRange.toString(),
-                    comtype: 'highlight'
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...offsets, selected_text: currentRange.toString(), comtype: 'highlight', posttype: 'highlight' })
             });
-            if (!response.ok) throw new Error('Failed to save highlight');
             window.location.reload();
-        } catch (error) {
-            console.error('Error saving highlight:', error);
-            alert('Could not save your highlight.');
-        } finally {
-            menu.style.display = 'none';
-            window.getSelection().removeAllRanges();
-            currentRange = null;
-        }
+        } catch (error) { console.error('Error saving highlight:', error); alert('Could not save your highlight.'); } finally { menu.style.display = 'none'; }
     });
 
-    // --- THE NEW, UNIFIED FOCUS SYSTEM ---
-
-    /**
-     * Sets focus on a comment and its corresponding highlight.
-     * @param {string} commentId The ID of the item to focus.
-     * @param {string} scrollTarget Which element to scroll into view ('comment' or 'highlight').
-     */
-    function setFocus(commentId, scrollTarget) {
-        // 1. Clear any previous focus from both the sidebar and the main text.
-        const prevFocusedComment = document.querySelector('.focused-comment');
-        if (prevFocusedComment) {
-            prevFocusedComment.classList.remove('focused-comment');
-        }
-        const prevFocusedHighlight = document.querySelector('.focused-highlight');
-        if (prevFocusedHighlight) {
-            prevFocusedHighlight.classList.remove('focused-highlight');
-        }
-
-        // If no commentId is provided, we're done (this is for clearing focus).
-        if (!commentId) return;
-
-        // 2. Find the new elements to focus.
-        const commentToFocus = document.querySelector(`.comment[data-comment-id='${commentId}']`);
-        const highlightToFocus = document.querySelector(`.highlight[data-comment-id='${commentId}']`);
-
-        // 3. Apply the 'focused' classes and scroll the target into view.
-        if (commentToFocus) {
-            commentToFocus.classList.add('focused-comment');
-            if (scrollTarget === 'comment') {
-                commentToFocus.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
-        if (highlightToFocus) {
-            highlightToFocus.classList.add('focused-highlight');
-            if (scrollTarget === 'highlight') {
-                highlightToFocus.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
-    }
-
-    // --- UPDATED EVENT LISTENERS (Now using the setFocus function) ---
-
-    // When a HIGHLIGHT in the text is clicked...
-    textContainer.addEventListener('click', (e) => {
-        const highlightSpan = e.target.closest('.highlight');
-        if (highlightSpan && highlightSpan.dataset.commentId) {
-            const commentId = highlightSpan.dataset.commentId;
-            setFocus(commentId, 'comment'); // Focus everything, scroll the comment into view.
-        }
-    });
-
-    // When a COMMENT in the sidebar is clicked...
-    commentSidebar.addEventListener('click', (e) => {
-        const clickedComment = e.target.closest('.comment');
-        if (clickedComment && clickedComment.dataset.commentId) {
-            const commentId = clickedComment.dataset.commentId;
-            setFocus(commentId, 'highlight'); // Focus everything, scroll the highlight into view.
-        }
-    });
-
-    // When clicking anywhere else on the page...
-    document.addEventListener('click', (e) => {
-        // If the click was NOT inside a comment and NOT on a highlight, clear all focus.
-        if (!e.target.closest('.comment') && !e.target.closest('.highlight')) {
-            setFocus(null);
-        }
-    }, true); // Use capture phase to handle the event cleanly.
-
-
-    // --- Functions to apply highlights and offsets (No Changes) ---
-    
-    function applyHighlightsFromComments() {
-        if (!commentsData || commentsData.length === 0) return;
-        commentsData.sort((a, b) => a.ts_start_offset - b.ts_start_offset);
-        for (const comment of commentsData) {
-            if (comment.ts_start_offset == null || comment.ts_end_offset == null) continue;
-            try {
-                const range = createRangeFromOffsets(textContainer, comment.ts_start_offset, comment.ts_end_offset);
-                applyHighlight(range, comment.id);
-            } catch (error) {
-                console.error('Could not apply saved highlight:', comment, error);
-            }
-        }
-    }
-    
-    function applyHighlight(range, commentId) {
-        const highlightSpan = document.createElement('span');
-        highlightSpan.className = 'highlight';
-        if (commentId) {
-            highlightSpan.dataset.commentId = commentId;
-        }
+    commentButton.addEventListener('click', () => {
+        if (!currentRange) return;
         try {
-            range.surroundContents(highlightSpan);
+            const offsets = getRangeCharacterOffset(textContainer, currentRange);
+            const params = new URLSearchParams({ ...offsets, selected_text: currentRange.toString() });
+            window.location.href = `${currentURL}?${params.toString()}`;
+        } catch (error) { console.error("Error creating comment offsets:", error); alert("Could not prepare your comment."); }
+    });
+
+    function applyHighlight(range, commentId) {
+        const span = document.createElement('span');
+        span.className = 'highlight';
+        if (commentId) span.dataset.commentId = commentId;
+        try {
+            range.surroundContents(span);
         } catch (e) {
             const content = range.extractContents();
-            highlightSpan.appendChild(content);
-            range.insertNode(highlightSpan);
+            span.appendChild(content);
+            range.insertNode(span);
         }
     }
 
-    function createRangeFromOffsets(container, startOffset, endOffset) {
+    function createRangeFromOffsets(container, start, end) {
         const range = document.createRange();
         const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
-        let charCount = 0, startNode, endNode;
+        let count = 0, startNode, endNode;
         while (walker.nextNode()) {
             const node = walker.currentNode;
             const nodeLength = node.textContent.length;
-            if (startNode === undefined && startOffset < charCount + nodeLength) {
+            if (startNode === undefined && start < count + nodeLength) {
                 startNode = node;
-                range.setStart(node, startOffset - charCount);
+                range.setStart(node, start - count);
             }
-            if (endNode === undefined && endOffset <= charCount + nodeLength) {
+            if (endNode === undefined && end <= count + nodeLength) {
                 endNode = node;
-                range.setEnd(node, endOffset - charCount);
+                range.setEnd(node, end - count);
                 break;
             }
-            charCount += nodeLength;
+            count += nodeLength;
         }
-        if (!startNode || !endNode) throw new Error("Could not create range from offsets.");
+        if (!startNode || !endNode) throw new Error("Could not create range.");
         return range;
     }
 
@@ -177,9 +188,8 @@ document.addEventListener('DOMContentLoaded', () => {
         preRange.selectNodeContents(container);
         preRange.setEnd(range.startContainer, range.startOffset);
         const start = preRange.toString().length;
-        return { start, end: start + range.toString().length };
+        return { start_offset: start, end_offset: start + range.toString().length };
     }
 
-    // --- Initial Execution ---
-    applyHighlightsFromComments();
+    initializeHighlights();
 });

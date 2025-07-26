@@ -19,10 +19,14 @@ dy {
 /* This is the style for a standard highlight */
 .highlight {
     background-color: #fceb9f; /* A light, yellowish highlight color */
-    cursor: pointer;
     border-radius: 3px;
     padding: 1px 0;
     transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+/* Only highlights associated with a comment */
+.highlight[data-comment-id] {
+    cursor: pointer;
 }
 
 /* This is the class for a darker, "focused" highlight */
@@ -41,6 +45,13 @@ dy {
     z-index: 1000;
     max-width: 200px;
     white-space: nowrap;
+}
+
+/* Add this new rule for the menu's disabled state */
+#highlight-menu button:disabled {
+    background-color: #d3d3d3; /* Grey background */
+    color: #888;             /* Darker grey text */
+    cursor: not-allowed;      /* Show a "not allowed" cursor on hover */
 }
 
 #highlight-btn, #comment-btn{

@@ -1,5 +1,15 @@
-// initialising listing table on listing page to have a scrollbar instead of just being as long as possible
+//initialising classes table to have a scrollbar instead of just being as long as possible
 new DataTable('#classes', {
+    searching: false,
+    info: false,
+    paging: false,
+    scrollCollapse: true,
+    scrollY: '300px'
+});
+
+
+// initialising lessons table to have a scrollbar instead of just being as long as possible
+new DataTable('#lessons', {
     searching: false,
     info: false,
     paging: false,

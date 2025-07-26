@@ -28,7 +28,6 @@ def classes():
     if not uid:
         return redirect(url_for("auth.login", next=request.url))
 
-
     # getting all classes belonging to user
     logger.debug("getting user classes")
     user_classes = user.get_classes(uid)
@@ -65,10 +64,24 @@ def create_class():
 @classes_bp.route("/<int:cid>", methods=['GET', 'POST'])
 def individual_class(cid):
     logger.debug("in individual_class")
+    
+    # getting uid
+    uid = session_globals.get("uid")
 
+    # checking if uid isn't in session, then redirects to login
+    if not uid:
+        return redirect(url_for("auth.login", next=request.url))
+
+    # getting all lessons in class
+    logger.debug("getting user classes")
     lessons = clazz.get_lessons(cid)
 
-    return render_template("class.html", lessons=lessons, cid=cid)
+    # get dictionary form for each lesson
+    lesson_dicts = [less.to_dict() for less in lessons]
+    lesson_dicts.sort(key=lambda x:x["creationtime"])   # sort by creation time
+
+    logger.debug("rendering individual class template")
+    return render_template("class.html", lessons=lesson_dicts, cid=cid)
 
 
 @classes_bp.route("/<int:cid>/createlesson", methods=['GET', 'POST'])
@@ -88,6 +101,9 @@ def create_lesson(cid):
     if form.validate_on_submit():   # when form is submitted
         logger.debug("video form submitted")
 
+        # grab lesson name
+        lesson_name = form.name.data
+
         # grab video file and save to static folder
         video = form.video.data
         fn = secure_filename(video.filename)
@@ -99,7 +115,7 @@ def create_lesson(cid):
 
         # insert lesson into db
         uid = session_globals.get("uid")
-        new_lesson = lesson.insert(uid, cid, "name", fn, mime_type, "_")  # insert returns id for new row
+        new_lesson = lesson.insert(uid, cid, lesson_name, fn, mime_type, "_")  # insert returns id for new row
         db.session.commit()
         
         # transcribe video
@@ -143,6 +159,7 @@ def individual_lesson(cid, lid):
         abort(500)
     saved_comments = this_lesson.comments
     results["highlights"] = [h.to_dict() for h in saved_comments]
+    logger.info(f"HIGHLIGHTS: {results['highlights']}")
 
     # sorts by start offset and then end offset and then id
     results["highlights"].sort(key = lambda x : [x["ts_start_offset"], x["ts_end_offset"], x["id"]])
@@ -172,6 +189,7 @@ def individual_lesson(cid, lid):
                 end_offset = int(form.end_offset.data)
                 comtype = "reply"
     
+    # now make comment data into a nice frontend-friendly format
     children_forms = []
     for com_id in reply_forms:
         if reply_forms[com_id][0]["comtype"] == "comment":
@@ -179,11 +197,12 @@ def individual_lesson(cid, lid):
             if replies is None:
                 error.push_log("failed to get comment replies")
                 abort(500)
-            logger.info(f"REPLY FORMS: {reply_forms}")
-            logger.info(f"REPLIES: {[reply.id for reply in replies]}")
             children_forms.append((reply_forms[com_id], tuple([reply_forms[reply.id] for reply in replies])))
             # children_forms is now of format
             # [((parent_dict, form), ((child_dict1, form), (child_dict2, form)...))...]
+
+    # get a dict of the standalone highlights (not attached to comments or replies)
+    standalone_highlights = [h for h in results["highlights"] if h["comtype"]=="highlight"]
 
     # post request is sent when any of the following occur:
     # - user selects "highlight option"
@@ -194,7 +213,7 @@ def individual_lesson(cid, lid):
 
         # parentid is None if submission wasn't a reply
         if parentid is None:
-            # when user highlights text and selects "highlight",
+            # when user highlights text and selects "highlight" or "jump to text",
             # a request is sent from javascript rather than html
             if request.is_json:
                 logger.debug("""information posted from javascript (meaning
@@ -217,6 +236,14 @@ def individual_lesson(cid, lid):
                 
             # grabbing information from frontend
             try:
+                # redirecting to same page with video timestamp info if
+                # post request was sent due to user clicking "jump to timestamp"
+                posttype = data.get("posttype")
+                if posttype == "timestamp":
+                    ts = data.get("timestamp")
+                    session_globals.set("video_timestamp", ts)
+                    return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
+
                 start_offset = int(data.get("start_offset"))
                 end_offset = int(data.get("end_offset"))
                 selected_text = data.get("selected_text")   # for debugging
@@ -267,6 +294,10 @@ def individual_lesson(cid, lid):
     results["creationtime"] = this_lesson.creationtime
     results["mime_type"] = this_lesson.mimetype
 
+    results["video_timestamp"] = session_globals.get("video_timestamp")
+    if results["video_timestamp"] is not None:
+        session_globals.remove("video_timestamp")
+
     # results["video_path"] = os.path.join(os.path.abspath(current_app.config["UPLOAD_FOLDER"]), this_lesson.videofn)
 
     results["transcripts"] = this_lesson.transcripts
@@ -292,5 +323,12 @@ def individual_lesson(cid, lid):
     parent_comments = [com[0][0] for com in children_forms]
 
     logger.debug("rendering individual lesson page")
-    # logger.info(f"COMMENT DICTS: {children_forms[2][0][1].start_offset}")
-    return render_template("lesson.html", results=results, comment_forms=children_forms, parent_comments_json=parent_comments)
+    logger.info(f"COMMENT DICTS: {children_forms}")
+    logger.info(f"PARENT DICTS: {parent_comments}")
+    return render_template(
+        "lesson.html",
+        results=results,
+        comment_forms=children_forms,
+        parent_comments_json=parent_comments,
+        standalone_highlights_json=standalone_highlights
+        )

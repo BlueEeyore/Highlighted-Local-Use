@@ -73,7 +73,8 @@ class Lesson(db.Model):
             "name": self.name,
             "videofn": self.videofn,
             "mimetype": self.mimetype,
-            "creationtime": self.creationtime
+            "creationtime": self.creationtime,
+            "creator": f"{self.user.firstname} {self.user.lastname}"
         }
 
 

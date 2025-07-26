@@ -3,9 +3,20 @@
 {% block content %}
 
 <div class="row">
-    <video width="240" height="240" controls>
-        <source src="{{url_for('static', filename='files/' + results.videofn)}}" type="{{results.mimetype}}">
-    </video>
+    <div class="col-sm-1"></div>
+    <div class="col-sm-1">
+		<a class="btn btn-outline-secondary btn-block w-100" href="/classes/{{results.cid}}" width="100%">Back</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+        <video id="lesson_video" width="240" height="440" class="w-100" controls>
+            <source src="{{url_for('static', filename='files/' + results.videofn)}}" type="{{results.mimetype}}">
+        </video>
+    </div>
+    <div class="col-sm-3"></div>
 </div>
 
 <div class="row">
@@ -13,7 +24,7 @@
         <div id="text-container">
             <p>
                 {% for segment in results["transcripts"] %}
-                <span class="transcript-segment">{{segment.text}}</span>
+                <span class="transcript-segment" id="{{segment.id}}">{{segment.text}}</span>
                 {% endfor %}
             </p>
         </div>
@@ -29,7 +40,6 @@
             {% for comment_form, replies in comment_forms %}
             {% set comment, form = comment_form[0], comment_form[1] %}
                 <div class="comment" data-comment-id="{{comment.id}}">
-                    {{comment.id}}
                     <div class="comment-creator">{{comment.creator}}</div>
                     <div class="comment-content">{{comment.content}}</div>
                     <div class="comment-reply">
@@ -103,9 +113,11 @@
     // Pass the highlights data from Flask/Jinja2 into a JavaScript variable
     // The `|tojson` filter is crucial for safely embedding the data.
     const commentsData = {{ parent_comments_json| tojson }};
+    const standaloneHighlights = {{ standalone_highlights_json| tojson }};
     const currentURL = window.location.pathname; // This will be "/classes/<cid>/<lid>"
 </script>
 
+<script src="{{ url_for('static', filename='js/video_timestamp.js') }}"></script>
 <script src="{{ url_for('static', filename='js/highlighter.js') }}"></script>
 
 {% endblock %}

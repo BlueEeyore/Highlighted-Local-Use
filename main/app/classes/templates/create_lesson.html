@@ -4,8 +4,13 @@
 
 <form method="POST" enctype="multipart/form-data">
 	{{form.hidden_tag()}}
+
 	{{form.video.label}}
 	{{form.video()}}
+
+	{{form.name.label}}
+	{{form.name()}}
+
 	{{form.submit()}}
 </form>
 

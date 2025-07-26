@@ -1,8 +1,53 @@
 {% extends "layout.html" %}
 {% block content %}
 
-{% for lesson in lessons %}
-    <a href="/classes/{{cid}}/{{lesson.id}}" class="btn btn-primary">{{lesson.name}}</a>
-{% endfor %}
+<div class="row">
+    <div class="col-sm-1"></div>
+    <div class="col-sm-1">
+		<a class="btn btn-outline-secondary btn-block w-100" href="/classes" width="100%">Back</a>
+    </div>
+</div>
 
+<div class="row">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+        <table id="lessons" class="display" width="100%">
+            <!-- column titles -->
+            <thead>
+                <tr>
+                    <th><div class="table-title">Lesson</div></th>
+                    <th><div class="table-title">Upload Time</div></th>
+                </tr>
+            </thead>
+            <!-- column content -->
+            <tbody>
+                <!-- looping over each lesson in class -->
+                {% for lesson_data in lessons %}
+                    <!-- if i want to submit a form: -->
+                    <!-- <tr class="clickable-row" onclick="this.querySelector('form').submit()"> -->
+                    <tr class="clickable-row" onclick="window.location.href='/classes/{{cid}}/{{lesson_data.id}}'">
+                        <td>
+                            {{lesson_data.name}}
+                        </td>
+                        <td>lesson_data.creationtime</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-sm-3"></div>
+</div>
+
+<div class="row">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+        <a class="btn btn-outline-dark w-100" href="/classes/{{cid}}/createlesson">Create Lesson</a>
+    </div>
+    <div class="col-sm-3"></div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/datatables.js') }}"></script>
 {% endblock %}

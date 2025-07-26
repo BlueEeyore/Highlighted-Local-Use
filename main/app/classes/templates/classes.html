@@ -15,7 +15,7 @@
             </thead>
             <!-- column content -->
             <tbody>
-                <!--looping over each class that the user is in  -->
+                <!-- looping over each class that the user is in  -->
                 {% for class_data in classes_data %}
                     <!-- if i want to submit a form: -->
                     <!-- <tr class="clickable-row" onclick="this.querySelector('form').submit()"> -->
@@ -31,7 +31,14 @@
     </div>
     <div class="col-sm-3"></div>
 </div>
-{{classes}}
+
+<div class="row">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+        <a class="btn btn-outline-dark w-100" href="/classes/create">Create Class</a>
+    </div>
+    <div class="col-sm-3"></div>
+</div>
 
 
 {% endblock %}
