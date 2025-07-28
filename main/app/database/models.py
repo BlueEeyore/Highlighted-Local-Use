@@ -86,6 +86,17 @@ class Transcript(db.Model):
     timestamp = db.Column(db.String(255))
     text = db.Column(db.Text)
 
+    def to_dict(self):
+        """helper to convert object to dict form"""
+        start, end = [float(x) for x in self.timestamp.split(", ")]
+        return {
+            "id": self.id,
+            "lid": self.lid,
+            "start_ts": start,
+            "end_ts": end,
+            "text": self.text
+        }
+
 
 class Comment(db.Model):
     __tablename__ = "comments"

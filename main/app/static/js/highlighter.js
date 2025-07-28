@@ -1,10 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- ELEMENT SELECTORS ---
-    const textContainer = document.getElementById('text-container');
+    const textContainer = document.getElementById('transcript-container');
     const commentSidebar = document.getElementById('comment-sidebar');
     const menu = document.getElementById('highlight-menu');
     const highlightButton = document.getElementById('highlight-btn');
     const commentButton = document.getElementById('comment-btn');
+    const jumpButton = document.getElementById('jump-btn');
+    const video = document.getElementById("lesson_video")
 
     if (!textContainer || !commentSidebar || !menu) {
         console.error("A critical element is missing from the page.");

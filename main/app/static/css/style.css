@@ -7,13 +7,37 @@ dy {
 }
 
 #text-container {
+}
+
+#transcript-container {
+    width: 79%;
     max-width: 800px;
-    margin: 2em auto;
-    padding: 2em;
+    height: 149px; /* Crucial: a fixed height is required for scrolling */
+    overflow-y: auto; /* Show scrollbar only when content overflows */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    /* padding: 9px; */
+    padding: 2em;
+    /* margin: -1 auto; */
+    margin: 2em auto;
+    text-align: left;
+    scroll-behavior: smooth; /* Makes the scrolling animated and smooth */
+}
+
+.transcript-segment {
+    padding: 8px;
+    margin: 0 0 10px 0;
+    border-radius: 5px;
+    transition: background-color 0.3s ease; /* Smooth transition for highlighting */
+    font-size: 20px;
+}
+
+/* This class will be added by JavaScript to the active segment */
+.transcript-segment.active {
+    background-color: #d1e7fd; /* A light blue highlight color */
+    font-weight: bold;
 }
 
 /* This is the style for a standard highlight */
@@ -67,6 +91,13 @@ dy {
 #highlight-btn:hover {
     background-color: #666;
 }
+
+/* .scrollable-div {
+    width: 600px;
+    height: 200px;
+    overflow: auto;
+    border: 1px solid #ccc;
+} */
 
 #comment-sidebar {
     /* position: absolute; */

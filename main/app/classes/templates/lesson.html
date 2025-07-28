@@ -21,10 +21,10 @@
 
 <div class="row">
     <div class="col-md-10">
-        <div id="text-container">
+        <div id="transcript-container" class="scrollable-div">
             <p>
                 {% for segment in results["transcripts"] %}
-                <span class="transcript-segment" id="{{segment.id}}">{{segment.text}}</span>
+                <span class="transcript-segment" id="{{segment.id}}" data-timestamp="{{segment.start_ts}}">{{segment.text}}</span>
                 {% endfor %}
             </p>
         </div>
@@ -33,6 +33,7 @@
         <div id="highlight-menu">
             <button id="highlight-btn">Highlight</button>
             <button id="comment-btn">Comment</button>
+            <button id="jump-btn">Jump to Place</button>
         </div>
     </div>
     <div class="col-md-2">

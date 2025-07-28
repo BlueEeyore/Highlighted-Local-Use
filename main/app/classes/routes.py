@@ -300,7 +300,8 @@ def individual_lesson(cid, lid):
 
     # results["video_path"] = os.path.join(os.path.abspath(current_app.config["UPLOAD_FOLDER"]), this_lesson.videofn)
 
-    results["transcripts"] = this_lesson.transcripts
+    # convert transcript segments to dict form with start and end timestamps
+    results["transcripts"] = [ts.to_dict() for ts in this_lesson.transcripts]
 
     results["cid"] = cid
     results["lid"] = lid
