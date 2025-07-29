@@ -6,9 +6,6 @@ dy {
     background-color: #f9f9f9;
 }
 
-#text-container {
-}
-
 #transcript-container {
     width: 79%;
     max-width: 800px;
@@ -58,7 +55,7 @@ dy {
     background-color: #f7d94f; /* A darker, more saturated yellow */
 }
 
-/* This is the pop-up menu */
+/* This is the pop-up menu  after selecting an excerpt*/
 #highlight-menu {
     position: absolute;
     display: none;
@@ -67,7 +64,7 @@ dy {
     padding: 5px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     z-index: 1000;
-    max-width: 200px;
+    max-width: 300px;
     white-space: nowrap;
 }
 
@@ -78,7 +75,7 @@ dy {
     cursor: not-allowed;      /* Show a "not allowed" cursor on hover */
 }
 
-#highlight-btn, #comment-btn{
+#highlight-btn, #comment-btn, #jump-btn{
     background-color: #555;
     color: white;
     border: none;

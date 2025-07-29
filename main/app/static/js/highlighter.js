@@ -150,6 +150,35 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) { console.error("Error creating comment offsets:", error); alert("Could not prepare your comment."); }
     });
 
+    jumpButton.addEventListener('click', () => {
+        // Ensure a selection has been made
+        if (!currentRange) {
+            alert("Please select some text first.");
+            return;
+        }
+
+        // Use our new helper function to get the timestamp
+        const startTime = getTimestampFromRange(currentRange);
+
+        // Check if we successfully got a timestamp
+        if (startTime !== null) {
+            console.log(`Jumping video to: ${startTime} seconds.`);
+            
+            // This is the line that seeks the video
+            video.currentTime = startTime;
+
+            // play the video if it's paused
+            // video.play();
+
+        } else {
+            // This will happen if the selection started outside a valid segment
+            alert("Could not find a timestamp for the selected text. Please select text within the transcript.");
+        }
+
+        // Hide the menu after the action
+        menu.style.display = 'none';
+    });
+
     function applyHighlight(range, commentId) {
         const span = document.createElement('span');
         span.className = 'highlight';
@@ -191,6 +220,34 @@ document.addEventListener('DOMContentLoaded', () => {
         preRange.setEnd(range.startContainer, range.startOffset);
         const start = preRange.toString().length;
         return { start_offset: start, end_offset: start + range.toString().length };
+    }
+
+    /**
+     * Finds the first transcript segment that intersects with the start of a range
+     * and returns its data-timestamp value as a number.
+     * 
+     * @param {Range} range - The selection range from window.getSelection().
+     * @returns {number|null} The timestamp as a float, or null if not found.
+     */
+    function getTimestampFromRange(range) {
+        // 1. Get the node where the selection starts.
+        // This is often a text node, not the <p> element itself.
+        const startNode = range.startContainer;
+
+        // 2. Find the closest ancestor element that is a transcript segment.
+        // We use .parentElement to handle cases where startNode is a text node.
+        // .closest() is perfect because it checks the element itself and then its ancestors.
+        const segment = startNode.parentElement.closest('.transcript-segment');
+
+        // 3. Check if we found a segment and if it has the timestamp attribute.
+        if (segment && segment.dataset.timestamp) {
+            // 4. Return the timestamp. It's crucial to convert the string value
+            // from the attribute into a number using parseFloat().
+            return parseFloat(segment.dataset.timestamp);
+        }
+
+        // 5. If no segment or timestamp was found, return null.
+        return null;
     }
 
     initializeHighlights();
