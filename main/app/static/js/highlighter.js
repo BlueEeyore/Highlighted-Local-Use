@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentButton = document.getElementById('comment-btn');
     const jumpButton = document.getElementById('jump-btn');
     const video = document.getElementById("lesson_video")
+    const newCommentContainer = document.getElementById('setting-comment');
 
     if (!textContainer || !commentSidebar || !menu) {
         console.error("A critical element is missing from the page.");
@@ -60,12 +61,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 10);
     });
 
+    // This logic only runs if the new comment form is actually on the page.
+    if (newCommentContainer) {
+        // Define the function that will handle the click.
+        const handleOutsideClick = (event) => {
+            // Check if the click was *inside* the new comment container.
+            // If it was, we do nothing and let the user interact with the form.
+            if (newCommentContainer.contains(event.target)) {
+                return;
+            }
+
+            // If the click was *outside* the container, we cancel the comment.
+            // We do this by redirecting to the base URL without the comment query parameters.
+            // The `currentURL` variable already holds the clean path.
+            window.location.href = currentURL;
+
+            // It's good practice to remove the listener after it has served its purpose,
+            // though in this case, a page reload will happen anyway.
+            document.removeEventListener('click', handleOutsideClick, true);
+        };
+
+        // Add a click listener to the entire document.
+        // The `true` at the end makes it a "capturing" listener, meaning it
+        // runs before other listeners on specific elements. This ensures it
+        // always gets to check the click location first.
+        document.addEventListener('click', handleOutsideClick, true);
+    }
+
     document.addEventListener('mousedown', (event) => {
         if (!menu.contains(event.target)) {
             menu.style.display = 'none';
         }
     });
 
+    document.addEventListener('click', function(event) {
+        var textbox = document.getElementById('setting-comment');
+        var isClickInside = textbox.contains(event.target);
+
+        if (!isClickInside) {
+            // The click was outside the textbox, so hide it
+            textbox.style.display = 'none';
+        }
+    });
 
     // --- FOCUSING, INITIALIZATION, AND HELPER FUNCTIONS ---
     // (The rest of the file remains the same as the previous version)
@@ -108,22 +145,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }, true);
 
     function initializeHighlights() {
+        // Render highlights that are tied to existing comments
         if (commentsData && commentsData.length > 0) {
             commentsData.sort((a, b) => a.ts_start_offset - b.ts_start_offset);
             for (const comment of commentsData) {
                 if (comment.ts_start_offset == null || comment.ts_end_offset == null) continue;
                 try {
-                    applyHighlight(createRangeFromOffsets(textContainer, comment.ts_start_offset, comment.ts_end_offset), comment.id);
-                } catch (error) { console.error('Could not apply comment highlight:', comment, error); }
+                    // These are normal highlights, so no extra attributes are needed.
+                    applyHighlight(createRangeFromOffsets(textContainer, comment.ts_start_offset, comment.ts_end_offset), comment.id, null);
+                } catch (error) {
+                    console.error('Could not apply comment highlight:', comment, error);
+                }
             }
         }
+
+        // Render standalone highlights (including our temporary "setting" highlight)
         if (standaloneHighlights && standaloneHighlights.length > 0) {
             standaloneHighlights.sort((a, b) => a.ts_start_offset - b.ts_start_offset);
             for (const highlight of standaloneHighlights) {
                 if (highlight.ts_start_offset == null || highlight.ts_end_offset == null) continue;
                 try {
-                    applyHighlight(createRangeFromOffsets(textContainer, highlight.ts_start_offset, highlight.ts_end_offset), null);
-                } catch (error) { console.error('Could not apply standalone highlight:', highlight, error); }
+                    // Check if this is the special highlight for a new comment
+                    const attributes = highlight.comtype === 'setting' ? { setting: 'true' } : null;
+                    
+                    // Pass the attributes object to the applyHighlight function
+                    applyHighlight(createRangeFromOffsets(textContainer, highlight.ts_start_offset, highlight.ts_end_offset), null, attributes);
+                } catch (error) {
+                    console.error('Could not apply standalone highlight:', highlight, error);
+                }
             }
         }
     }
@@ -179,17 +228,24 @@ document.addEventListener('DOMContentLoaded', () => {
         menu.style.display = 'none';
     });
 
-    function applyHighlight(range, commentId) {
-        const span = document.createElement('span');
-        span.className = 'highlight';
-        if (commentId) span.dataset.commentId = commentId;
-        try {
-            range.surroundContents(span);
-        } catch (e) {
-            const content = range.extractContents();
-            span.appendChild(content);
-            range.insertNode(span);
-        }
+    function applyHighlight(range, commentId, attributes) { 
+        const span = document.createElement('span'); 
+        span.className = 'highlight'; 
+        if (commentId) { 
+            span.dataset.commentId = commentId; 
+        } 
+        if (attributes) { 
+            for (const attr in attributes) { 
+                span.dataset[attr] = attributes[attr]; 
+            } 
+        } 
+        try { 
+            range.surroundContents(span); 
+        } catch (e) { 
+            const content = range.extractContents(); 
+            span.appendChild(content); 
+            range.insertNode(span); 
+        } 
     }
 
     function createRangeFromOffsets(container, start, end) {

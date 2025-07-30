@@ -21,12 +21,12 @@
 
 <div class="row">
     <div class="col-md-10">
-        <div id="transcript-container" class="scrollable-div">
-            <p>
-                {% for segment in results["transcripts"] %}
-                <span class="transcript-segment" id="{{segment.id}}" data-timestamp="{{segment.start_ts}}">{{segment.text}}</span>
-                {% endfor %}
+        <div id="transcript-container" ...>
+            {% for segment in results["transcripts"] %}
+            <p class="transcript-segment" id="{{segment.id}}" data-timestamp="{{segment.start_ts}}">
+                {{segment.text}}
             </p>
+            {% endfor %}
         </div>
 
         <!-- This is the pop-up menu. It's hidden by default with CSS. -->
@@ -38,10 +38,31 @@
     </div>
     <div class="col-md-2">
         <div id="comment-sidebar" class="w-100">
+            {% if results.comment_form_data %}
+                <div class="comment focused-comment" id="setting-comment">
+                    <form action="/classes/{{results.cid}}/{{results.lid}}" method="POST">
+                        <input type="hidden" name="start_offset" value="{{ results.comment_form_data.start_offset }}">
+                        <input type="hidden" name="end_offset" value="{{ results.comment_form_data.end_offset }}">
+                        <input type="hidden" name="selected_text" value="{{ results.comment_form_data.selected_text }}">
+                        <input type="hidden" name="comtype" value="comment">
+
+                        <label>Add your comment for: "{{ results.comment_form_data.selected_text }}"</label>
+                        <textarea name="comment_text" required></textarea>
+
+                        <button type="submit">Save Comment</button>
+                    </form>
+                </div>
+            {% endif %}
             {% for comment_form, replies in comment_forms %}
-            {% set comment, form = comment_form[0], comment_form[1] %}
+                {% set comment, form = comment_form[0], comment_form[1] %}
                 <div class="comment" data-comment-id="{{comment.id}}">
-                    <div class="comment-creator">{{comment.creator}}</div>
+                    <div class="comment-creator">
+                        {% if comment.anonymous %}
+                            Anonymous
+                        {% else %}
+                            {{comment.creator}}
+                        {% endif %}
+                    </div>
                     <div class="comment-content">{{comment.content}}</div>
                     <div class="comment-reply">
                         <form method="POST">
@@ -88,23 +109,7 @@
 
 
 
-{% if results.comment_form_data %}
-<div class="row">
-    <div class="comment-form">
-        <form action="/classes/{{results.cid}}/{{results.lid}}" method="POST">
-            <input type="hidden" name="start_offset" value="{{ results.comment_form_data.start_offset }}">
-            <input type="hidden" name="end_offset" value="{{ results.comment_form_data.end_offset }}">
-            <input type="hidden" name="selected_text" value="{{ results.comment_form_data.selected_text }}">
-            <input type="hidden" name="comtype" value="comment">
 
-            <label>Add your comment for: "{{ results.comment_form_data.selected_text }}"</label>
-            <textarea name="comment_text" required></textarea>
-
-            <button type="submit">Save Comment</button>
-        </form>
-    </div>
-</div>
-{% endif %}
 
 
 {% endblock %}

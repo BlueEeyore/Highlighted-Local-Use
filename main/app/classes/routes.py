@@ -4,7 +4,7 @@ from app import session_globals, error
 from app.transcription import Transcription
 from app.logger_config import get_logger
 from app.database import clazz, user, lesson, transcript, comment
-from app.database.models import db
+from app.database.models import db, Comment
 from app.classes.forms import VideoForm, CommentReplyForm, ClassForm
 from werkzeug.utils import secure_filename
 import sys
@@ -167,7 +167,8 @@ def individual_lesson(cid, lid):
     parentid = None # if the submittion isn't a replies this will remain as None
     reply_forms = {}
     for highlight in results["highlights"]:
-        if highlight["comtype"] in ["comment", "reply"]:
+        visible = not (highlight["private"] and (highlight["uid"] != uid))
+        if highlight["comtype"] in ["comment", "reply"] and visible:
             # set up individual reply form for each comment
             form = CommentReplyForm(prefix=f"{highlight['id']}-") # prefix to distinguish forms
             # form = CommentReplyForm()
@@ -202,7 +203,7 @@ def individual_lesson(cid, lid):
             # [((parent_dict, form), ((child_dict1, form), (child_dict2, form)...))...]
 
     # get a dict of the standalone highlights (not attached to comments or replies)
-    standalone_highlights = [h for h in results["highlights"] if h["comtype"]=="highlight"]
+    standalone_highlights = [h for h in results["highlights"] if h["comtype"]=="highlight" and h["uid"]==uid]
 
     # post request is sent when any of the following occur:
     # - user selects "highlight option"
@@ -303,6 +304,7 @@ def individual_lesson(cid, lid):
     # convert transcript segments to dict form with start and end timestamps
     results["transcripts"] = [ts.to_dict() for ts in this_lesson.transcripts]
 
+    results["uid"] = uid
     results["cid"] = cid
     results["lid"] = lid
     
@@ -320,6 +322,22 @@ def individual_lesson(cid, lid):
             "end_offset": end_offset,
             "selected_text": selected_text
         }
+        temp_highlight = {
+            "id": None,
+            "uid":uid,
+            "lid":lid,
+            "parentid":None,
+            "content":None,
+            "uploadtime":None,
+            "anonymous":None,
+            "private":None,
+            "comtype":"setting",
+            "tsrange":None,
+            "ts_start_offset":start_offset,
+            "ts_end_offset":end_offset,
+            "length":None
+        }
+        standalone_highlights.append(temp_highlight)
     
     parent_comments = [com[0][0] for com in children_forms]
 

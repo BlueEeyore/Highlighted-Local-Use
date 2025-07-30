@@ -24,7 +24,8 @@ dy {
 }
 
 .transcript-segment {
-    padding: 8px;
+    display: inline; /* Treat the element like a word, not a paragraph block */
+    padding: 0px;
     margin: 0 0 10px 0;
     border-radius: 5px;
     transition: background-color 0.3s ease; /* Smooth transition for highlighting */
@@ -43,6 +44,11 @@ dy {
     border-radius: 3px;
     padding: 1px 0;
     transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.highlight[data-setting="true"] {
+        /* background-color: #d4edda; light green */
+    background-color: #f7d94f; /* A darker, more saturated yellow */
 }
 
 /* Only highlights associated with a comment */
