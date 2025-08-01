@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, RadioField, SelectField, SelectMultipleField, TextAreaField, SubmitField, FileField, HiddenField
+from wtforms import StringField, RadioField, SelectField, SelectMultipleField, TextAreaField, SubmitField, FileField, HiddenField, BooleanField
 from wtforms.validators import InputRequired, DataRequired, Length
 
 
@@ -28,12 +28,24 @@ class VideoForm(FlaskForm):
 # comment reply form
 class CommentReplyForm(FlaskForm):
     """form for replying to comments"""
-    msg = TextAreaField("Reply")
     parentid = HiddenField()
     start_offset = HiddenField()
     end_offset = HiddenField()
     comtype = HiddenField()
+    msg = TextAreaField("Reply", validators=[DataRequired()])
     submit = SubmitField("Submit Reply")
+
+
+class CommentForm(FlaskForm):
+    """form for creating a comment"""
+    start_offset = HiddenField()
+    end_offset = HiddenField()
+    selected_text = HiddenField()   # not really necessary but keeping for now
+    comtype = HiddenField()
+    comment_text = TextAreaField(validators=[DataRequired()])
+    visibility = SelectField("Visibility", choices=[("standard", "Standard"), ("anonymous", "Anonymous"), ("private", "Private")])
+    is_correction = BooleanField("Transcript Correction")
+    submit = SubmitField("Save Comment")
 
 
 # class button form (currently unused)

@@ -5,7 +5,7 @@ from app.transcription import Transcription
 from app.logger_config import get_logger
 from app.database import clazz, user, lesson, transcript, comment
 from app.database.models import db, Comment
-from app.classes.forms import VideoForm, CommentReplyForm, ClassForm
+from app.classes.forms import VideoForm, CommentReplyForm, CommentForm, ClassForm
 from werkzeug.utils import secure_filename
 import sys
 
@@ -152,6 +152,9 @@ def individual_lesson(cid, lid):
     # preparing the results dict that will be passed to frontend
     results = {}
 
+    # flag for if forms have already had data grabbed
+    post_handled = False
+
     # gets every comment in dictionary form
     this_lesson = lesson.get_lesson(lid)
     if not this_lesson:
@@ -163,6 +166,7 @@ def individual_lesson(cid, lid):
 
     # sorts by start offset and then end offset and then id
     results["highlights"].sort(key = lambda x : [x["ts_start_offset"], x["ts_end_offset"], x["id"]])
+
 
     parentid = None # if the submittion isn't a replies this will remain as None
     reply_forms = {}
@@ -189,6 +193,7 @@ def individual_lesson(cid, lid):
                 start_offset = int(form.start_offset.data)
                 end_offset = int(form.end_offset.data)
                 comtype = "reply"
+                post_handled = True
     
     # now make comment data into a nice frontend-friendly format
     children_forms = []
@@ -205,6 +210,46 @@ def individual_lesson(cid, lid):
     # get a dict of the standalone highlights (not attached to comments or replies)
     standalone_highlights = [h for h in results["highlights"] if h["comtype"]=="highlight" and h["uid"]==uid]
 
+
+    # javascript sends get request when user selects "comment"
+    # if user didn't select "comment", these values will just be None
+    start_offset = request.args.get("start_offset")
+    end_offset = request.args.get("end_offset")
+    selected_text = request.args.get("selected_text")
+    new_comment_form = CommentForm()
+    if start_offset and end_offset:     # only occurs when user selected "comment"
+        # form with the info for the comment
+        logger.debug("User selected 'comment'. Preparing comment form")
+        new_comment_form.start_offset.data = start_offset
+        new_comment_form.end_offset.data = end_offset
+        new_comment_form.selected_text.data = selected_text
+        results["new_comment_form"] = new_comment_form
+
+        # temporary highlight for pending comment
+        temp_highlight = {
+            "id": None,
+            "uid":uid,
+            "lid":lid,
+            "parentid":None,
+            "content":None,
+            "uploadtime":None,
+            "anonymous":None,
+            "private":None,
+            "comtype":"setting",
+            "tsrange":None,
+            "ts_start_offset":start_offset,
+            "ts_end_offset":end_offset,
+            "length":None
+        }
+        standalone_highlights.append(temp_highlight)   
+    if new_comment_form.validate_on_submit():
+        comment_content = new_comment_form.comment_text.data
+        start_offset = int(new_comment_form.start_offset.data)
+        end_offset = int(new_comment_form.end_offset.data)
+        comtype = "comment"
+        post_handled = True
+
+
     # post request is sent when any of the following occur:
     # - user selects "highlight option"
     # - user submits a comment
@@ -213,7 +258,7 @@ def individual_lesson(cid, lid):
         logger.debug("information posted to individual_lesson")
 
         # parentid is None if submission wasn't a reply
-        if parentid is None:
+        if not post_handled:
             # when user highlights text and selects "highlight" or "jump to text",
             # a request is sent from javascript rather than html
             if request.is_json:
@@ -308,36 +353,7 @@ def individual_lesson(cid, lid):
     results["cid"] = cid
     results["lid"] = lid
     
-    # javascript sends get request when user selects "comment"
-    # if user didn't select "comment", these values will just be None
-    start_offset = request.args.get("start_offset")
-    end_offset = request.args.get("end_offset")
-    selected_text = request.args.get("selected_text")
-    
-    
-    if start_offset and end_offset:     # only occurs when user selected "comment"
-        # make a dictionary with the info for the comment form
-        results["comment_form_data"] = {
-            "start_offset": start_offset,
-            "end_offset": end_offset,
-            "selected_text": selected_text
-        }
-        temp_highlight = {
-            "id": None,
-            "uid":uid,
-            "lid":lid,
-            "parentid":None,
-            "content":None,
-            "uploadtime":None,
-            "anonymous":None,
-            "private":None,
-            "comtype":"setting",
-            "tsrange":None,
-            "ts_start_offset":start_offset,
-            "ts_end_offset":end_offset,
-            "length":None
-        }
-        standalone_highlights.append(temp_highlight)
+    results["user"] = user.get_user(uid).full_name()
     
     parent_comments = [com[0][0] for com in children_forms]
 

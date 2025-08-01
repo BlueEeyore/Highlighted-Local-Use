@@ -29,6 +29,10 @@ class User(db.Model):
     userclasses = db.relationship("UserClass", back_populates="user")
     comments = db.relationship("Comment", back_populates="user")
 
+    def full_name(self):
+        """converts object into full name of user"""
+        return f"{self.firstname} {self.lastname}"
+
 
 class Class(db.Model):
     __tablename__ = "classes"

@@ -38,18 +38,36 @@
     </div>
     <div class="col-md-2">
         <div id="comment-sidebar" class="w-100">
-            {% if results.comment_form_data %}
+            {% if results.new_comment_form %}
                 <div class="comment focused-comment" id="setting-comment">
+                    <div class="comment-creator">{{results.user}}</div>
                     <form action="/classes/{{results.cid}}/{{results.lid}}" method="POST">
-                        <input type="hidden" name="start_offset" value="{{ results.comment_form_data.start_offset }}">
-                        <input type="hidden" name="end_offset" value="{{ results.comment_form_data.end_offset }}">
-                        <input type="hidden" name="selected_text" value="{{ results.comment_form_data.selected_text }}">
-                        <input type="hidden" name="comtype" value="comment">
+                        {% set form = results.new_comment_form %}
+                        {{form.hidden_tag()}}
 
-                        <label>Add your comment for: "{{ results.comment_form_data.selected_text }}"</label>
-                        <textarea name="comment_text" required></textarea>
+                        <!-- hidden values -->
+                        {{form.start_offset()}}
+                        {{form.end_offset()}}
+                        {{form.selected_text()}}
+                        {{form.comtype()}}
 
-                        <button type="submit">Save Comment</button>
+                        <!-- input form -->
+                        {{form.comment_text.label()}}
+                        {{form.comment_text()}}
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{form.visibility.label()}}
+                                {{form.visibility()}}
+                            </div>
+                            <div class="col-md-4">
+                                {{form.is_correction.label()}}
+                                {{form.is_correction()}}
+                            </div>
+                        </div>
+
+                        <!-- submit button -->
+                        {{form.submit()}}
                     </form>
                 </div>
             {% endif %}
