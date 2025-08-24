@@ -48,8 +48,10 @@ class CommentForm(FlaskForm):
     submit = SubmitField("Save Comment")
 
 
-# class button form (currently unused)
 class ClassForm(FlaskForm):
-    """gives the id of class clicked on classes page"""
-    class_id = HiddenField()
-    submit = SubmitField()
+    """form for creating class"""
+    name = StringField("Class name", validators=[DataRequired(), Length(min=3, max=40)])
+    school = StringField("School/University (Optional)", validators=[Length(max=40)])
+    privacy = SelectField("Privacy",
+                                  choices=[("public", "Public"), ("private", "Private")])
+    submit = SubmitField("Create")

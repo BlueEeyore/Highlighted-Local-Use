@@ -1,5 +1,5 @@
-from app.database.models import Class
-from app.database.models import db
+from app.database.models import Class, db
+from app.database import userclass
 from app.logger_config import get_logger
 from app import error
 import sys
@@ -92,12 +92,12 @@ def get_lessons(cid):
     return lessons
 
 
-def insert(name, joincode, starttime):
+def insert(name, private, school, joincode, starttime, creatorid=None):
     """inserts a class"""
-    logger.debug(f"adding class with {[name, joincode, starttime]}")
+    logger.debug(f"adding class with {[creatorid, name, private, school, joincode, starttime]}")
 
     # set new class instance
-    new_class = Class(name=name, joincode=joincode, starttime=starttime)
+    new_class = Class(name=name, private=private, school=school, joincode=joincode, starttime=starttime)
 
     # add new class to db
     try:
@@ -106,4 +106,14 @@ def insert(name, joincode, starttime):
         error.push_log(f"failed to add new class {new_class} to db", e, sys.exc_info())
         db.session.rollback()
         return None
+
+    # sometimes want to add creator immediately
+    if creatorid:
+        try:
+            userclass.insert(creatorid, new_class.id, "creator")
+        except Exception as e:
+            error.push_log(f"failed to connect new class to creator with uid {creatorid} in db", e, sys.exc_info())
+            db.session.rollback()
+            return None
+
     return new_class

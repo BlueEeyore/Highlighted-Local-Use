@@ -57,8 +57,46 @@ def join_class():
 def create_class():
     logger.debug("in create_class")
 
+    # getting uid
+    uid = session_globals.get("uid")
 
-    return render_template("create_class.html")
+    # checking if uid isn't in session, then redirects to login
+    if not uid:
+        return redirect(url_for("auth.login", next=request.url))
+
+    # initialising the class creation form
+    form = ClassForm()
+
+    # if the class creation form is submitted
+    if form.validate_on_submit():
+        logger.debug("form submitted. Grabbing form data")
+        name = form.name.data
+        school = form.school.data
+        private = form.privacy.data
+        
+        logger.debug("inserting new class into db")
+        new_class = clazz.insert(creatorid=uid,
+                                 name=name,
+                                 private=private,
+                                 school=school,
+                                 joincode=None,
+                                 starttime=None)
+        if not new_class:
+            error.push_log("failed to create new class")
+            abort(500)
+        try:
+            db.session.commit()
+        except Exception as e:
+            error.push_log("failed to commit to db")
+            abort(500)
+        logger.debug("new class inserted successfully")
+
+        logger.debug("redirecting to new class page")
+        logger.info(new_class)
+        return redirect(url_for("classes.individual_class", cid=new_class.id))
+
+    logger.debug("rendering class creation template")
+    return render_template("create_class.html", form=form)
 
 
 @classes_bp.route("/<int:cid>", methods=['GET', 'POST'])
@@ -167,12 +205,16 @@ def individual_lesson(cid, lid):
     # sorts by start offset and then end offset and then id
     results["highlights"].sort(key = lambda x : [x["ts_start_offset"], x["ts_end_offset"], x["id"]])
 
+    # presetting new comment aspects.
+    parentid = None
+    anonymous = None
+    private = None
 
-    parentid = None # if the submittion isn't a replies this will remain as None
+
     reply_forms = {}
     for highlight in results["highlights"]:
         visible = not (highlight["private"] and (highlight["uid"] != uid))
-        if highlight["comtype"] in ["comment", "reply"] and visible:
+        if highlight["comtype"] in ["comment", "correction", "reply"] and visible:
             # set up individual reply form for each comment
             form = CommentReplyForm(prefix=f"{highlight['id']}-") # prefix to distinguish forms
             # form = CommentReplyForm()
@@ -198,7 +240,7 @@ def individual_lesson(cid, lid):
     # now make comment data into a nice frontend-friendly format
     children_forms = []
     for com_id in reply_forms:
-        if reply_forms[com_id][0]["comtype"] == "comment":
+        if reply_forms[com_id][0]["comtype"] in ["comment", "correction"]:
             replies = comment.get_children(com_id)
             if replies is None:
                 error.push_log("failed to get comment replies")
@@ -246,7 +288,19 @@ def individual_lesson(cid, lid):
         comment_content = new_comment_form.comment_text.data
         start_offset = int(new_comment_form.start_offset.data)
         end_offset = int(new_comment_form.end_offset.data)
+
         comtype = "comment"
+        is_correction = new_comment_form.is_correction.data
+        if is_correction:
+            comtype = "correction"
+
+        visibility = new_comment_form.visibility.data
+        if visibility == "anonymous":
+            anonymous = True
+        elif visibility == "private":
+            private = True
+
+        # flagging that the post request has been handled and comment can just immediately be inserted
         post_handled = True
 
 
@@ -298,7 +352,7 @@ def individual_lesson(cid, lid):
 
                 # this could be done earlier in the "if request.is_json" but
                 # leaving it separate in case I add more options later
-                if comtype == "comment":
+                if comtype in ["comment", "correction"]:
                     comment_content = data.get("comment_text")
                 else:
                     comment_content = None
@@ -313,8 +367,8 @@ def individual_lesson(cid, lid):
             parentid=parentid,
             content=comment_content,
             uploadtime=None,
-            anonymous=None,
-            private=None,
+            anonymous=anonymous,
+            private=private,
             comtype=comtype,
             tsrange=None,
             ts_start_offset=start_offset,

@@ -1,5 +1,33 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<div class="row">
+    <div class="col-sm-4"></div>
+    <div class="col-sm-4">
+        <form action="/classes/create" method="POST">
+            {{form.hidden_tag()}}
+
+            <div class="row">
+                {{form.name.label()}}
+                {{form.name()}}
+            </div>
+
+            <div class="row">
+                {{form.school.label()}}
+                {{form.school()}}
+            </div>
+
+            <div class="row">
+                {{form.privacy.label()}}
+                {{form.privacy}}
+            </div>
+
+            <div class="row">
+                {{form.submit()}}
+            </div>
+        </form>
+    </div>
+    <div class="col-sm-4"></div>
+</div>
 
 {% endblock %}

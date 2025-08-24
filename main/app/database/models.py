@@ -38,6 +38,8 @@ class Class(db.Model):
     __tablename__ = "classes"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
+    private = db.Column(db.Boolean)
+    school = db.Column(db.String(255))
     joincode = db.Column(db.String(255), nullable=False, unique=True)
     starttime = db.Column(db.String(255), nullable=False)
 
@@ -49,6 +51,7 @@ class Class(db.Model):
         return {
             "id": self.id,
             "name": self.name,
+            "private": self.private,
             "joincode": self.joincode,
             "starttime": self.starttime
         }

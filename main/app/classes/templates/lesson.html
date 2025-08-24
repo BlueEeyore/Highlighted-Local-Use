@@ -55,6 +55,7 @@
                         {{form.comment_text.label()}}
                         {{form.comment_text()}}
 
+                        <!-- comment options -->
                         <div class="row">
                             <div class="col-md-4">
                                 {{form.visibility.label()}}
@@ -73,12 +74,14 @@
             {% endif %}
             {% for comment_form, replies in comment_forms %}
                 {% set comment, form = comment_form[0], comment_form[1] %}
-                <div class="comment" data-comment-id="{{comment.id}}">
+                <div class="comment {%if comment.comtype=='correction'%}comment-correction{%endif%}" data-comment-id="{{comment.id}}">
                     <div class="comment-creator">
                         {% if comment.anonymous %}
                             Anonymous
-                        {% else %}
+                            {% if comment.uid == results.uid %}(You){% endif %}
+                        {% elif not (comment.private and comment.uid == uid)%}
                             {{comment.creator}}
+                            {% if comment.private %}(private){% endif %}
                         {% endif %}
                     </div>
                     <div class="comment-content">{{comment.content}}</div>

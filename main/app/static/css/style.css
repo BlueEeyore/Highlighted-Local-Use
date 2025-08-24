@@ -131,6 +131,10 @@ dy {
     transition: all 0.3s ease;
 }
 
+.comment-correction {
+    background-color: #b0e0e6;
+}
+
 /* for datatable rows that can be clicked on */
 tr.clickable-row {
     cursor: pointer;

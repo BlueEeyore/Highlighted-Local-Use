@@ -1,5 +1,4 @@
-from app.database.models import UserClass
-from app.database.models import db
+from app.database.models import UserClass, db
 from app.logger_config import get_logger
 from app import error
 import sys

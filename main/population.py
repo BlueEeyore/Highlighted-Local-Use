@@ -50,6 +50,8 @@ def add_classes(n=100):
     for x in range(n):
         clazz.insert(
                 name=fake.text(max_nb_chars=20),
+                private=fake.boolean(),
+                school=fake.text(max_nb_chars=20),
                 joincode=unique_joincode(length=6),
                 starttime=fake.date_time().isoformat()
         )
