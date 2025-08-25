@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 
 db = SQLAlchemy()
@@ -41,7 +42,7 @@ class Class(db.Model):
     private = db.Column(db.Boolean)
     school = db.Column(db.String(255))
     joincode = db.Column(db.String(255), nullable=False, unique=True)
-    starttime = db.Column(db.String(255), nullable=False)
+    starttime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     lessons = db.relationship("Lesson", backref="clazz")
     userclasses = db.relationship("UserClass", back_populates="clazz")

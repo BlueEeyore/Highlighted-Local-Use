@@ -3,6 +3,8 @@ from app.database import userclass
 from app.logger_config import get_logger
 from app import error
 import sys
+import random
+import string
 
 logger = get_logger(__name__)
 
@@ -92,6 +94,21 @@ def get_lessons(cid):
     return lessons
 
 
+def generate_unique_joincode(length=8):
+    """generates a unique joincode for the class"""
+    characters = string.ascii_uppercase + string.digits
+    i = 0
+    while True:
+        i += 1
+        if i >= 1000:
+            return None
+
+        code = ''.join(random.choices(characters, k=length))
+        exists = db.session.query(Class).filter_by(joincode=code).first()
+        if not exists:
+            return code
+
+
 def insert(name, private, school, joincode, starttime, creatorid=None):
     """inserts a class"""
     logger.debug(f"adding class with {[creatorid, name, private, school, joincode, starttime]}")
@@ -107,7 +124,15 @@ def insert(name, private, school, joincode, starttime, creatorid=None):
         db.session.rollback()
         return None
 
-    # sometimes want to add creator immediately
+    # commit to db
+    try:
+        db.session.commit()
+    except Exception as e:
+        error.push_log(f"failed to commit to db", e, sys.exc_info())
+        db.session.rollback()
+        return None
+
+    # may want to add creator immediately
     if creatorid:
         try:
             userclass.insert(creatorid, new_class.id, "creator")

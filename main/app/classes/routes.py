@@ -7,6 +7,7 @@ from app.database import clazz, user, lesson, transcript, comment
 from app.database.models import db, Comment
 from app.classes.forms import VideoForm, CommentReplyForm, CommentForm, ClassForm
 from werkzeug.utils import secure_filename
+from datetime import datetime
 import sys
 
 logger = get_logger(__name__)
@@ -72,15 +73,16 @@ def create_class():
         logger.debug("form submitted. Grabbing form data")
         name = form.name.data
         school = form.school.data
-        private = form.privacy.data
+        private = True if form.privacy.data == "private" else False
+        joincode = clazz.generate_unique_joincode()
         
         logger.debug("inserting new class into db")
         new_class = clazz.insert(creatorid=uid,
                                  name=name,
                                  private=private,
                                  school=school,
-                                 joincode=None,
-                                 starttime=None)
+                                 joincode=joincode,
+                                 starttime=datetime.utcnow())
         if not new_class:
             error.push_log("failed to create new class")
             abort(500)

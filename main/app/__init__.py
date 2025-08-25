@@ -1,4 +1,5 @@
 from flask import Flask
+import os
 from app.database.models import db
 from .logger_config import get_logger
 from app.error_handlers import register_error_handlers
@@ -23,6 +24,7 @@ def create_app():
     # config and initialise db
     logger.debug("initialising db")
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Hello_21!@localhost:3306/13dtp'
+    # app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
     db.init_app(app)
     
 
