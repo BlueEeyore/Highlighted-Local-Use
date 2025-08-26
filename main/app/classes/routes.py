@@ -1,4 +1,4 @@
-from flask import render_template, abort, current_app, Blueprint, redirect, url_for, request, jsonify
+from flask import render_template, abort, current_app, Blueprint, redirect, url_for, request, jsonify, flash
 import os
 from app import session_globals, error
 from app.transcription import Transcription
@@ -57,31 +57,33 @@ def join_class():
         return redirect(url_for("auth.login", next=request.url))
 
     join_form = JoinClassForm()
-        
+    classid = None 
 
     # when "join class" button clicked
     if request.method == "POST":
+        logger.info(join_form.is_submitted())
+        logger.info(join_form.validate())
         if join_form.validate_on_submit():
             joincode = join_form.joincode.data
             class_joined = clazz.get_class_by("joincode", joincode)
             if len(class_joined) == 0:
-                # handle rejection by flashing message
-                pass
+                flash("Class does not exist", "danger")
             else:
                 classid = class_joined[0].id
         else:
             classid = request.form["classid"]
         
         # adding user to new class
-        conn = userclass.insert(uid=uid, cid=classid, role="student")
-        if not conn:
-            error.push_log("failed to add new userclass connection")
-            abort(500)
-        try:
-            db.session.commit()
-        except Exception as e:
-            error.push_log("failed to commit to db")
-            abort(500)
+        if classid:
+            conn = userclass.insert(uid=uid, cid=classid, role="student")
+            if not conn:
+                error.push_log("failed to add new userclass connection")
+                abort(500)
+            try:
+                db.session.commit()
+            except Exception as e:
+                error.push_log("failed to commit to db")
+                abort(500)
 
     # getting all public classes user is not a part of and converting objects to dictionary form
     classes = clazz.get_filtered(

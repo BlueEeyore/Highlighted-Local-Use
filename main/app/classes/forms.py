@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, RadioField, SelectField, SelectMultipleField, TextAreaField, SubmitField, FileField, HiddenField, BooleanField
-from wtforms.validators import InputRequired, DataRequired, Length
+from wtforms.validators import InputRequired, DataRequired, Optional, Length
 
 
 # sample order form that im copying from for dev
@@ -59,5 +59,5 @@ class ClassForm(FlaskForm):
 
 class JoinClassForm(FlaskForm):
     """form for entering join code"""
-    joincode = StringField("Join Code", validators=[Length(max=40)])
+    joincode = StringField("Join Code", validators=[Optional(), Length(max=40)])
     submit = SubmitField("Join")
