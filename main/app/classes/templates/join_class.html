@@ -1,5 +1,58 @@
 {% extends "layout.html" %}
 {% block content %}
+<!-- back button -->
+<div class="row">
+    <div class="col-sm-1"></div>
+    <div class="col-sm-1">
+		<a class="btn btn-outline-secondary btn-block w-100" href="/classes/{{results.cid}}" width="100%">Back</a>
+    </div>
+</div>
 
+<!-- datatable displaying all public classes -->
+<div class="row">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+        <table id="join_classes" class="display" width="100%">
+            <!-- column titles -->
+            <thead>
+                <tr>
+                    <th></th>
+                    <th><div class="table-title">Name</div></th>
+                    <th><div class="table-title">School</div></th>
+                </tr>
+            </thead>
+            <!-- column content -->
+            <tbody>
+                <!-- looping over each lesson in class -->
+                {% for class_data in classes %}
+                    {# <!-- <tr class="clickable-row" onclick="window.location.href='/classes/{{cid}}/{{lesson_data.id}}'"> --> #}
+                    <tr data-child-content="
+                        <dl>
+                            <dt>Created:</dt>
+                            <dd>{{class_data.starttime}}</dd>
+                            <dd>
+                                <form action='/classes/join' method='post'>
+                                    <div class='row pad-row'>
+                                        <button class='btn btn-primary' name='classid' value='{{class_data.id}}'>Join Class</button>
+                                    </div>
+                                </form
+                            </dd>
+                        </dl>">
+                        <td class="dt-control"></td>
+                        <td>
+                            {{class_data.name}}
+                        </td>
+                        <td>{{class_data.school}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-sm-3"></div>
+</div>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/datatables.js') }}"></script>
 {% endblock %}

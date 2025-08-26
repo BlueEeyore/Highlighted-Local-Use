@@ -3,7 +3,7 @@ import os
 from app import session_globals, error
 from app.transcription import Transcription
 from app.logger_config import get_logger
-from app.database import clazz, user, lesson, transcript, comment
+from app.database import clazz, user, lesson, transcript, comment, userclass
 from app.database.models import db, Comment
 from app.classes.forms import VideoForm, CommentReplyForm, CommentForm, ClassForm
 from werkzeug.utils import secure_filename
@@ -49,9 +49,34 @@ def classes():
 def join_class():
     logger.debug("in join_class")
 
-    classes = clazz.all_classes()
+    # getting uid
+    uid = session_globals.get("uid")
 
-    return render_template("join_class.html", classes=classes)
+    # checking if uid isn't in session, then redirects to login
+    if not uid:
+        return redirect(url_for("auth.login", next=request.url))
+
+    # getting all public classes and converting objects to dictionary form
+    classes = clazz.get_class_by("private", False)
+    class_dicts = [cla.to_dict() for cla in classes]
+
+    # when "join class" button clicked
+    if request.method == "POST":
+        classid = request.form["classid"]
+        
+        # adding user to new class
+        conn = userclass.insert(uid=uid, cid=classid, role="student")
+        if not conn:
+            error.push_log("failed to add new userclass connection")
+            abort(500)
+        try:
+            db.session.commit()
+        except Exception as e:
+            error.push_log("failed to commit to db")
+            abort(500)
+
+    logger.debug("rendering join_class template")
+    return render_template("join_class.html", classes=class_dicts)
 
 
 @classes_bp.route("/create", methods=['GET', 'POST'])

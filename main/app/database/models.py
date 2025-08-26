@@ -53,6 +53,7 @@ class Class(db.Model):
             "id": self.id,
             "name": self.name,
             "private": self.private,
+            "school": self.school,
             "joincode": self.joincode,
             "starttime": self.starttime
         }
