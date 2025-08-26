@@ -36,7 +36,7 @@ def get_class(cid):
         return None
 
 def get_class_by(col_name, val):
-    """queries class"""
+    """queries class by one requirement"""
     logger.debug(f"getting all classes with column {col_name} and value {val}")
 
     # finding the column in Class associated with the given column name
@@ -50,6 +50,17 @@ def get_class_by(col_name, val):
     # returning all classes filtered by that column
     logger.debug(f"returning all classes filtered by column {col_name}")
     return Class.query.filter(col_attr==val).all()
+
+
+def get_filtered(*filters):
+    """queries class with given filters"""
+    logger.debug(f"getting all classes with filters {filters}")
+    
+    try:
+        return db.session.query(Class).filter(*filters).all()
+    except Exception as e:
+        error.push_log(f"failed to query Class with filters {filters}")
+        return None
 
 
 def get_users(cid):

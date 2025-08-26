@@ -4,7 +4,19 @@
 <div class="row">
     <div class="col-sm-1"></div>
     <div class="col-sm-1">
-		<a class="btn btn-outline-secondary btn-block w-100" href="/classes/{{results.cid}}" width="100%">Back</a>
+		<a class="btn btn-outline-secondary btn-block w-100" href="/classes" width="100%">Back</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+        <h2>Join a private class...</h2>
+        <form action="/classes/join" method="post">
+            {{join_form.hidden_tag()}}
+            {{join_form.joincode()}}
+            {{join_form.submit()}}
+        </form>
     </div>
 </div>
 

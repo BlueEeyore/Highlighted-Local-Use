@@ -55,3 +55,9 @@ class ClassForm(FlaskForm):
     privacy = SelectField("Privacy",
                                   choices=[("public", "Public"), ("private", "Private")])
     submit = SubmitField("Create")
+
+
+class JoinClassForm(FlaskForm):
+    """form for entering join code"""
+    joincode = StringField("Join Code", validators=[Length(max=40)])
+    submit = SubmitField("Join")

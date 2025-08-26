@@ -4,8 +4,8 @@ from app import session_globals, error
 from app.transcription import Transcription
 from app.logger_config import get_logger
 from app.database import clazz, user, lesson, transcript, comment, userclass
-from app.database.models import db, Comment
-from app.classes.forms import VideoForm, CommentReplyForm, CommentForm, ClassForm
+from app.database.models import db, Comment, Class, UserClass
+from app.classes.forms import VideoForm, CommentReplyForm, CommentForm, ClassForm, JoinClassForm
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import sys
@@ -56,13 +56,21 @@ def join_class():
     if not uid:
         return redirect(url_for("auth.login", next=request.url))
 
-    # getting all public classes and converting objects to dictionary form
-    classes = clazz.get_class_by("private", False)
-    class_dicts = [cla.to_dict() for cla in classes]
+    join_form = JoinClassForm()
+        
 
     # when "join class" button clicked
     if request.method == "POST":
-        classid = request.form["classid"]
+        if join_form.validate_on_submit():
+            joincode = join_form.joincode.data
+            class_joined = clazz.get_class_by("joincode", joincode)
+            if len(class_joined) == 0:
+                # handle rejection by flashing message
+                pass
+            else:
+                classid = class_joined[0].id
+        else:
+            classid = request.form["classid"]
         
         # adding user to new class
         conn = userclass.insert(uid=uid, cid=classid, role="student")
@@ -75,8 +83,15 @@ def join_class():
             error.push_log("failed to commit to db")
             abort(500)
 
+    # getting all public classes user is not a part of and converting objects to dictionary form
+    classes = clazz.get_filtered(
+        Class.private == False,
+        ~Class.userclasses.any(UserClass.uid == uid)    # user is not a part of
+    )
+    class_dicts = [cla.to_dict() for cla in classes]
+
     logger.debug("rendering join_class template")
-    return render_template("join_class.html", classes=class_dicts)
+    return render_template("join_class.html", classes=class_dicts, join_form=join_form)
 
 
 @classes_bp.route("/create", methods=['GET', 'POST'])
