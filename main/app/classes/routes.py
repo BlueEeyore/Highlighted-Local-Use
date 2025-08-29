@@ -205,7 +205,7 @@ def create_lesson(cid):
         transcriber = Transcription()
         transcript_dict = transcriber.trans_video(file_path)
         transcript.insert_transcript(new_lesson.id, transcript_dict)
-        logger.info("successfully inserted transcript")
+        logger.debug("successfully inserted transcript")
 
         # get the id for the lesson just inserted
         lid = new_lesson.id
@@ -261,7 +261,6 @@ def individual_lesson(cid, lid):
         if highlight["comtype"] in ["comment", "correction", "reply"] and visible:
             # set up individual reply form for each comment
             form = CommentReplyForm(prefix=f"{highlight['id']}-") # prefix to distinguish forms
-            # form = CommentReplyForm()
             form.start_offset.data = highlight["ts_start_offset"]
             form.end_offset.data = highlight["ts_end_offset"]
             form.parentid.data = highlight["id"]
@@ -281,7 +280,7 @@ def individual_lesson(cid, lid):
                 comtype = "reply"
                 post_handled = True
     
-    # now make comment data into a nice frontend-friendly format
+    # make comment data into a frontend-friendly format
     children_forms = []
     for com_id in reply_forms:
         if reply_forms[com_id][0]["comtype"] in ["comment", "correction"]:
@@ -299,16 +298,16 @@ def individual_lesson(cid, lid):
 
     # javascript sends get request when user selects "comment"
     # if user didn't select "comment", these values will just be None
-    start_offset = request.args.get("start_offset")
-    end_offset = request.args.get("end_offset")
-    selected_text = request.args.get("selected_text")
+    temp_start_offset = request.args.get("start_offset")
+    temp_end_offset = request.args.get("end_offset")
+    temp_selected_text = request.args.get("selected_text")
     new_comment_form = CommentForm()
-    if start_offset and end_offset:     # only occurs when user selected "comment"
+    if temp_start_offset and temp_end_offset:     # only occurs when user selected "comment"
         # form with the info for the comment
         logger.debug("User selected 'comment'. Preparing comment form")
-        new_comment_form.start_offset.data = start_offset
-        new_comment_form.end_offset.data = end_offset
-        new_comment_form.selected_text.data = selected_text
+        new_comment_form.start_offset.data = temp_start_offset
+        new_comment_form.end_offset.data = temp_end_offset
+        new_comment_form.selected_text.data = temp_selected_text
         results["new_comment_form"] = new_comment_form
 
         # temporary highlight for pending comment
@@ -323,8 +322,8 @@ def individual_lesson(cid, lid):
             "private":None,
             "comtype":"setting",
             "tsrange":None,
-            "ts_start_offset":start_offset,
-            "ts_end_offset":end_offset,
+            "ts_start_offset":temp_start_offset,
+            "ts_end_offset":temp_end_offset,
             "length":None
         }
         standalone_highlights.append(temp_highlight)   
@@ -392,7 +391,6 @@ def individual_lesson(cid, lid):
                 end_offset = int(data.get("end_offset"))
                 selected_text = data.get("selected_text")   # for debugging
                 comtype = data.get("comtype")
-                logger.info(start_offset)
 
                 # this could be done earlier in the "if request.is_json" but
                 # leaving it separate in case I add more options later
@@ -456,8 +454,6 @@ def individual_lesson(cid, lid):
     parent_comments = [com[0][0] for com in children_forms]
 
     logger.debug("rendering individual lesson page")
-    logger.info(f"COMMENT DICTS: {children_forms}")
-    logger.info(f"PARENT DICTS: {parent_comments}")
     return render_template(
         "lesson.html",
         results=results,

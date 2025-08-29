@@ -1,9 +1,97 @@
+/* General Body Styling */
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa; /* A clean, light grey background */
+}
 
-dy {
-    font-family: sans-serif;
-    line-height: 1.6;
-    padding: 2em;
-    background-color: #f9f9f9;
+/*
+  THE MAIN CONTAINER
+  - max-width: Prevents the content from stretching too wide on large screens.
+  - margin: 4rem auto: Adds space from the top and automatically centers the block horizontally.
+*/
+.content-wrapper {
+    width: 90%;
+    max-width: 960px;
+    margin: 4rem auto;
+}
+
+h1 {
+    text-align: center; /* Center the title */
+    color: #212529;
+    margin-bottom: 2.5rem;
+    font-weight: 600;
+}
+
+/* Table Styling */
+#classes {
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    overflow: hidden; /* Ensures the border-radius is applied to the table corners */
+    text-align: left;
+}
+
+#classes thead {
+    background-color: #f8f9fa; /* Light grey header for a subtle look */
+}
+
+#classes th, #classes td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+#classes th {
+    font-weight: 600;
+    color: #495057;
+}
+
+#classes tbody tr:last-child td {
+    border-bottom: none; /* Removes the bottom border on the last row */
+}
+
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.clickable-row:hover {
+    background-color: #f1f3f5; /* A subtle hover effect */
+}
+
+
+/*
+  This styles the div containing your buttons.
+  - display: flex: Aligns the buttons in a row.
+  - gap: 1rem: Adds spacing between the buttons.
+*/
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.button-group a.btn {
+    flex-grow: 1; /* Makes both buttons take up equal space */
+    max-width: 300px; /* Prevents buttons from being excessively wide */
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #ced4da;
+    background-color: #fff;
+    color: #212529;
+    text-align: center;
+}
+
+.button-group a.btn:hover {
+    background-color: #212529;
+    color: #fff;
+    border-color: #212529;
 }
 
 #transcript-container {
@@ -129,10 +217,6 @@ dy {
     transform: scale(1.05);
     background-color: #ffffcc;
     transition: all 0.3s ease;
-}
-
-.comment-correction {
-    background-color: #b0e0e6;
 }
 
 /* for datatable rows that can be clicked on */

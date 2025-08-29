@@ -1,55 +1,37 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<div class="content-wrapper">
+    <h1>Your Classes</h1>
 
-<div class="row">
-    <div class="col-sm-3"></div>
-    <div class="col-sm-6">
-        <table id="classes" class="display" width="100%">
-            <!-- column titles -->
-            <thead>
-                <tr>
-                    <th><div class="table-title">Class</div></th>
-                    <th><div class="table-title">Role</div></th>
+    <table id="classes" class="display" width="100%">
+        <!-- column titles -->
+        <thead>
+            <tr>
+                <th><div class="table-title">Class</div></th>
+                <th><div class="table-title">Role</div></th>
+            </tr>
+        </thead>
+        <!-- column content -->
+        <tbody>
+            <!-- looping over each class that the user is in  -->
+            {% for class_data in classes_data %}
+                <tr class="clickable-row" onclick="window.location.href='/classes/{{class_data.id}}'">
+                    <td>
+                        {{class_data['name']}}
+                    </td>
+                    <td>role</td>
                 </tr>
-            </thead>
-            <!-- column content -->
-            <tbody>
-                <!-- looping over each class that the user is in  -->
-                {% for class_data in classes_data %}
-                    <!-- if i want to submit a form: -->
-                    <!-- <tr class="clickable-row" onclick="this.querySelector('form').submit()"> -->
-                    <tr class="clickable-row" onclick="window.location.href='/classes/{{class_data.id}}'">
-                        <td>
-                            {{class_data['name']}}
-                        </td>
-                        <td>role</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div class="col-sm-3"></div>
-</div>
+            {% endfor %}
+        </tbody>
+    </table>
 
-<!-- join class button -->
-<div class="row">
-    <div class="col-sm-3"></div>
-    <div class="col-sm-6">
-        <a class="btn btn-outline-dark w-100" href="/classes/create">Create Class</a>
+    <!-- Button Group -->
+    <div class="button-group">
+        <a class="btn btn-outline-dark" href="/classes/create">Create Class</a>
+        <a class="btn btn-outline-dark" href="/classes/join">Join Class</a>
     </div>
-    <div class="col-sm-3"></div>
 </div>
-
-<!-- create class button -->
-<div class="row">
-    <div class="col-sm-3"></div>
-    <div class="col-sm-6">
-        <a class="btn btn-outline-dark w-100" href="/classes/join">Join Class</a>
-    </div>
-    <div class="col-sm-3"></div>
-</div>
-
 
 {% endblock %}
 
