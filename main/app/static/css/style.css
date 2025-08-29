@@ -1,98 +1,186 @@
-/* General Body Styling */
+/*
+    THEME: Professional University
+    PALETTE:
+    - Payne's Gray (#4D6A6D) - Primary UI element, headers, navigation
+    - Amaranth Red (#E94A64) - Accent, primary call-to-action
+    - Black Olive (#403D39) - Body text for readability
+    - Nyanza (#C4E7D4) - Interactive hover state for tables
+    - Soft Off-White (#f8f9fa) - Main background
+    - White (#FFFFFF) - Contrasting text, card backgrounds
+*/
+
+/* 1. GENERAL BODY & TYPOGRAPHY */
 body, html {
     height: 100%;
     margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa; /* A clean, light grey background */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f8f9fa; /* Soft off-white for a calm background */
+    color: #403D39; /* Black Olive for high readability */
 }
 
-/*
-  THE MAIN CONTAINER
-  - max-width: Prevents the content from stretching too wide on large screens.
-  - margin: 4rem auto: Adds space from the top and automatically centers the block horizontally.
-*/
+a {
+    color: #4D6A6D; /* Payne's Gray for standard links */
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+    color: #E94A64; /* Amaranth Red for link hover, drawing attention */
+    text-decoration: none;
+}
+
+/* 2. LAYOUT & CONTAINERS */
 .content-wrapper {
     width: 90%;
     max-width: 960px;
     margin: 4rem auto;
+    padding: 2rem;
+    background-color: #ffffff; /* Content on a clean white card */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
 }
 
-h1 {
-    text-align: center; /* Center the title */
-    color: #212529;
+/* 3. NAVIGATION BAR */
+/* This creates a custom, professional navbar using your palette */
+.navbar-themed {
+    background-color: #4D6A6D !important; /* Payne's Gray for a strong, academic feel */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-themed .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.85); /* Off-white text for good contrast */
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    border-bottom: 3px solid transparent; /* For a subtle hover effect below */
+    transition: all 0.2s ease-in-out;
+}
+
+.navbar-themed .navbar-nav .nav-link:hover {
+    color: #ffffff;
+    border-bottom-color: #C4E7D4; /* Nyanza accent on hover */
+}
+
+/* Customizes the mobile menu icon to be white */
+.navbar-themed .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.85)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* 4. HEADER */
+.header-bg {
+    background-color: #E94A64; /* Amaranth Red */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Targets the h1 inside the red header banner */
+.header-bg h1 {
+    font-weight: 700;
+    text-shadow: 1px 1px 3px rgba(64, 61, 57, 0.2);
+    font-size: 2.5rem;
+    color: #ffffff; /* Ensures text is white */
+    margin: 0;
+}
+
+/* This h1 is for main page titles within the white content area */
+h1.page-title {
+    text-align: center;
+    color: #403D39; /* Black Olive */
     margin-bottom: 2.5rem;
     font-weight: 600;
 }
 
-/* Table Styling */
+/* 5. TABLE STYLING */
+/* Minor refinements for a cleaner look */
 #classes {
     border-collapse: collapse;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2.5rem;
     background-color: #ffffff;
     border-radius: 8px;
-    border: 1px solid #dee2e6;
-    overflow: hidden; /* Ensures the border-radius is applied to the table corners */
+    border: none; /* The outer wrapper provides the border now */
+    overflow: hidden;
     text-align: left;
+    width: 100%;
 }
 
 #classes thead {
-    background-color: #f8f9fa; /* Light grey header for a subtle look */
+    background-color: #4D6A6D; /* Payne's Gray */
+    color: #ffffff;
 }
 
 #classes th, #classes td {
-    padding: 1rem 1.25rem;
+    padding: 1.1rem 1.25rem;
     border-bottom: 1px solid #dee2e6;
 }
 
 #classes th {
     font-weight: 600;
-    color: #495057;
 }
 
 #classes tbody tr:last-child td {
-    border-bottom: none; /* Removes the bottom border on the last row */
+    border-bottom: none;
 }
 
 .clickable-row {
     cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
 .clickable-row:hover {
-    background-color: #f1f3f5; /* A subtle hover effect */
+    background-color: #C4E7D4; /* Nyanza for hover */
+    color: #403D39; /* Ensures text remains dark and readable */
 }
 
-
-/*
-  This styles the div containing your buttons.
-  - display: flex: Aligns the buttons in a row.
-  - gap: 1rem: Adds spacing between the buttons.
-*/
+/* 6. BUTTONS */
+/* A unified and flexible button system */
 .button-group {
     display: flex;
     justify-content: center;
-    gap: 1rem;
+    gap: 1.5rem;
+    flex-wrap: wrap; /* Allows buttons to stack on smaller screens */
 }
 
-.button-group a.btn {
-    flex-grow: 1; /* Makes both buttons take up equal space */
-    max-width: 300px; /* Prevents buttons from being excessively wide */
+/* Base button style */
+.btn {
     border-radius: 8px;
-    padding: 12px 20px;
-    font-weight: 500;
+    padding: 12px 24px;
+    font-weight: 600;
     transition: all 0.2s ease-in-out;
-    border: 1px solid #ced4da;
-    background-color: #fff;
-    color: #212529;
     text-align: center;
+    border: 2px solid transparent;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
 }
 
-.button-group a.btn:hover {
-    background-color: #212529;
-    color: #fff;
-    border-color: #212529;
+/* Primary Button (Create, Submit, etc.) */
+.btn.btn-primary {
+    background-color: #E94A64; /* Amaranth Red */
+    color: #ffffff;
 }
+
+.btn.btn-primary:hover {
+    background-color: #d83a54; /* Darker Amaranth */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(233, 74, 100, 0.3);
+}
+
+/* Secondary Button (Join, Cancel, etc.) */
+.btn.btn-secondary {
+    background-color: transparent;
+    color: #4D6A6D; /* Payne's Gray */
+    border-color: #4D6A6D;
+}
+
+.btn.btn-secondary:hover {
+    background-color: #4D6A6D;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(77, 106, 109, 0.2);
+}
+
+/* ***************** */
+/* LESSON PAGE STUFF */
+/* ***************** */
 
 #transcript-container {
     width: 79%;

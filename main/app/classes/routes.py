@@ -197,8 +197,21 @@ def create_lesson(cid):
 
         # insert lesson into db
         uid = session_globals.get("uid")
-        new_lesson = lesson.insert(uid, cid, lesson_name, fn, mime_type, "_")  # insert returns id for new row
-        db.session.commit()
+        new_lesson = lesson.insert(  # insert returns id for new row
+            uid,
+            cid,
+            lesson_name,
+            fn,
+            mime_type,
+            datetime.utcnow())
+        if not new_lesson:
+            error.push_log("failed to create new lesson")
+            abort(500)
+        try:
+            db.session.commit()
+        except Exception as e:
+            error.push_log("failed to commit to db")
+            abort(500)
         
         # transcribe video
         logger.debug("about to transcribe video")
