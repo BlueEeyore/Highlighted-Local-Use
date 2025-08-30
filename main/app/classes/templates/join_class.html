@@ -1,73 +1,78 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<!-- back button -->
-<div class="row">
-    <div class="col-sm-1"></div>
-    <div class="col-sm-1">
-		<a class="btn btn-outline-secondary btn-block w-100" href="/classes" width="100%">Back</a>
-    </div>
-</div>
+<!-- Use the page-container to guarantee centering -->
+<div class="page-container">
 
-<!-- form to join private classes with joincode -->
-<div class="row">
-    <div class="col-sm-3"></div>
-    <div class="col-sm-6">
-        <h2>Join a private class...</h2>
+    <!-- Container for the top-left 'Back' button -->
+    <div class="top-left-container">
+        <a class="btn btn-custom-secondary" href="/classes">Back to My Classes</a>
+    </div>
+
+    <!-- The main content card -->
+    <div class="content-wrapper">
+
+        <h1 class="page-title">Join a Class</h1>
+
+        <!-- Form to join private classes with a join code -->
+        <h2 style="text-align: center; color: #4D6A6D; margin-bottom: 1rem;">Join with a Code</h2>
         <form action="/classes/join" method="post">
-            {{join_form.hidden_tag()}}
-            {{join_form.joincode()}}
-            {{join_form.submit()}}
+            {{ join_form.hidden_tag() }}
+            <div class="form-group">
+                <!-- Assuming the field name is 'joincode', add a proper label -->
+                {{ join_form.joincode.label(style="display: none;") }} 
+                <!-- Add placeholder and class for styling -->
+                {{ join_form.joincode(class="form-control", placeholder="Enter class join code...") }}
+            </div>
+            <div class="button-group" style="margin-bottom: 3rem;">
+                {{ join_form.submit(class="btn btn-custom-primary") }}
+            </div>
         </form>
-    </div>
-    <div class="col-sm-3"></div>
-</div>
 
-<!-- datatable displaying all public classes -->
-<div class="row">
-    <div class="col-sm-3"></div>
-    <div class="col-sm-6">
+        <!-- Divider with text -->
+        <div class="divider">
+            <span class="divider-text">Or...</span>
+        </div>
+
+        <!-- Datatable displaying all public classes -->
+        <h2 style="text-align: center; color: #4D6A6D; margin-bottom: 1.5rem;">Join a Public Class</h2>
         <table id="join_classes" class="display" width="100%">
-            <!-- column titles -->
             <thead>
                 <tr>
-                    <th></th>
+                    <th></th> <!-- For the expand/collapse control -->
                     <th><div class="table-title">Name</div></th>
                     <th><div class="table-title">School</div></th>
                 </tr>
             </thead>
-            <!-- column content -->
             <tbody>
-                <!-- looping over each lesson in class -->
                 {% for class_data in classes %}
-                    {# <!-- <tr class="clickable-row" onclick="window.location.href='/classes/{{cid}}/{{lesson_data.id}}'"> --> #}
+                    {# UPDATED: Note the change to the button class inside the string #}
                     <tr data-child-content="
                         <dl>
                             <dt>Created:</dt>
                             <dd>{{class_data.starttime}}</dd>
                             <dd>
                                 <form action='/classes/join' method='post'>
-                                    <div class='row pad-row'>
-                                        <button class='btn btn-primary' name='classid' value='{{class_data.id}}'>Join Class</button>
-                                    </div>
-                                </form
+                                    <!-- Using our new smaller, custom-styled button -->
+                                    <button class='btn btn-custom-primary btn-sm' name='classid' value='{{class_data.id}}'>Join This Class</button>
+                                </form>
                             </dd>
                         </dl>">
                         <td class="dt-control"></td>
-                        <td>
-                            {{class_data.name}}
-                        </td>
+                        <td>{{class_data.name}}</td>
                         <td>{{class_data.school}}</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-    <div class="col-sm-3"></div>
-</div>
+
+    </div><!-- End of content-wrapper -->
+
+</div><!-- End of page-container -->
 
 {% endblock %}
 
 {% block scripts %}
+<!-- This block remains the same -->
 <script src="{{ url_for('static', filename='js/datatables.js') }}"></script>
 {% endblock %}

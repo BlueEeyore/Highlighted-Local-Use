@@ -21,7 +21,7 @@ class OrderForm(FlaskForm):
 class VideoForm(FlaskForm):
     """form for uploading video"""
     video = FileField("Video", validators=[InputRequired()])
-    name = TextAreaField("Lesson Name", validators=[DataRequired(), Length(min=1, max=100)])
+    name = StringField("Lesson Name", validators=[DataRequired(), Length(min=1, max=100)])
     submit = SubmitField("Upload File")
     
 

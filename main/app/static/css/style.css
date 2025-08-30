@@ -167,31 +167,6 @@ h1.page-title {
     font-size: 0.9rem;
 }
 
-/* Primary Button (Create, Submit, etc.) */
-.btn.btn-primary {
-    background-color: #E94A64; /* Amaranth Red */
-    color: #ffffff;
-}
-
-.btn.btn-primary:hover {
-    background-color: #d83a54; /* Darker Amaranth */
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(233, 74, 100, 0.3);
-}
-
-/* Secondary Button (Join, Cancel, etc.) */
-.btn.btn-secondary {
-    background-color: transparent;
-    color: #4D6A6D; /* Payne's Gray */
-    border-color: #4D6A6D;
-}
-
-.btn.btn-secondary:hover {
-    background-color: #4D6A6D;
-    color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(77, 106, 109, 0.2);
-}
 
 /*
 ================================================================
@@ -264,6 +239,170 @@ conflicts with Bootstrap's default .btn-primary.
 .btn-custom-secondary:focus-visible {
     outline: none;
     box-shadow: 0 0 0 4px rgba(77, 106, 109, 0.4); /* Our custom gray glow */
+}
+
+/*
+================================================================
+10. PAGE-SPECIFIC LAYOUTS
+================================================================
+*/
+
+/*
+  Container for action buttons (like a 'Back' button) that need
+  to sit above the main content-wrapper on the top-left.
+*/
+.top-left-container {
+    width: 90%;
+    max-width: 960px; /* Matches .content-wrapper */
+    margin: 2rem auto -2.5rem; /* Centers the container and manages spacing */
+    position: relative;
+    z-index: 10;
+    /* By removing 'display: flex', this container now centers correctly */
+}
+
+/*
+================================================================
+11. PAGE CENTERING CONTAINER
+================================================================
+*/
+
+/*
+  A full-width flex container designed to force its direct children
+  (like .top-left-container and .content-wrapper) to be centered
+  horizontally on the page. This overrides alignment issues from
+  parent templates.
+*/
+.page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* This is the key: it centers flex items */
+    width: 100%;
+}
+
+/*
+================================================================
+12. FORM STYLING
+================================================================
+*/
+
+/* Container for a label and its input to provide spacing */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+/* Style for form labels */
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #4D6A6D; /* Payne's Gray */
+    margin-bottom: 0.5rem;
+}
+
+/* General style for text inputs, textareas, etc. */
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #403D39;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 8px; /* Matches button radius */
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Focus style for inputs */
+.form-control:focus {
+    color: #403D39;
+    background-color: #fff;
+    border-color: #4D6A6D; /* Payne's Gray on focus */
+    outline: 0;
+    box-shadow: 0 0 0 4px rgba(77, 106, 109, 0.25); /* Payne's Gray glow */
+}
+
+/* Custom styling for the file input button */
+.form-control::file-selector-button {
+    padding: 0.75rem 1rem;
+    margin: -0.75rem -1rem; /* Fills the height and sits on the left */
+    margin-inline-end: 1rem;
+    color: #4D6A6D;
+    background-color: #f8f9fa; /* Soft off-white */
+    border: none;
+    border-inline-end: 1px solid #ced4da;
+    border-radius: 8px 0 0 8px; /* Rounds the left corners */
+    transition: background-color 0.15s ease-in-out;
+    font-weight: 600;
+}
+
+.form-control:hover::file-selector-button {
+    background-color: #e9ecef;
+}
+
+/*
+================================================================
+13. DATATABLES CHILD ROW STYLING
+================================================================
+*/
+
+/* General styling for the content inside an expanded row */
+tr.dt-hasChild dl {
+    padding: 1rem;
+    margin: 0;
+}
+
+tr.dt-hasChild dt {
+    font-weight: 600;
+    color: #4D6A6D; /* Payne's Gray */
+}
+
+tr.dt-hasChild dd {
+    padding-left: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Ensure the form inside the details has some space */
+tr.dt-hasChild form {
+    margin-top: 1rem;
+}
+
+/* A smaller variant of our custom buttons for tight spaces */
+.btn.btn-sm {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    letter-spacing: 0.4px;
+}
+
+/*
+================================================================
+14. DIVIDER STYLING
+================================================================
+*/
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 3rem 0; /* Adds more vertical space */
+}
+
+/* This creates the lines on either side of the text */
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #dee2e6; /* Light gray line */
+}
+
+/* This styles the text in the middle */
+.divider-text {
+    padding: 0 1.5rem; /* Space between the text and the lines */
+    font-size: 2.0rem;
+    font-weight: 600;
+    color: #4D6A6D; /* A soft, neutral gray */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 /* ***************** */
