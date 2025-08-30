@@ -1,150 +1,143 @@
 {% extends "layout.html" %}
-
 {% block content %}
 
-<div class="row">
-    <div class="col-sm-1"></div>
-    <div class="col-sm-1">
-		<a class="btn btn-outline-secondary btn-block w-100" href="/classes/{{results.cid}}" width="100%">Back</a>
+<!-- Use the page-container to guarantee centering -->
+<div class="page-container">
+
+    <!-- Top-left Back button -->
+    <div class="top-left-container">
+        <a class="btn btn-custom-secondary" href="/classes/{{results.cid}}">Back to Lessons</a>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-sm-3"></div>
-    <div class="col-sm-6">
-        <video id="lesson_video" width="240" height="440" class="w-100" controls>
-            <source src="{{url_for('static', filename='files/' + results.videofn)}}" type="{{results.mimetype}}">
-        </video>
-    </div>
-    <div class="col-sm-3"></div>
-</div>
+    <!-- Layout Container for this page -->
+    <div class="content-with-adjacent-sidebar">
 
-<div class="row">
-    <div class="col-md-10">
-        <div id="transcript-container" ...>
-            {% for segment in results["transcripts"] %}
-            <p class="transcript-segment" id="{{segment.id}}" data-timestamp="{{segment.start_ts}}">
-                {{segment.text}}
-            </p>
-            {% endfor %}
-        </div>
+        <!-- MAIN CONTENT COLUMN (Video + Transcript) -->
+        <div class="central-content">
+            
+            <div class="video-container">
+                <video id="lesson_video" class="w-100" controls>
+                    <source src="{{url_for('static', filename='files/' + results.videofn)}}" type="{{results.mimetype}}">
+                </video>
+            </div>
 
-        <!-- This is the pop-up menu. It's hidden by default with CSS. -->
-        <div id="highlight-menu">
-            <button id="highlight-btn">Highlight</button>
-            <button id="comment-btn">Comment</button>
-            <button id="jump-btn">Jump to Place</button>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div id="comment-sidebar" class="w-100">
-            {% if results.new_comment_form %}
-                <div class="comment focused-comment" id="setting-comment">
-                    <div class="comment-creator">{{results.user}}</div>
-                    <form action="/classes/{{results.cid}}/{{results.lid}}" method="POST">
-                        {% set form = results.new_comment_form %}
-                        {{form.hidden_tag()}}
-
-                        <!-- hidden values -->
-                        {{form.start_offset()}}
-                        {{form.end_offset()}}
-                        {{form.selected_text()}}
-                        {{form.comtype()}}
-
-                        <!-- input form -->
-                        {{form.comment_text.label()}}
-                        {{form.comment_text()}}
-
-                        <!-- comment options -->
-                        <div class="row">
-                            <div class="col-md-4">
-                                {{form.visibility.label()}}
-                                {{form.visibility()}}
-                            </div>
-                            <div class="col-md-4">
-                                {{form.is_correction.label()}}
-                                {{form.is_correction()}}
-                            </div>
-                        </div>
-
-                        <!-- submit button -->
-                        {{form.submit()}}
-                    </form>
+            <div class="content-wrapper">
+                <div id="transcript-container">
+                    {% for segment in results["transcripts"] %}
+                        <p class="transcript-segment" id="{{segment.id}}" data-timestamp="{{segment.start_ts}}">{{segment.text}}</p>
+                    {% endfor %}
                 </div>
-            {% endif %}
-            {% for comment_form, replies in comment_forms %}
-                {% set comment, form = comment_form[0], comment_form[1] %}
-                <div class="comment {%if comment.comtype=='correction'%}comment-correction{%endif%}" data-comment-id="{{comment.id}}">
-                    <div class="comment-creator">
-                        {% if comment.anonymous %}
-                            Anonymous
-                            {% if comment.uid == results.uid %}(You){% endif %}
-                        {% elif not (comment.private and comment.uid == uid)%}
-                            {{comment.creator}}
-                            {% if comment.private %}(private){% endif %}
-                        {% endif %}
-                    </div>
-                    <div class="comment-content">{{comment.content}}</div>
-                    <div class="comment-reply">
-                        <form method="POST">
-                            {{form.hidden_tag()}}
+            </div>
 
-                            {{form.parentid()}}
-                            {{form.start_offset(value="1")}}
-                            {{form.end_offset(value="2")}}
+            <!-- This is the pop-up menu. It's hidden by default with CSS. -->
+            <div id="highlight-menu">
+                <button id="highlight-btn">Highlight</button>
+                <button id="comment-btn">Comment</button>
+                <button id="jump-btn">Jump to Place</button>
+            </div>
+
+        </div> <!-- End of central-content-column -->
+
+        <!-- SIDEBAR COLUMN (Comments) -->
+        <div class="adjacent-sidebar">
+            <div id="comment-sidebar">
+                
+                {% if results.new_comment_form %}
+                    <div class="comment focused-comment" id="setting-comment">
+                        <div class="comment-creator">{{results.user}}</div>
+                        <form action="/classes/{{results.cid}}/{{results.lid}}" method="POST">
+                            {% set form = results.new_comment_form %}
+                            {{form.hidden_tag()}}
+                            {{form.start_offset()}}
+                            {{form.end_offset()}}
+                            {{form.selected_text()}}
                             {{form.comtype()}}
 
-                            {{form.msg.label()}}
-                            {{form.msg()}}
-
-                            {{form.submit()}}
+                            <div class="form-group">
+                                {{form.comment_text.label}}
+                                {{form.comment_text(class="form-control", rows="3")}}
+                            </div>
+                            <div class="row gx-2">
+                                <div class="col-md-6 form-group">
+                                    {{form.visibility.label}}
+                                    {{form.visibility(class="form-select")}}
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    {{form.is_correction.label}}
+                                    {{form.is_correction(class="form-select")}}
+                                </div>
+                            </div>
+                            {{form.submit(class="btn btn-custom-primary btn-sm w-100")}}
                         </form>
                     </div>
-                    <div class="comment-replies">
-                        {% for reply, reply_form in replies %}
-                        <div class="comment-creator">{{reply.creator}}</div>
-                        <div class="comment-replyto">To: {{comment.creator}}</div>
-                        <div class="comment-content">{{reply.content}}</div>
+                {% endif %}
+
+                {% for comment_form, replies in comment_forms %}
+                    {% set comment, form = comment_form[0], comment_form[1] %}
+                    <div class="comment {%if comment.comtype=='correction'%}comment-correction{%endif%}" data-comment-id="{{comment.id}}">
+                        <div class="comment-creator">
+                            {% if comment.anonymous %}
+                                Anonymous {% if comment.uid == results.uid %}(You){% endif %}
+                            {% elif not (comment.private and comment.uid == uid)%}
+                                {{comment.creator}} {% if comment.private %}(private){% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="comment-content">{{comment.content}}</div>
+
                         <div class="comment-reply">
                             <form method="POST">
-                                {{reply_form.hidden_tag()}}
-
-                                {{reply_form.parentid()}}
-                                {{reply_form.start_offset()}}
-                                {{reply_form.end_offset()}}
-                                {{reply_form.comtype()}}
-
-                                {{reply_form.msg.label()}}
-                                {{reply_form.msg()}}
-
-                                {{reply_form.submit()}}
+                                {{form.hidden_tag()}}
+                                {{form.parentid()}}
+                                {{form.start_offset(value="1")}}
+                                {{form.end_offset(value="2")}}
+                                {{form.comtype()}}
+                                <div class="form-group">
+                                    {{form.msg.label(style="display:none;")}}
+                                    {{form.msg(class="form-control", placeholder="Write a reply...")}}
+                                </div>
+                                {{form.submit(class="btn btn-custom-secondary btn-sm")}}
                             </form>
                         </div>
-                        {% endfor %}
+
+                        <div class="comment-replies">
+                            {% for reply, reply_form in replies %}
+                            <div class="comment-creator">{{reply.creator}}</div>
+                            <div class="comment-replyto">To: {{comment.creator}}</div>
+                            <div class="comment-content">{{reply.content}}</div>
+                            <div class="comment-reply">
+                                <form method="POST">
+                                    {{reply_form.hidden_tag()}}
+                                    {{reply_form.parentid()}}
+                                    {{reply_form.start_offset()}}
+                                    {{reply_form.end_offset()}}
+                                    {{reply_form.comtype()}}
+                                    <div class="form-group">
+                                        {{reply_form.msg.label(style="display:none;")}}
+                                        {{reply_form.msg(class="form-control", placeholder="Write a reply...")}}
+                                    </div>
+                                    {{reply_form.submit(class="btn btn-custom-secondary btn-sm")}}
+                                </form>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
+                {% endfor %}
+            </div>
+        </div> <!-- End of sidebar-column -->
 
+    </div> <!-- End of main-and-sidebar-layout -->
 
-
-
-
+</div><!-- End of page-container -->
 
 {% endblock %}
 
 {% block scripts %}
+<!-- This section remains the same -->
 <script>
-    // Pass the highlights data from Flask/Jinja2 into a JavaScript variable
-    // The `|tojson` filter is crucial for safely embedding the data.
     const commentsData = {{ parent_comments_json| tojson }};
     const standaloneHighlights = {{ standalone_highlights_json| tojson }};
-    const currentURL = window.location.pathname; // This will be "/classes/<cid>/<lid>"
+    const currentURL = window.location.pathname;
 </script>
-
 <script src="{{ url_for('static', filename='js/video_timestamp.js') }}"></script>
 <script src="{{ url_for('static', filename='js/highlighter.js') }}"></script>
-
 {% endblock %}
