@@ -41,29 +41,44 @@ a:hover {
     border: 1px solid #dee2e6;
 }
 
-/* 3. NAVIGATION BAR */
-/* This creates a custom, professional navbar using your palette */
+/*
+================================================================
+3. NAVIGATION BAR (Updated for a Lighter, Cleaner Look)
+================================================================
+*/
+
 .navbar-themed {
-    background-color: #4D6A6D !important; /* Payne's Gray for a strong, academic feel */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: #ffffff !important; /* Clean white background */
+    border-bottom: 1px solid #dee2e6; /* Subtle border for separation */
+    /* Removed the box-shadow for a flatter, more modern look */
 }
 
+/* Style for the links in the navbar */
 .navbar-themed .navbar-nav .nav-link {
-    color: rgba(255, 255, 255, 0.85); /* Off-white text for good contrast */
-    font-weight: 500;
+    color: #4D6A6D; /* Payne's Gray text for excellent contrast */
+    font-weight: 600; /* Make text slightly bolder */
     padding: 0.75rem 1rem;
-    border-bottom: 3px solid transparent; /* For a subtle hover effect below */
+    border-bottom: 3px solid transparent;
     transition: all 0.2s ease-in-out;
 }
 
+/* Hover effect for the links */
 .navbar-themed .navbar-nav .nav-link:hover {
-    color: #ffffff;
-    border-bottom-color: #C4E7D4; /* Nyanza accent on hover */
+    color: #E94A64; /* Amaranth Red accent on hover */
+    border-bottom-color: #E94A64; /* Adds a red underline on hover */
 }
 
-/* Customizes the mobile menu icon to be white */
+/*
+  Updates the mobile menu icon (the "hamburger") to be dark
+  so it's visible on the new white background.
+*/
 .navbar-themed .navbar-toggler-icon {
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.85)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(77, 106, 109, 0.8)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* Customizes the border of the mobile menu button */
+.navbar-themed .navbar-toggler {
+    border-color: rgba(77, 106, 109, 0.2);
 }
 
 /* 4. HEADER */
@@ -176,6 +191,79 @@ h1.page-title {
     color: #ffffff;
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(77, 106, 109, 0.2);
+}
+
+/*
+================================================================
+9. CUSTOM BUTTON CLASSES (Independent of Bootstrap Styles)
+================================================================
+This creates our own button styles from scratch to avoid
+conflicts with Bootstrap's default .btn-primary.
+*/
+
+/* --- Our New Primary Button (Amaranth Red) --- */
+
+.btn-custom-primary {
+    background-color: #E94A64; /* Amaranth Red */
+    color: #ffffff;
+    border: 2px solid #E94A64; /* Solid border to prevent size changes on hover */
+
+    /* Inherit base button styles */
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* --- Replace it with this block --- */
+.btn-custom-primary:hover {
+    background-color: #d83a54; /* Darker Amaranth */
+    border-color: #d83a54;
+    color: #ffffff; /* <<< ADD THIS LINE to keep text white */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* THE FIX: Custom focus style that will always work */
+.btn-custom-primary:focus,
+.btn-custom-primary:focus-visible {
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 0 4px rgba(233, 74, 100, 0.5); /* Our custom red glow */
+}
+
+
+/* --- Our New Secondary Button (Payne's Gray Outline) --- */
+
+.btn-custom-secondary {
+    background-color: transparent;
+    color: #4D6A6D; /* Payne's Gray */
+    border: 2px solid #4D6A6D;
+
+    /* Inherit base button styles */
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-custom-secondary:hover {
+    background-color: #4D6A6D;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(77, 106, 109, 0.2);
+}
+
+/* THE FIX: Custom focus style for the secondary button */
+.btn-custom-secondary:focus,
+.btn-custom-secondary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(77, 106, 109, 0.4); /* Our custom gray glow */
 }
 
 /* ***************** */
