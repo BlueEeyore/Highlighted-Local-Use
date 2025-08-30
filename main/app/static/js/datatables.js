@@ -8,14 +8,6 @@ function format(d) {
 
 $(document).ready(function() {
     
-    // --- Standard Initialization for other tables ---
-    if ($('#classes').length) {
-        var classesTable = $('#classes').DataTable();
-    }
-    if ($('#lessons').length) {
-        var lessonsTable = $('#lessons').DataTable();
-    }
-
     // --- PROMINENT SEARCH Initialization for the 'join_classes' table ---
     if ($('#join_classes').length) {
         

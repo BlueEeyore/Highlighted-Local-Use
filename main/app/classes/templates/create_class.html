@@ -1,33 +1,49 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<div class="row">
-    <div class="col-sm-4"></div>
-    <div class="col-sm-4">
+<!-- Use the page-container to guarantee centering -->
+<div class="page-container">
+
+    <!-- Container for the top-left 'Back' button -->
+    <div class="top-left-container">
+        <a class="btn btn-custom-secondary" href="/classes">Back to My Classes</a>
+    </div>
+
+    <!-- The main content card for the form -->
+    <div class="content-wrapper">
+
+        <h1 class="page-title">Create a New Class</h1>
+
         <form action="/classes/create" method="POST">
-            {{form.hidden_tag()}}
+            {{ form.hidden_tag() }}
 
-            <div class="row">
-                {{form.name.label()}}
-                {{form.name()}}
+            <!-- Class Name Field -->
+            <div class="form-group">
+                {{ form.name.label }}
+                {{ form.name(class="form-control", placeholder="e.g., Intro to Psychology") }}
             </div>
 
-            <div class="row">
-                {{form.school.label()}}
-                {{form.school()}}
+            <!-- School Name Field -->
+            <div class="form-group">
+                {{ form.school.label }}
+                {{ form.school(class="form-control", placeholder="e.g., University of Manchestor") }}
             </div>
 
-            <div class="row">
-                {{form.privacy.label()}}
-                {{form.privacy()}}
+            <!-- Privacy Setting Field -->
+            <div class="form-group">
+                {{ form.privacy.label }}
+                <!-- Use custom .form-select class for the dropdown -->
+                {{ form.privacy(class="form-select") }}
             </div>
 
-            <div class="row">
-                {{form.submit()}}
+            <!-- Submit Button -->
+            <div class="button-group" style="margin-top: 2rem;">
+                {{ form.submit(class="btn btn-custom-primary") }}
             </div>
         </form>
-    </div>
-    <div class="col-sm-4"></div>
-</div>
+
+    </div><!-- End of content-wrapper -->
+
+</div><!-- End of page-container -->
 
 {% endblock %}

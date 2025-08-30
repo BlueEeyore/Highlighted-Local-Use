@@ -154,6 +154,16 @@ def individual_class(cid):
     if not uid:
         return redirect(url_for("auth.login", next=request.url))
 
+    # get class
+    this_class = clazz.get_class(cid)
+    if not this_class:
+        error.push_log("class does not exist")
+        abort(404)
+
+    # get class name
+    class_name = this_class.name
+
+
     # getting all lessons in class
     logger.debug("getting user classes")
     lessons = clazz.get_lessons(cid)
@@ -163,7 +173,12 @@ def individual_class(cid):
     lesson_dicts.sort(key=lambda x:x["creationtime"])   # sort by creation time
 
     logger.debug("rendering individual class template")
-    return render_template("class.html", lessons=lesson_dicts, cid=cid)
+    return render_template(
+        "class.html",
+        lessons=lesson_dicts,
+        cid=cid,
+        class_name=class_name
+    )
 
 
 @classes_bp.route("/<int:cid>/createlesson", methods=['GET', 'POST'])

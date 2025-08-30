@@ -341,6 +341,36 @@ conflicts with Bootstrap's default .btn-primary.
     background-color: #e9ecef;
 }
 
+/* Style for select/dropdown menus */
+.form-select {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 2.25rem 0.75rem 1rem; /* Extra padding on the right for the arrow */
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #403D39;
+    background-color: #fff;
+    
+    /* Custom arrow using an SVG background image */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%234D6A6D' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px 12px;
+
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    appearance: none; /* Removes the default system appearance */
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Focus style for the select dropdown */
+.form-select:focus {
+    border-color: #4D6A6D;
+    outline: 0;
+    box-shadow: 0 0 0 4px rgba(77, 106, 109, 0.25);
+}
+
 /*
 ================================================================
 13. DATATABLES CHILD ROW STYLING
