@@ -4,56 +4,56 @@
 <!-- Use the page-container to guarantee centering -->
 <div class="page-container">
 
-    <!-- Container for the top-left 'Back' button -->
     <div class="top-left-container">
         <a class="btn btn-custom-secondary" href="/classes">Back to My Classes</a>
     </div>
 
-    <!-- The main content card -->
     <div class="content-wrapper">
 
         <h1 class="page-title">Join a Class</h1>
 
-        <!-- Form to join private classes with a join code -->
+        <!-- Section 1: Join with Code (remains the same) -->
         <h2 style="text-align: center; color: #4D6A6D; margin-bottom: 1rem;">Join with a Code</h2>
         <form action="/classes/join" method="post">
             {{ join_form.hidden_tag() }}
             <div class="form-group">
-                <!-- Assuming the field name is 'joincode', add a proper label -->
                 {{ join_form.joincode.label(style="display: none;") }} 
-                <!-- Add placeholder and class for styling -->
                 {{ join_form.joincode(class="form-control", placeholder="Enter class join code...") }}
             </div>
-            <div class="button-group" style="margin-bottom: 3rem;">
+            <div class="button-group">
                 {{ join_form.submit(class="btn btn-custom-primary") }}
             </div>
         </form>
 
-        <!-- Divider with text -->
+        <!-- Divider -->
         <div class="divider">
             <span class="divider-text">Or...</span>
         </div>
 
-        <!-- Datatable displaying all public classes -->
-        <h2 style="text-align: center; color: #4D6A6D; margin-bottom: 1.5rem;">Join a Public Class</h2>
+        <!-- Section 2: Search Public Classes -->
+        <h2 style="text-align: center; color: #4D6A6D; margin-bottom: 1.5rem;">Search Public Classes</h2>
+
+        <!-- NEW: Our prominent, custom search box -->
+        <div class="prominent-search-container">
+            <input type="search" id="custom-search-input" placeholder="Search by name or school..." aria-label="Search public classes">
+        </div>
+
         <table id="join_classes" class="display" width="100%">
             <thead>
                 <tr>
-                    <th></th> <!-- For the expand/collapse control -->
+                    <th></th>
                     <th><div class="table-title">Name</div></th>
                     <th><div class="table-title">School</div></th>
                 </tr>
             </thead>
             <tbody>
                 {% for class_data in classes %}
-                    {# UPDATED: Note the change to the button class inside the string #}
                     <tr data-child-content="
                         <dl>
                             <dt>Created:</dt>
                             <dd>{{class_data.starttime}}</dd>
                             <dd>
                                 <form action='/classes/join' method='post'>
-                                    <!-- Using our new smaller, custom-styled button -->
                                     <button class='btn btn-custom-primary btn-sm' name='classid' value='{{class_data.id}}'>Join This Class</button>
                                 </form>
                             </dd>
@@ -73,6 +73,5 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- This block remains the same -->
 <script src="{{ url_for('static', filename='js/datatables.js') }}"></script>
 {% endblock %}

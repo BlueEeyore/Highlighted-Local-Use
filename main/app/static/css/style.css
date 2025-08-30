@@ -405,6 +405,97 @@ tr.dt-hasChild form {
     letter-spacing: 0.5px;
 }
 
+/*
+================================================================
+15. PROMINENT SEARCH INTERFACE
+================================================================
+*/
+
+/* A container to center our new custom search box */
+.prominent-search-container {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* The search input itself, making it large and inviting */
+#custom-search-input {
+    max-width: 600px; /* Limit width on large screens */
+    width: 100%;
+    padding: 1rem 1.25rem; /* Taller padding for a bigger feel */
+    font-size: 1.2rem;
+    border-radius: 12px; /* A softer, more prominent radius */
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#custom-search-input:focus {
+    border-color: #4D6A6D;
+    outline: 0;
+    box-shadow: 0 0 0 4px rgba(77, 106, 109, 0.25);
+}
+
+/* Helper class to hide the table and its controls on page load */
+.datatables-initially-hidden {
+    display: none;
+}
+
+/*
+================================================================
+17. CUSTOM DATATABLES PAGINATION (Simple Arrows Version)
+================================================================
+*/
+
+/* The main container for the pagination buttons */
+.dt-paging {
+    text-align: right;
+    padding-top: 0.5rem;
+}
+
+/*
+  The core style for the "Previous" and "Next" buttons.
+  We change it from a circle to a rounded rectangle.
+*/
+.dt-paging-button {
+    /* Sizing and Shape */
+    display: inline-block;
+    padding: 8px 16px; /* Let padding define the size */
+    border-radius: 8px; /* Match your other buttons */
+    text-align: center;
+    
+    /* Reset and Spacing */
+    border: none;
+    background: transparent;
+    margin-left: 8px;
+
+    /* Colors and Fonts */
+    color: #4D6A6D !important; /* Payne's Gray */
+    font-weight: 600;
+    cursor: pointer;
+
+    /* Transition */
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover state for enabled buttons */
+.dt-paging-button:hover:not(.disabled) {
+    background-color: #f0f2f5;
+    color: #E94A64 !important;
+}
+
+/*
+  The ".current" class is not used in 'simple' paging,
+  so those rules have been removed for a cleaner stylesheet.
+*/
+
+/* Disabled state (e.g., "Previous" on page 1) */
+.dt-paging-button.disabled,
+.dt-paging-button.disabled:hover {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: transparent;
+}
+
+
 /* ***************** */
 /* LESSON PAGE STUFF */
 /* ***************** */
