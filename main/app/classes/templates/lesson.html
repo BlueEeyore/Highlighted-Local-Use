@@ -4,44 +4,37 @@
 <!-- Use the page-container to guarantee centering -->
 <div class="page-container">
 
-    <!-- Top-left Back button -->
-    <div class="top-left-container">
-        <a class="btn btn-custom-secondary" href="/classes/{{results.cid}}">Back to Lessons</a>
-    </div>
+    <div class="lesson-grid-layout">
 
-    <!-- Layout Container for this page -->
-    <div class="content-with-adjacent-sidebar">
+        <!-- Top-left Back button -->
+        <div class="grid-back-button">
+            <a class="btn btn-custom-secondary" href="/classes/{{results.cid}}">Back to Lessons</a>
+        </div>
 
-        <!-- MAIN CONTENT COLUMN (Video + Transcript) -->
-        <div class="central-content">
-            
-            <div class="video-container">
-                <video id="lesson_video" class="w-100" controls>
-                    <source src="{{url_for('static', filename='files/' + results.videofn)}}" type="{{results.mimetype}}">
-                </video>
+        <div class="grid-video">
+            <video id="lesson_video" class="w-100" controls>
+                <source src="{{url_for('static', filename='files/' + results.videofn)}}" type="{{results.mimetype}}">
+            </video>
+        </div>
+
+        <div class="grid-transcript">
+            <div id="transcript-container">
+                {% for segment in results["transcripts"] %}
+                    <p class="transcript-segment" id="{{segment.id}}" data-timestamp="{{segment.start_ts}}">{{segment.text}}</p>
+                {% endfor %}
             </div>
 
-            <div class="content-wrapper">
-                <div id="transcript-container">
-                    {% for segment in results["transcripts"] %}
-                        <p class="transcript-segment" id="{{segment.id}}" data-timestamp="{{segment.start_ts}}">{{segment.text}}</p>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- This is the pop-up menu. It's hidden by default with CSS. -->
+        <!-- This is the pop-up menu. It's hidden by default with CSS. -->
             <div id="highlight-menu">
                 <button id="highlight-btn">Highlight</button>
                 <button id="comment-btn">Comment</button>
                 <button id="jump-btn">Jump to Place</button>
             </div>
+        </div> <!-- End of grid-transcript -->
 
-        </div> <!-- End of central-content-column -->
-
-        <!-- SIDEBAR COLUMN (Comments) -->
-        <div class="adjacent-sidebar">
+            <!-- SIDEBAR COLUMN (Comments) -->
+        <div class="grid-comments">
             <div id="comment-sidebar">
-                
                 {% if results.new_comment_form %}
                     <div class="comment focused-comment" id="setting-comment">
                         <div class="comment-creator">{{results.user}}</div>
@@ -123,10 +116,10 @@
                     </div>
                 {% endfor %}
             </div>
-        </div> <!-- End of sidebar-column -->
+        </div> <!-- End of grid-comments -->
 
-    </div> <!-- End of main-and-sidebar-layout -->
-
+    </div> <!-- End of lesson-grid-layout -->
+        
 </div><!-- End of page-container -->
 
 {% endblock %}

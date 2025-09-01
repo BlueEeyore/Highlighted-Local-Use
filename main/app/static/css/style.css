@@ -706,89 +706,73 @@ tr.dt-hasChild form {
 
 /*
 ================================================================
-19. SIDE-BY-SIDE PAGE LAYOUT
+19. LESSON PAGE GRID LAYOUT
 ================================================================
 */
 
 /*
 ================================================================
-19. MAIN CONTENT & SIDEBAR PAGE LAYOUT
+19. LESSON PAGE GRID LAYOUT (Revised)
 ================================================================
 */
 
-/*
-================================================================
-19. ADJACENT SIDEBAR LAYOUT (Google Docs Style)
-================================================================
-*/
-
-/* 1. The main layout wrapper. It is relative and centered. */
-.content-with-adjacent-sidebar {
-    position: relative; /* Acts as the anchor for the absolute sidebar */
+.lesson-grid-layout {
+    display: grid;
     width: 100%;
-    max-width: 1250px; /* Accommodates main content + sidebar + gap */
+    max-width: 1200px; 
     margin: 0 auto;
+
+    /* 
+      NEW COLUMN DEFINITION:
+      Column 1: 800px for the video/transcript.
+      Column 2: 350px for the comments.
+      This creates a total width of 1150px + gap.
+    */
+    grid-template-columns: 800px 350px;
+    justify-content: center;
+    
+    /* 
+      NEW GRID AREAS:
+      The back button and video span BOTH columns.
+      The transcript and comments sit side-by-side in their respective columns.
+    */
+    grid-template-areas:
+        "back       back"
+        "video      video"
+        "transcript comments";
+    
+    gap: 2rem;
 }
 
-/* 2. The main content column. This is ALWAYS centered. */
-.central-content {
-    width: 100%;
-    max-width: 800px; /* The fixed width of your "document" */
-    margin: 0 auto; /* This is the key to keeping it centered */
+/* Assigning HTML elements to grid areas (remains the same) */
+.grid-back-button { grid-area: back; }
+.grid-video { grid-area: video; }
+.grid-transcript { grid-area: transcript; }
+.grid-comments { grid-area: comments; }
+
+/* Styling the items within the grid (remains the same) */
+.grid-back-button {
+    justify-self: start;
+    margin-top: 2rem;
 }
 
-/* 3. The adjacent sidebar. Positioned absolutely in the margin. */
-.adjacent-sidebar {
-    position: absolute;
-    top: 0;
-    right: 0; /* Pinned to the right of the main wrapper */
-    width: 350px;
-}
-
-/* 4. Adjustments to existing elements */
-
-/* Ensure the video container doesn't have extra margins */
-.central-content .video-container {
-    margin-bottom: 2rem;
-}
-
-/* Ensure the transcript's content-wrapper is clean */
-.central-content .content-wrapper {
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
-    border: none;
-    box-shadow: none;
-    background: none;
-}
-
-/* Add a top margin to the comment sidebar to align it with the transcript */
 #comment-sidebar {
-    /* This pushes the sidebar down to align with the transcript.
-       It assumes the video container has a margin-bottom of 2rem. */
-    margin-top: calc( (800px / 16 * 9) + 2rem); /* 16:9 aspect ratio + margin */
-    height: auto; /* Let content define height */
-    max-height: 70vh; /* Prevent it from being too long */
+    height: auto;
+    max-height: 75vh;
 }
 
-/* Media query for smaller screens */
-@media (max-width: 1250px) {
-    /* On smaller screens, abandon absolute positioning */
-    .adjacent-sidebar {
-        position: static; /* Return to the normal document flow */
-        width: 100%;
-        max-width: 800px;
-        margin: 2rem auto 0; /* Center it below the main content */
+/* Media query for stacking on smaller screens (remains the same) */
+@media (max-width: 1200px) {
+    .lesson-grid-layout {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "back"
+            "video"
+            "transcript"
+            "comments";
+        width: 90%;
     }
-
-    .central-content {
-        max-width: 800px;
-        width: 90%; /* Allow shrinking on mobile */
-    }
-
-    #comment-sidebar {
-        margin-top: 0; /* Reset the top margin */
-        max-height: none;
+    .grid-comments {
+        margin-top: 2rem;
     }
 }
