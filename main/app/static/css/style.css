@@ -141,7 +141,7 @@ h1.page-title {
 }
 
 .clickable-row:hover {
-    background-color: #C4E7D4; /* Nyanza for hover */
+    /* background-color: #C4E7D4; Nyanza for hover */
     color: #403D39; /* Ensures text remains dark and readable */
 }
 
@@ -538,10 +538,16 @@ tr.dt-hasChild form {
 
 /* --- Video Player --- */
 #lesson_video {
-    border-radius: 8px; /* Match other elements */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Soft shadow */
+    /* --- Sizing and Aspect Ratio Control --- */
+    width: 100%; /* This is handled by the w-100 class but is good to have here */
+    height: 55vh; /* SET YOUR DESIRED FIXED HEIGHT HERE */
+    object-fit: contain; /* This is the magic property! */
+    background-color: black; /* This creates the black bars */
+
+    /* --- Your Existing Styles --- */
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     border: 1px solid #dee2e6;
-    max-height: 600px; /* Standard content width */
     margin-bottom: 2rem;
 }
 
@@ -549,7 +555,7 @@ tr.dt-hasChild form {
 .video-container {
     width: 90%;
     max-width: 960px; /* Standard content width */
-    margin: 0 auto 2rem; /* Center it and add space below */
+    margin: 2rem; /* Center it and add space below */
 }
 
 /* --- Transcript Container --- */
@@ -716,63 +722,9 @@ tr.dt-hasChild form {
 ================================================================
 */
 
-.lesson-grid-layout {
-    display: grid;
-    width: 100%;
-    max-width: 1200px; 
-    margin: 0 auto;
+/*
+================================================================
+19. LESSON PAGE LAYOUT (Centered Content with Adjacent Sidebar)
+================================================================
+*/
 
-    /* 
-      NEW COLUMN DEFINITION:
-      Column 1: 800px for the video/transcript.
-      Column 2: 350px for the comments.
-      This creates a total width of 1150px + gap.
-    */
-    grid-template-columns: 800px 350px;
-    justify-content: center;
-    
-    /* 
-      NEW GRID AREAS:
-      The back button and video span BOTH columns.
-      The transcript and comments sit side-by-side in their respective columns.
-    */
-    grid-template-areas:
-        "back       back"
-        "video      video"
-        "transcript comments";
-    
-    gap: 2rem;
-}
-
-/* Assigning HTML elements to grid areas (remains the same) */
-.grid-back-button { grid-area: back; }
-.grid-video { grid-area: video; }
-.grid-transcript { grid-area: transcript; }
-.grid-comments { grid-area: comments; }
-
-/* Styling the items within the grid (remains the same) */
-.grid-back-button {
-    justify-self: start;
-    margin-top: 2rem;
-}
-
-#comment-sidebar {
-    height: auto;
-    max-height: 75vh;
-}
-
-/* Media query for stacking on smaller screens (remains the same) */
-@media (max-width: 1200px) {
-    .lesson-grid-layout {
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-areas:
-            "back"
-            "video"
-            "transcript"
-            "comments";
-        width: 90%;
-    }
-    .grid-comments {
-        margin-top: 2rem;
-    }
-}
