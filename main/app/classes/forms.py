@@ -44,7 +44,7 @@ class CommentForm(FlaskForm):
     comtype = HiddenField()
     comment_text = TextAreaField(validators=[DataRequired()])
     visibility = SelectField("Visibility", choices=[("standard", "Standard"), ("anonymous", "Anonymous"), ("private", "Private")])
-    is_correction = BooleanField("Transcript Correction")
+    is_correction = BooleanField("Correction?")
     submit = SubmitField("Save Comment")
 
 

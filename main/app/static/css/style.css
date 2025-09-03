@@ -373,6 +373,110 @@ conflicts with Bootstrap's default .btn-primary.
 
 /*
 ================================================================
+23. CUSTOM CHECKBOX STYLING
+================================================================
+*/
+
+/*
+================================================================
+23. CUSTOM CHECKBOX STYLING (Vertical Layout)
+================================================================
+*/
+
+/* 
+  A wrapper to correctly space the checkbox and its label,
+  especially when it has a main label above it like in your form.
+*/
+.form-check-wrapper {
+    margin-bottom: 1.5rem;
+}
+
+/* The main container for a checkbox and its clickable label */
+.form-check {
+    /* This container doesn't need much styling now */
+    position: relative;
+    cursor: pointer;
+}
+
+/* Hide the default browser checkbox */
+.form-check-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* 
+  THE LABEL: This now controls everything.
+  It's a block, and we add padding at the bottom to make space for the checkbox.
+*/
+.form-check-label {
+    display: block;
+    position: relative; /* It is now the anchor for the checkbox */
+    padding-bottom: 30px; /* Creates space BELOW the text for the checkbox */
+}
+
+/* 
+  The custom checkbox "box" that we create.
+  It is positioned absolutely at the BOTTOM of the label.
+*/
+.form-check-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0; /* Position at the bottom of the label's padding box */
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    transition: all 0.2s ease-in-out;
+}
+
+/* When the real checkbox is checked, change our custom box's color */
+.form-check-input:checked ~ .form-check-label::before {
+    background-color: #E94A64; /* Amaranth Red */
+    border-color: #E94A64;
+}
+
+/* 
+  The checkmark itself. It's positioned inside the custom box.
+*/
+.form-check-label::after {
+    content: '';
+    position: absolute;
+    display: none;
+    left: 6px;
+    bottom: 5px; /* Position relative to the bottom */
+    width: 8px;
+    height: 14px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+/* When the real checkbox is checked, display our custom checkmark */
+.form-check-input:checked ~ .form-check-label::after {
+    display: block;
+}
+
+/* Add a focus ring for accessibility */
+.form-check-input:focus ~ .form-check-label::before {
+    box-shadow: 0 0 0 4px rgba(77, 106, 109, 0.25);
+}
+
+.form-check-label {
+    display: block;
+    font-weight: 600;
+    color: #4D6A6D; /* Payne's Gray */
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+}
+
+
+/*
+================================================================
 13. DATATABLES CHILD ROW STYLING
 ================================================================
 */
@@ -618,7 +722,6 @@ tr.dt-hasChild form {
     padding: 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    display: flex; /* Use flexbox for button spacing */
     gap: 8px;
 }
 
@@ -682,7 +785,7 @@ tr.dt-hasChild form {
 .comment-replyto {
     font-size: 0.8rem;
     color: #6c757d;
-    margin-bottom: 0.5rem;
+    /* margin-bottom: 0.5rem; */
 }
 .comment-content {
     margin-bottom: 1rem;
@@ -708,6 +811,16 @@ tr.dt-hasChild form {
 #comment-sidebar .form-group label {
     font-size: 0.8rem;
     margin-bottom: 0.25rem;
+}
+
+/* 1. Reduce the large gap after the reply textbox */
+#comment-sidebar .form-group {
+    margin-bottom: 0.75rem; /* Default was 1.5rem, this is much tighter */
+}
+
+/* 2. Add a small top margin to the submit button to push it down from the textbox */
+#comment-sidebar form .btn {
+    margin-top: 0.5rem;
 }
 
 /*
