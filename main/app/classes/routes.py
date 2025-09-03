@@ -163,6 +163,8 @@ def individual_class(cid):
     # get class name
     class_name = this_class.name
 
+    # get join code
+    joincode = this_class.joincode
 
     # getting all lessons in class
     logger.debug("getting user classes")
@@ -172,12 +174,19 @@ def individual_class(cid):
     lesson_dicts = [less.to_dict() for less in lessons]
     lesson_dicts.sort(key=lambda x:x["creationtime"])   # sort by creation time
 
+    role = userclass.get_role(uid=uid, cid=cid)
+    if role is None:
+        error.push_log("failed to get user role")
+        abort(500)
+
     logger.debug("rendering individual class template")
     return render_template(
         "class.html",
         lessons=lesson_dicts,
         cid=cid,
-        class_name=class_name
+        class_name=class_name,
+        role=role,
+        joincode=joincode
     )
 
 

@@ -12,6 +12,25 @@ def print_cols():
     for column in UserClass.__table__.columns:
         print(column.name, column.type)
 
+
+def get_role(uid, cid):
+    """returns role of user with uid in class with cid"""
+    logger.debug(f"getting role with uid {uid} and cid {cid}")
+    try:
+        user_class = UserClass.query.filter_by(cid=cid, uid=uid).first()
+    except Exception as e:
+        error.push_log("failed to query UserClass", e, sys.exc_info())
+        return None
+
+    if user_class:
+        role = user_class.role
+    else:
+        error.push_log(f"couldn't find role associated with user and class", e, sys.exc_info())
+        return None
+
+    return role
+
+
 def insert(uid, cid, role):
     """inserts a userclass association"""
     logger.debug(f"adding userclass association with {[uid, cid, role]}")

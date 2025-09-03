@@ -841,3 +841,79 @@ tr.dt-hasChild form {
 ================================================================
 */
 
+/*
+================================================================
+25. PAGE HEADER WITH JOINCODE
+================================================================
+*/
+
+/* 1. The container for the title and the join code */
+.page-header-container {
+    position: relative; /* This is the key for positioning the joincode */
+    text-align: center; /* This centers the title */
+    margin-bottom: 2.5rem;
+}
+
+/* 2. Remove the margin from the title since the container now handles it */
+.page-header-container .page-title {
+    margin-bottom: 0;
+}
+
+/* 3. The stylish container for the join code display */
+.joincode-display {
+    position: absolute; /* Take it out of the normal flow */
+    right: 0;           /* Pin it to the right edge of the container */
+    top: 50%;           /* Center it vertically */
+    transform: translateY(-50%); /* Fine-tune the vertical centering */
+
+    gap: 0.75rem; /* Space between the label, code, and copy button */
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #f8f9fa; /* Soft off-white to stand out from the card */
+}
+
+.joincode-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #4D6A6D; /* Payne's Gray */
+}
+
+.joincode-value {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    color: #403D39; /* Black Olive */
+    background-color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+/* 4. A subtle copy-to-clipboard button */
+.joincode-copy-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.joincode-copy-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: #6c757d; /* A muted gray */
+    transition: fill 0.2s ease-in-out;
+}
+
+.joincode-copy-btn:hover svg {
+    fill: #E94A64; /* Amaranth Red on hover */
+}
+
+/* 5. Responsive behavior for smaller screens */
+@media (max-width: 768px) {
+    .page-header-container {
+        flex-direction: column; /* Stack the title and code vertically */
+        align-items: center;   /* Center them */
+    }
+}

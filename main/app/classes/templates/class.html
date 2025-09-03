@@ -12,7 +12,19 @@
     <!-- This container is also centered by the new page-container -->
     <div class="content-wrapper">
 
+    <!-- NEW: The header container that holds the title and joincode -->
+    <div class="page-header-container">
         <h1 class="page-title">{{ class_name }}</h1>
+        
+        <!-- Only show the joincode display if the joincode exists -->
+        {% if role == "admin" %}
+        <div class="joincode-display">
+            <span class="joincode-label">Join Code:</span>
+            <span class="joincode-value" id="class-joincode">{{ joincode }}</span>
+        </div>
+        {% endif %}
+    </div>
+
 
         <table id="lessons" class="display" width="100%">
             <thead>
@@ -31,9 +43,11 @@
             </tbody>
         </table>
 
-        <div class="button-group">
-            <a class="btn btn-custom-primary" href="/classes/{{cid}}/createlesson">Create Lesson</a>
-        </div>
+        {% if role == "admin" %}
+            <div class="button-group">
+                <a class="btn btn-custom-primary" href="/classes/{{cid}}/createlesson">Create Lesson</a>
+            </div>
+        {% endif %}
 
     </div> <!-- End of content-wrapper -->
 
