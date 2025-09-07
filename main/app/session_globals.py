@@ -103,6 +103,14 @@ def remove(key):
 
     globs = _get_globs()
     del globs[key]
+
+
+def clear():
+    """clears session"""
+    logger.debug("clearing session")
+
+    sess = _get_globs()
+    sess.clear()
     
 
 def print_dict():

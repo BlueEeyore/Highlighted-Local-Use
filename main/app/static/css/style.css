@@ -291,11 +291,13 @@ conflicts with Bootstrap's default .btn-primary.
 }
 
 /* Style for form labels */
-.form-group label {
+.form-group label,
+.form-label-style {
     display: block;
     font-weight: 600;
     color: #4D6A6D; /* Payne's Gray */
     margin-bottom: 0.5rem;
+    text-align: center;
 }
 
 /* General style for text inputs, textareas, etc. */
@@ -916,4 +918,22 @@ tr.dt-hasChild form {
         flex-direction: column; /* Stack the title and code vertically */
         align-items: center;   /* Center them */
     }
+}
+
+/* 3. A subtle, decorative divider */
+.blurb-divider {
+    width: 100px;
+    height: 4px;
+    background-color: #E94A64; /* Your Amaranth Red accent color */
+    border: none;
+    border-radius: 2px;
+    margin: 1.5rem auto; /* Centers it and adds space */
+}
+
+/* 4. The main paragraph text */
+.blurb-text {
+    font-size: 1.5rem; /* Slightly larger than default for readability */
+    line-height: 1.7;  /* Generous line spacing is key for readability */
+    color: #403D39; /* Black Olive */
+    margin-bottom: 2.5rem; /* Space below the text before any buttons */
 }

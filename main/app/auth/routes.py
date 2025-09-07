@@ -1,6 +1,6 @@
 from flask import render_template, abort, current_app, Blueprint, redirect, url_for, request
-import os
-from app import session_globals
+import os, sys
+from app import session_globals, error
 from app.database.models import db
 from app.logger_config import get_logger
 from app.auth.forms import LoginForm, SignupForm
@@ -13,6 +13,20 @@ logger = get_logger(__name__)
       
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth', template_folder='templates')
+
+
+@auth_bp.route("/logout")
+def logout():
+    logger.debug("logging out")
+    
+    # user is registered as "logged in" when their uid is in session
+    # clearing the session removes this uid, so they're logged out
+    try:
+        session_globals.clear()
+    except Exception as e:
+        error.push_log("failed to clear session", e, sys.exc_info())
+        abort(500)
+    return redirect(url_for("main.home"))
 
 
 @auth_bp.route("/login", methods=['GET', 'POST'])
@@ -122,13 +136,3 @@ def signup():
 
     logger.debug("rendering signup template")
     return render_template("signup.html", form=form, error_msg=False)
-
-
-@auth_bp.route("/logout", methods=['GET', 'POST'])
-def logout():
-    logger.debug("logging out")
-
-    # having the uid in session means that the user is logged in
-    # Clearing the session gets rid of the uid
-    session.remove("uid")
-    return redirect(url_for("home.home"))

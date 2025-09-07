@@ -17,8 +17,13 @@ class LogicalStack:
         result = self.stack.pop()
         return result
 
+    def clear(self):
+        """clears the stack"""
+        self.stack = []
+
     def dump(self):
         """returns each item of the stack on individual lines"""
+        self.clear()
         return "\n -".join(self.stack)
 
 

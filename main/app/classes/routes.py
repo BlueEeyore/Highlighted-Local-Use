@@ -82,7 +82,7 @@ def join_class():
             try:
                 db.session.commit()
             except Exception as e:
-                error.push_log("failed to commit to db")
+                error.push_log("failed to commit to db", e, sys.exc_info())
                 abort(500)
 
     # getting all public classes user is not a part of and converting objects to dictionary form
@@ -131,7 +131,7 @@ def create_class():
         try:
             db.session.commit()
         except Exception as e:
-            error.push_log("failed to commit to db")
+            error.push_log("failed to commit to db", e, sys.exc_info())
             abort(500)
         logger.debug("new class inserted successfully")
 
@@ -234,7 +234,7 @@ def create_lesson(cid):
         try:
             db.session.commit()
         except Exception as e:
-            error.push_log("failed to commit to db")
+            error.push_log("failed to commit to db", e, sys.exc_info())
             abort(500)
         
         # transcribe video
@@ -401,7 +401,7 @@ def individual_lesson(cid, lid):
                 try:
                     data = request.get_json()
                 except Exception as e:
-                    error.push_log("failed to get form from js frontend", e, sys.exc_info)
+                    error.push_log("failed to get form from js frontend", e, sys.exc_info())
                     abort(500)
 
             # when user submits a comment, post request is sent from html
@@ -411,7 +411,7 @@ def individual_lesson(cid, lid):
                 try:
                     data = request.form
                 except Exception as e:
-                    error.push_log("failed to get form from html frontend", e, sys.exc_info)
+                    error.push_log("failed to get form from html frontend", e, sys.exc_info())
                     abort(500)
                 
             # grabbing information from frontend
@@ -436,7 +436,7 @@ def individual_lesson(cid, lid):
                 else:
                     comment_content = None
             except Exception as e:
-                error.push_log("failed to grab data from frontend form", e, sys.exc_info)
+                error.push_log("failed to grab data from frontend form", e, sys.exc_info())
                 abort(500)
 
         # insert new comment/highlight

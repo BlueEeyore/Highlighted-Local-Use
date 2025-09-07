@@ -146,7 +146,7 @@ def insert(name, private, school, joincode, starttime, creatorid=None):
     # may want to add creator immediately
     if creatorid:
         try:
-            userclass.insert(creatorid, new_class.id, "creator")
+            userclass.insert(creatorid, new_class.id, "admin")
         except Exception as e:
             error.push_log(f"failed to connect new class to creator with uid {creatorid} in db", e, sys.exc_info())
             db.session.rollback()
