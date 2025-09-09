@@ -282,45 +282,259 @@ document.addEventListener('DOMContentLoaded', () => {
         menu.style.display = 'none';
     });
 
-    // applies a highlight on the page with information given (range, etc)
-    function applyHighlight(range, commentId, attributes) { 
-        
-        // create a new HTML <span> element in memory (which will later be applied)
-        const span = document.createElement('span'); 
+    function applyHighlight(range, commentId, attributes) {
+        if (!range || range.collapsed) return;
 
-        // apply ".highlight" class to span
-        span.className = 'highlight'; 
-        
-        // if associated with a comment
-        if (commentId) { 
-            // apply custom ".data-comment-id" class with comment id to associate highlight with comment
-            span.dataset.commentId = commentId; 
-        } 
-        // if attributes applied to comment
-        if (attributes) { 
-            // loop through properties in provided attributes object
-            for (const attr in attributes) { 
-                // add a new "data-*" attribute on the <span>.
-                // e.g. attributes like {setting: 'true'} will create "data-setting='true'"
-                span.dataset[attr] = attributes[attr]; 
-            } 
-        } 
-        try { 
-            // finally, wrap the range with the <span> element
-            range.surroundContents(span); 
-        } catch (e) { 
-            // if this doesn't work, we need a more robust method:
+        const container = document.getElementById('transcript-container');
 
-            // take out the contents and store in memory
-            const content = range.extractContents(); 
+        // helper to create span with attrs
+        function makeSpan() {
+            const span = document.createElement('span');
+            span.className = 'highlight';
+            if (commentId) span.dataset.commentId = commentId;
+            if (attributes) {
+                for (const attr in attributes) span.dataset[attr] = attributes[attr];
+            }
+            return span;
+        }
 
-            // put the content inside the span element
-            span.appendChild(content); 
+        // helpers to get first/last text node inside an element
+        function getFirstTextNode(el) {
+            const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+            return walker.nextNode();
+        }
+        function getLastTextNode(el) {
+            const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+            let last = null;
+            let n;
+            while ((n = walker.nextNode())) last = n;
+            return last;
+        }
+        function isWhitespaceNode(node) {
+            return node && node.nodeType === Node.TEXT_NODE && /^\s*$/.test(node.textContent);
+        }
 
-            // insert this back into the text
-            range.insertNode(span); 
-        } 
+        // Fallback simple wrapper (if we can't find paragraphs)
+        function wrapRange(r) {
+            if (r.collapsed) return;
+            const span = makeSpan();
+            try {
+                r.surroundContents(span);
+            } catch (e) {
+                const contents = r.extractContents();
+                span.appendChild(contents);
+                r.insertNode(span);
+            }
+        }
+
+        // Find the paragraph (.transcript-segment) ancestors for start/end
+        const startContainer = range.startContainer;
+        const endContainer = range.endContainer;
+
+        const startElem = startContainer.nodeType === Node.TEXT_NODE ? startContainer.parentElement : startContainer;
+        const endElem   = endContainer.nodeType === Node.TEXT_NODE ? endContainer.parentElement : endContainer;
+
+        const startP = startElem.closest('.transcript-segment');
+        const endP   = endElem.closest('.transcript-segment');
+
+        // If we can't identify paragraphs, do the simple wrap and bail out
+        if (!startP || !endP) {
+            wrapRange(range);
+            mergeAdjacentHighlights(container);
+            return;
+        }
+
+        // If selection is inside a single paragraph, just wrap normally
+        if (startP === endP) {
+            wrapRange(range);
+            mergeAdjacentHighlights(container);
+            return;
+        }
+
+        // Otherwise, build a list of "range specs" (startNode,startOffset,endNode,endOffset)
+        const paragraphs = Array.from(container.querySelectorAll('.transcript-segment'));
+        const startIndex = paragraphs.indexOf(startP);
+        const endIndex = paragraphs.indexOf(endP);
+        if (startIndex === -1 || endIndex === -1) {
+            wrapRange(range);
+            mergeAdjacentHighlights(container);
+            return;
+        }
+
+        const specs = [];
+
+        // 1) first paragraph: from selection start --> last text node inside startP
+        const firstLastText = getLastTextNode(startP);
+        if (firstLastText) {
+            specs.push({
+                startNode: range.startContainer,
+                startOffset: range.startOffset,
+                endNode: firstLastText,
+                endOffset: firstLastText.textContent.length
+            });
+        }
+
+        // optionally include the whitespace text node that directly follows startP
+        let sibling = startP.nextSibling;
+        if (isWhitespaceNode(sibling)) {
+            specs.push({
+                startNode: sibling,
+                startOffset: 0,
+                endNode: sibling,
+                endOffset: sibling.textContent.length
+            });
+        }
+
+        // 2) middle paragraphs
+        for (let i = startIndex + 1; i < endIndex; i++) {
+            const p = paragraphs[i];
+            const firstText = getFirstTextNode(p);
+            const lastText  = getLastTextNode(p);
+            if (firstText && lastText) {
+                specs.push({
+                    startNode: firstText,
+                    startOffset: 0,
+                    endNode: lastText,
+                    endOffset: lastText.textContent.length
+                });
+            }
+            // include whitespace after this paragraph (so no visual gap)
+            let s = p.nextSibling;
+            if (isWhitespaceNode(s)) {
+                specs.push({
+                    startNode: s,
+                    startOffset: 0,
+                    endNode: s,
+                    endOffset: s.textContent.length
+                });
+            }
+        }
+
+        // 3) last paragraph: first text node in endP --> the selection end
+        const lastFirstText = getFirstTextNode(endP);
+        if (lastFirstText) {
+            specs.push({
+                startNode: lastFirstText,
+                startOffset: 0,
+                endNode: range.endContainer,
+                endOffset: range.endOffset
+            });
+        }
+
+        // Apply the wraps from last to first (so DOM mutations don't break future ranges)
+        for (let i = specs.length - 1; i >= 0; i--) {
+            const s = specs[i];
+            try {
+                const r = document.createRange();
+                r.setStart(s.startNode, s.startOffset);
+                r.setEnd(s.endNode, s.endOffset);
+                // only wrap if non-collapsed
+                if (!r.collapsed) {
+                    const span = makeSpan();
+                    try {
+                        r.surroundContents(span);
+                    } catch (e) {
+                        const contents = r.extractContents();
+                        span.appendChild(contents);
+                        r.insertNode(span);
+                    }
+                }
+            } catch (err) {
+                console.warn('Skipping problematic sub-range while applying multi-para highlight', err);
+            }
+        }
+
+        // --- Merge adjacent .highlight spans that belong to the same comment/attributes
+        function datasetsEqual(a, b) {
+            const aKeys = Object.keys(a).sort();
+            const bKeys = Object.keys(b).sort();
+            if (aKeys.length !== bKeys.length) return false;
+            for (let i = 0; i < aKeys.length; i++) {
+                const k = aKeys[i];
+                if (k !== bKeys[i]) return false;
+                if (String(a[k]) !== String(b[k])) return false;
+            }
+            return true;
+        }
+
+        function mergeAdjacentHighlights(root) {
+            let node = root.firstChild;
+            while (node) {
+                if (node.nodeType === Node.ELEMENT_NODE && node.classList.contains('highlight')) {
+                    let current = node;
+
+                    while (
+                        current.nextSibling &&
+                        current.nextSibling.nodeType === Node.ELEMENT_NODE &&
+                        current.nextSibling.classList.contains('highlight')
+                    ) {
+                        const next = current.nextSibling;
+
+                        // Always ensure dataset attributes persist (especially data-comment-id)
+                        for (const key in next.dataset) {
+                            current.dataset[key] = next.dataset[key];
+                        }
+
+                        // Move all children from next into current
+                        while (next.firstChild) current.appendChild(next.firstChild);
+
+                        // Remove now-empty sibling
+                        next.remove();
+                    }
+
+                    node = current.nextSibling;
+                } else {
+                    node = node.nextSibling;
+                }
+            }
+        }
+
+
+
+        mergeAdjacentHighlights(container);
     }
+
+
+
+    // // applies a highlight on the page with information given (range, etc)
+    // function applyHighlight(range, commentId, attributes) { 
+        
+    //     // create a new HTML <span> element in memory (which will later be applied)
+    //     const span = document.createElement('span'); 
+
+    //     // apply ".highlight" class to span
+    //     span.className = 'highlight'; 
+        
+    //     // if associated with a comment
+    //     if (commentId) { 
+    //         // apply custom ".data-comment-id" class with comment id to associate highlight with comment
+    //         span.dataset.commentId = commentId; 
+    //     } 
+    //     // if attributes applied to comment
+    //     if (attributes) { 
+    //         // loop through properties in provided attributes object
+    //         for (const attr in attributes) { 
+    //             // add a new "data-*" attribute on the <span>.
+    //             // e.g. attributes like {setting: 'true'} will create "data-setting='true'"
+    //             span.dataset[attr] = attributes[attr]; 
+    //         } 
+    //     } 
+    //     try { 
+    //         // finally, wrap the range with the <span> element
+    //         range.surroundContents(span); 
+    //     } catch (e) { 
+    //         // if this doesn't work, we need a more robust method:
+
+    //         // take out the contents and store in memory
+    //         const content = range.extractContents(); 
+
+    //         // put the content inside the span element
+    //         span.appendChild(content); 
+
+    //         // insert this back into the text
+    //         range.insertNode(span); 
+    //     } 
+    // }
 
     // function that converts offset information into Range object
     function createRangeFromOffsets(container, start, end) {

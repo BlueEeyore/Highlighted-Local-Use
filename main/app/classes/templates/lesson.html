@@ -34,7 +34,8 @@
             <div class="col-md-6">
                 <div id="transcript-container">
                     {% for segment in results["transcripts"] %}
-                        <p class="transcript-segment" id="{{segment.id}}" data-timestamp="{{segment.start_ts}}">{{segment.text}}</p>
+                        <!-- <p class="transcript-segment" id="{{segment.id}}" data-timestamp="{{segment.start_ts}}">{{segment.text}}</p> -->
+                        <span class="transcript-segment" id="{{segment.id}}" data-timestamp="{{segment.start_ts}}">{{segment.text}}</span>{% if not loop.last %} {% endif %}
                     {% endfor %}
                 </div>
 
