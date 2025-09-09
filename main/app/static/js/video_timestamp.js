@@ -1,13 +1,16 @@
-// script.js
 window.addEventListener('DOMContentLoaded', () => {
 
+    // Selecting elements of the page that will be used later on
     const video = document.getElementById('lesson_video');
-    const textContainer = document.getElementById('transcript-container');
     const segments = document.querySelectorAll('.transcript-segment');
 
+    // setting currentActiveSegment to null initially. Will change if user highlights
+    // a portion of the transcript
     let currentActiveSegment = null;
 
+    // listen for when the video's timestamp changes
     video.addEventListener('timeupdate', () => {
+        // get the video's current time in seconds
         const currentTime = video.currentTime;
         let activeSegment = null;
 
@@ -29,10 +32,12 @@ window.addEventListener('DOMContentLoaded', () => {
             // Remove 'active' class from the previous segment (if there was one)
             if (currentActiveSegment) {
                 currentActiveSegment.classList.remove('active');
+                currentActiveSegment.classList.remove('video-active');
             }
 
             // Add 'active' class to the new segment
             activeSegment.classList.add('active');
+            activeSegment.classList.add('video-active');
             currentActiveSegment = activeSegment;
             
             // Scroll the container to the active segment

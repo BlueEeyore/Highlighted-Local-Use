@@ -395,7 +395,6 @@ conflicts with Bootstrap's default .btn-primary.
 
 /* The main container for a checkbox and its clickable label */
 .form-check {
-    /* This container doesn't need much styling now */
     position: relative;
     cursor: pointer;
 }
@@ -686,11 +685,27 @@ tr.dt-hasChild form {
     line-height: 1.8;
 }
 
-/* Active segment (tracking with video) */
-.transcript-segment.active {
-    background-color: #C4E7D4; /* Nyanza - consistent with table hover */
+/* --- Overrides for Transcript Highlighting --- */
+
+/* 
+  1. ACTIVE VIDEO SEGMENT STYLING
+  This sets the desired background for the currently playing segment.
+  Using the ID makes the rule highly specific.
+*/
+#transcript-container .transcript-segment.active {
+    background-color: #C4E7D4; /* Nyanza green for video tracking */
     color: #403D39;
 }
+
+
+/* Video-tracking highlight always takes precedence */
+.transcript-segment.video-active,
+.highlight.video-active,
+.focused-highlight.video-active {
+    background-color: #C4E7D4 !important; /* same green */
+    color: #403D39;
+}
+
 
 /* --- Highlighting Styles --- */
 .highlight {

@@ -1,35 +1,37 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<div class="content-wrapper">
-    <h1 class="page-title">Your Classes</h1>
+<div class="page-container">
+    <div class="content-wrapper">
+        <h1 class="page-title">Your Classes</h1>
 
-    <table id="classes" class="display" width="100%">
-        <!-- column titles -->
-        <thead>
-            <tr>
-                <th><div class="table-title">Class</div></th>
-                <th><div class="table-title">Role</div></th>
-            </tr>
-        </thead>
-        <!-- column content -->
-        <tbody>
-            <!-- looping over each class that the user is in  -->
-            {% for class_data in classes_data %}
-                <tr class="clickable-row" onclick="window.location.href='/classes/{{class_data.id}}'">
-                    <td>
-                        {{class_data['name']}}
-                    </td>
-                    <td>role</td>
+        <table id="classes" class="display" width="100%">
+            <!-- column titles -->
+            <thead>
+                <tr>
+                    <th><div class="table-title">Class</div></th>
+                    <th><div class="table-title">Role</div></th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <!-- column content -->
+            <tbody>
+                <!-- looping over each class that the user is in  -->
+                {% for class_data in classes_data %}
+                    <tr class="clickable-row" onclick="window.location.href='/classes/{{class_data.id}}'">
+                        <td>
+                            {{class_data['name']}}
+                        </td>
+                        <td>role</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <!-- Button Group -->
-    <div class="button-group">
-        <a class="btn btn-custom-primary" href="/classes/create">Create Class</a>
-        <a class="btn btn-custom-primary" href="/classes/join">Join Class</a>
+        <!-- Button Group -->
+        <div class="button-group">
+            <a class="btn btn-custom-primary" href="/classes/create">Create Class</a>
+            <a class="btn btn-custom-primary" href="/classes/join">Join Class</a>
+        </div>
     </div>
 </div>
 
