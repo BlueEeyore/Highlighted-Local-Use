@@ -373,6 +373,12 @@ conflicts with Bootstrap's default .btn-primary.
     box-shadow: 0 0 0 4px rgba(77, 106, 109, 0.25);
 }
 
+.form-footer-text {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+}
+
 /*
 ================================================================
 23. CUSTOM CHECKBOX STYLING

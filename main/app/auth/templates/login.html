@@ -1,18 +1,46 @@
 {% extends "layout.html" %}
 {% block content %}
 
-{% if invalid %}
-	<p>Invalid username or password</p>
-{% endif %}
+<!-- Use the page-container to guarantee centering -->
+<div class="page-container">
 
-<form method="POST" enctype="multipart/form-data">
-	{{form.hidden_tag()}}
-	{{form.email.label}}
-	{{form.email()}}
-	{{form.password.label}}
-	{{form.password()}}
-	{{form.submit()}}
-</form>
+    <!-- 
+      The content-wrapper creates the main card. We can make it
+      a bit narrower for a more focused login form.
+    -->
+    <div class="content-wrapper" style="max-width: 500px;">
 
+        <h1 class="page-title">Sign In</h1>
+
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+
+            <!-- Email Field -->
+            <div class="form-group">
+                {{ form.email.label }}
+                {{ form.email(class="form-control", placeholder="Enter your email") }}
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+                {{ form.password.label }}
+                {{ form.password(class="form-control", placeholder="Enter your password") }}
+            </div>
+
+            <!-- Submit Button -->
+            <!-- We make it full-width for a strong call to action -->
+            <div class="button-group" style="margin-top: 2rem;">
+                {{ form.submit(class="btn btn-custom-primary w-100") }}
+            </div>
+        </form>
+
+        <!-- Optional: Add a link to the registration page -->
+        <div class="form-footer-text">
+            Don't have an account? <a href="/auth/signup">Sign Up</a>
+        </div>
+
+    </div><!-- End of content-wrapper -->
+
+</div><!-- End of page-container -->
 
 {% endblock %}

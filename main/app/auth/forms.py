@@ -33,7 +33,7 @@ class SignupForm(FlaskForm):
     school = StringField('School', validators=[DataRequired(), Length(min=3, max=50)])
     bio = TextAreaField('Bio (max 300 characters)', validators=[Length(max=300)])
     pfp = FileField('Profile Picture (You can add this later)')
-    submit = SubmitField('Login')
+    submit = SubmitField('Sign up')
 
 
 # upload video form

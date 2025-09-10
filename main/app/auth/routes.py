@@ -1,4 +1,4 @@
-from flask import render_template, abort, current_app, Blueprint, redirect, url_for, request
+from flask import render_template, abort, current_app, Blueprint, redirect, url_for, request, flash
 import os, sys
 from app import session_globals, error
 from app.database.models import db
@@ -51,12 +51,14 @@ def login():
         # if user doesn't exist
         if not uid:
             logger.debug("user not found in db")
-            return render_template("login.html", form=form, invalid=True)
+            flash("Invalid username or password", "danger")
+            return render_template("login.html", form=form)
 
         # if user password doesn't match
         if user.get_user(uid).password != password_hash:
             logger.debug("password doesn't match")
-            return render_template("login.html", form=form, invalid=True)
+            flash("Invalid username or password", "danger")
+            return render_template("login.html", form=form)
 
         # add uid to session
         session_globals.set("uid", uid)
@@ -68,7 +70,7 @@ def login():
         return redirect(url_for("classes.classes", uid=uid))
 
     logger.debug("rendering login page")
-    return render_template("login.html", form=form, invalid=False)
+    return render_template("login.html", form=form)
 
 
 @auth_bp.route("/signup", methods=['GET', 'POST'])
@@ -92,27 +94,34 @@ def signup():
 
         if user_exists:
             logger.debug("user with given email already exists")
-            return render_template("signup.html", form=form, error_msg="Email already taken")
+            flash("Email already taken", "danger")
+            return render_template("signup.html", form=form)
 
         # checking that everything is valid before inserting into db
         if len(email) > 40:
             logger.debug("email is too long (they hacked the frontend")
-            return render_template("signup.html", form=form, error_msg="email too long")
+            flash("Email too long", "danger")
+            return render_template("signup.html", form=form)
         if len(password) > 30:
             logger.debug("password is too long (they hacked the frontend")
-            return render_template("signup.html", form=form, error_msg="password too long")
+            flash("Password too long", "danger")
+            return render_template("signup.html", form=form)
         if len(first_name) > 50:
             logger.debug("first name is too long (they hacked the frontend")
-            return render_template("signup.html", form=form, error_msg="first name too long")
+            flash("First name too long", "danger")
+            return render_template("signup.html", form=form)
         if len(last_name) > 50:
             logger.debug("last name is too long (they hacked the frontend")
-            return render_template("signup.html", form=form, error_msg="last name too long")
+            flash("Last name too long", "danger")
+            return render_template("signup.html", form=form)
         if len(school) > 50:
             logger.debug("school is too long (they hacked the frontend")
-            return render_template("signup.html", form=form, error_msg="school too long")
+            flash("School too long", "danger")
+            return render_template("signup.html", form=form)
         if len(bio) > 300:
             logger.debug("bio is too long (they hacked the frontend")
-            return render_template("signup.html", form=form, error_msg="bio too long")
+            flash("Bio too long", "danger")
+            return render_template("signup.html", form=form)
 
         logger.debug("inserting into user table")
         user.insert(
