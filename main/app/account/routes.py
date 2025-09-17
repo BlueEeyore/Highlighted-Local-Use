@@ -16,8 +16,18 @@ def profile(uid):
 
     logger.debug("getting user")
     user_info = user.get_user(uid)
+    first_name = user_info.firstname
+    last_name = user_info.lastname
+    bio = user_info.bio
+    school = user_info.school
 
-    return render_template("profile.html", user_info=user_info)
+    return render_template(
+        "profile.html",
+        first_name=first_name,
+        last_name=last_name,
+        bio=bio,
+        school=school
+    )
 
 
 @account_bp.route("/settings/<int:uid>", methods=['GET', 'POST'])

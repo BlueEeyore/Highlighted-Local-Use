@@ -15,6 +15,7 @@ def register_error_handlers(app):
     def internal_server_error(e):
         error_stack = session_globals.get("error_stack")
         stack_trace = error_stack.dump()
+        error_stack.clear()
         return render_template("errors/500.html", stack_trace=stack_trace), 500
 
     # add more error handlers here

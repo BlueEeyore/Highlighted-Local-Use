@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, RadioField, SelectField, SelectMultipleField, TextAreaField, SubmitField, FileField, HiddenField, BooleanField
-from wtforms.validators import InputRequired, DataRequired, Optional, Length
+from flask_wtf.file import FileField, FileAllowed, FileRequired
+from wtforms import StringField, RadioField, SelectField, SelectMultipleField, TextAreaField, SubmitField, HiddenField, BooleanField
+from wtforms.validators import InputRequired, DataRequired, Optional, Length, ValidationError
+import os
 
 
 # sample order form that im copying from for dev
@@ -17,10 +19,24 @@ class OrderForm(FlaskForm):
     submit = SubmitField('Send my Order')
 
 
+def file_size_limit(max_size_mb):
+    def _file_size_limit(form, field):
+        if field.data:
+            field.data.stream.seek(0, os.SEEK_END)
+            size = field.data.stream.tell()
+            field.data.stream.seek(0)
+            if size > max_size_mb * 1024 * 1024:
+                raise ValidationError(f'File must be smaller than {max_size_mb}MB.')
+    return _file_size_limit
+
 # upload video form
 class VideoForm(FlaskForm):
     """form for uploading video"""
-    video = FileField("Video", validators=[InputRequired()])
+    video = FileField("Video", validators=[
+        FileRequired(),
+        FileAllowed(['mp4', 'mkv'], 'mp4 or mkv only!'),
+        file_size_limit(1000)   # max 1gb
+        ])
     name = StringField("Lesson Name", validators=[DataRequired(), Length(min=1, max=100)])
     submit = SubmitField("Upload File")
     

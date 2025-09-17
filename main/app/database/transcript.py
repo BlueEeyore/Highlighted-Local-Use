@@ -72,6 +72,11 @@ def insert_transcript(lid, transcript_dict):
     """takes a transcription results dict and inserts everything into db"""
     logger.debug(f"adding transcription")
 
+    if transcript_dict is None:
+        ts = "0.0, 0.0"
+        insert(lid, ts, "")
+        return True
+
     # transcript_dict has all the info about the transcription
     # this gets just the segments
     segments = transcript_dict["segments"]

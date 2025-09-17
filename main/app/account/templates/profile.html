@@ -1,8 +1,38 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<!-- Use the page-container to guarantee centering -->
+<div class="page-container">
 
-{{user_info}}
+    <!-- The standard content card, made slightly wider for this layout -->
+    <div class="content-wrapper" style="max-width: 800px;">
 
+        <!-- The header section with the profile picture and key details -->
+        <div class="profile-header">
+            
+            <!-- Profile Details (Name and School) -->
+            <div class="profile-details">
+                <h1 class="profile-name">{{ first_name }} {{ last_name }}</h1>
+                <p class="profile-school">{{ school }}</p>
+            </div>
+
+        </div>
+
+        <!-- The user's bio section -->
+        <div class="profile-bio">
+            <h3>About Me</h3>
+            <p>
+                {{ bio or 'This user has not written a bio yet.' }}
+            </p>
+        </div>
+
+        <!-- Add an 'Edit Profile' button -->
+        <!-- <div class="button-group" style="margin-top: 3rem; justify-content: flex-end;">
+            <a href="/edit-profile" class="btn btn-custom-secondary">Edit Profile</a>
+        </div> -->
+
+    </div><!-- End of content-wrapper -->
+
+</div><!-- End of page-container -->
 
 {% endblock %}

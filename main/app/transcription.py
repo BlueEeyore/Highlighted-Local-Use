@@ -16,6 +16,8 @@ WHISPER_MODEL = {
         }
 
 
+# whisper_model = whisper.load_model("medium")
+
 class Transcription:
     def __init__(self, model_size="small"):
         """initialises Transcription class instance"""
@@ -70,6 +72,7 @@ class Transcription:
 
         # running the transcription on the audio file
         try:
+            logger.debug("about to transcribe")
             result = whisper_model.transcribe(audio_file, fp16=False)
         except KeyboardInterrupt:
             raise
@@ -77,6 +80,7 @@ class Transcription:
             error.push_log(f"Transcription of audio file failed", e, sys.exc_info())
             return None
 
+        logger.debug("transcription successful")
         return result
 
     def trans_video(self, video_file):

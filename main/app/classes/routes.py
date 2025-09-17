@@ -1,10 +1,10 @@
-from flask import render_template, abort, current_app, Blueprint, redirect, url_for, request, jsonify, flash
+from flask import render_template, abort, current_app, Blueprint, redirect, url_for, request, flash
 import os
 from app import session_globals, error
 from app.transcription import Transcription
 from app.logger_config import get_logger
 from app.database import clazz, user, lesson, transcript, comment, userclass
-from app.database.models import db, Comment, Class, UserClass
+from app.database.models import db, Class, UserClass
 from app.classes.forms import VideoForm, CommentReplyForm, CommentForm, ClassForm, JoinClassForm
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -247,8 +247,15 @@ def create_lesson(cid):
         # get the id for the lesson just inserted
         lid = new_lesson.id
 
+        flash('Video uploaded successfully!', 'success')
         logger.debug("redirecting to individual_lesson route")
         return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
+
+    elif form.is_submitted():
+        logger.debug("form validation failed. Flashing error and re-rendering")
+        for field_name, error_messages in form.errors.items():
+            for err in error_messages:
+                flash(f"{err}", 'danger')
 
 
     logger.debug("rendering create_lesson template")

@@ -46,13 +46,16 @@ def login():
         password_hash = consistent_hash(form.password.data)
 
         logger.debug("getting uid for user with provided email")
-        uid = user.get_user_by("email", email)[0].id    # get_user_by returns list
+        new_user = user.get_user_by("email", email)    # get_user_by returns list
 
         # if user doesn't exist
-        if not uid:
+        if new_user == []:
             logger.debug("user not found in db")
             flash("Invalid username or password", "danger")
             return render_template("login.html", form=form)
+
+        # otherwise, grab the expected user's id from the db
+        uid = new_user[0].id
 
         # if user password doesn't match
         if user.get_user(uid).password != password_hash:
