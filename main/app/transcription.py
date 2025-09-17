@@ -35,31 +35,14 @@ class Transcription:
             except KeyboardInterrupt:
                 raise
             except Exception as e:
-                error.push_log(f"Unexpected error while loading Whisper model {model_name}", e, sys.exc_info())
+                error.push_log(
+                    f"Unexpected error while loading Whisper model {model_name}",
+                    e,
+                    sys.exc_info()
+                )
                 return None
             logger.info("whisper model successfully initialised")
-	# except FileNotFoundError:
-	#     logger.exception("Model file not found or failed to download")
-	#     error.push_error("Model file missing or inaccessible")
-        #     return None
-	# except RuntimeError:
-	#     logger.exception("Runtime error while loading Whisper (e.g., CUDA out of memory)")
-	#     error.push_error("Runtime error during model load")
-        #     return None
-	# except OSError:
-	#     logger.exception("OS error during Whisper model load (disk, permissions, etc.)")
-	#     error.push_error("OS error during model load")
-        #     return None
-	# except ImportError:
-	#     logger.exception("Missing dependency (e.g., torch or ffmpeg)")
-	#     error.push_error("Missing required dependency")
-        #     return None
-	# except Exception:
-	#     logger.exception("Unexpected error while loading Whisper model")
-	#     error.push_error("Unexpected error during model loading")
-        #     return None
 
-        
     def trans_audio(self, audio_file):
         """takes audio file as input and outputs transcription"""
         global whisper_model
@@ -77,7 +60,11 @@ class Transcription:
         except KeyboardInterrupt:
             raise
         except Exception as e:
-            error.push_log(f"Transcription of audio file failed", e, sys.exc_info())
+            error.push_log(
+                "Transcription of audio file failed",
+                e,
+                sys.exc_info()
+            )
             return None
 
         logger.debug("transcription successful")
@@ -103,7 +90,11 @@ class Transcription:
         except KeyboardInterrupt:
             raise
         except Exception as e:
-            error.push_log(f"failed to write audio to temp file:\n{e}", e, sys.exc_info())
+            error.push_log(
+                f"failed to write audio to temp file:\n{e}",
+                e,
+                sys.exc_info()
+            )
             return None
 
         # close files
@@ -112,25 +103,18 @@ class Transcription:
 
         # transcribe the audio
         result = self.trans_audio(temp_audio_file.name)
-        if result == None:  # error handling
+        if result is None:  # error handling
             error.push_log("failed to transcribe audio")
             return None
 
         return result
-    
+
 
 def test():
     transcriber = Transcription()
 
-    # result_dict = transcriber.trans_audio("harvard.wav")
-    # result_dict = transcriber.trans_audio("text_file.txt")
-    # if result_dict != None:
-    #     segments = [{"id":x["id"],"start":x["start"],"end":x["end"],"text":x["text"]} for x in result_dict["segments"]]
-    #     print(segments)
-
     result_dict = transcriber.trans_video("app/sample_video.mp4")
     print(result_dict)
-
 
 
 if __name__ == "__main__":
@@ -140,8 +124,13 @@ if __name__ == "__main__":
 
         # result_dict = transcriber.trans_audio("harvard.wav")
         result_dict = transcriber.trans_audio("text_file.txt")
-        if result_dict != None:
-            segments = [{"id":x["id"],"start":x["start"],"end":x["end"],"text":x["text"]} for x in result_dict["segments"]]
+        if result_dict is not None:
+            segments = [{
+                "id": x["id"],
+                "start": x["start"],
+                "end": x["end"],
+                "text": x["text"]
+            } for x in result_dict["segments"]]
             print(segments)
 
         result_dict = transcriber.trans_video("sample_video.mp4")

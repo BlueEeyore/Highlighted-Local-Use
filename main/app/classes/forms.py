@@ -1,22 +1,9 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
-from wtforms import StringField, RadioField, SelectField, SelectMultipleField, TextAreaField, SubmitField, HiddenField, BooleanField
-from wtforms.validators import InputRequired, DataRequired, Optional, Length, ValidationError
+from wtforms import StringField, SelectField
+from wtforms import TextAreaField, SubmitField, HiddenField, BooleanField
+from wtforms.validators import DataRequired, Optional, Length, ValidationError
 import os
-
-
-# sample order form that im copying from for dev
-class OrderForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired(), Length(min=3, max=20)])
-    topping = RadioField('Pizza Topping',
-                         choices=[('Supreme', 'Supreme'), ('Vegetarian', 'Vegetarian'), ('Hawaiian', 'Hawaiian')],
-                         validators=[DataRequired()])
-    sauce = SelectField('Pizza Sauce', choices=[('Tomato', 'Tomato'), ('BBQ', 'BBQ'), ('Garlic', 'Garlic')],
-                        validators=[DataRequired()])
-    extras = SelectMultipleField('Optional Extras',
-                                 choices=[('Extra Cheese', 'Extra Cheese'), ('Gluten Free Base', 'Gluten Free Base')])
-    instructions = TextAreaField('Delivery Instructions')
-    submit = SubmitField('Send my Order')
 
 
 def file_size_limit(max_size_mb):
@@ -26,8 +13,11 @@ def file_size_limit(max_size_mb):
             size = field.data.stream.tell()
             field.data.stream.seek(0)
             if size > max_size_mb * 1024 * 1024:
-                raise ValidationError(f'File must be smaller than {max_size_mb}MB.')
+                raise ValidationError(
+                    f'File must be smaller than {max_size_mb}MB.'
+                )
     return _file_size_limit
+
 
 # upload video form
 class VideoForm(FlaskForm):
@@ -37,9 +27,12 @@ class VideoForm(FlaskForm):
         FileAllowed(['mp4', 'mkv'], 'mp4 or mkv only!'),
         file_size_limit(1000)   # max 1gb
         ])
-    name = StringField("Lesson Name", validators=[DataRequired(), Length(min=1, max=100)])
+    name = StringField("Lesson Name", validators=[
+        DataRequired(),
+        Length(min=1, max=100)
+    ])
     submit = SubmitField("Upload File")
-    
+
 
 # comment reply form
 class CommentReplyForm(FlaskForm):
@@ -59,21 +52,35 @@ class CommentForm(FlaskForm):
     selected_text = HiddenField()   # not really necessary but keeping for now
     comtype = HiddenField()
     comment_text = TextAreaField(validators=[DataRequired()])
-    visibility = SelectField("Visibility", choices=[("standard", "Standard"), ("anonymous", "Anonymous"), ("private", "Private")])
+    visibility = SelectField("Visibility", choices=[
+        ("standard", "Standard"),
+        ("anonymous", "Anonymous"),
+        ("private", "Private")
+    ])
     is_correction = BooleanField("Correction?")
     submit = SubmitField("Save Comment")
 
 
 class ClassForm(FlaskForm):
     """form for creating class"""
-    name = StringField("Class name", validators=[DataRequired(), Length(min=3, max=40)])
-    school = StringField("School/University (Optional)", validators=[Length(max=40)])
-    privacy = SelectField("Privacy",
-                                  choices=[("public", "Public"), ("private", "Private")])
+    name = StringField("Class name", validators=[
+        DataRequired(),
+        Length(min=3, max=40)
+    ])
+    school = StringField("School/University (Optional)", validators=[
+        Length(max=40)
+    ])
+    privacy = SelectField("Privacy", choices=[
+        ("public", "Public"),
+        ("private", "Private")
+    ])
     submit = SubmitField("Create")
 
 
 class JoinClassForm(FlaskForm):
     """form for entering join code"""
-    joincode = StringField("Join Code", validators=[Optional(), Length(max=40)])
+    joincode = StringField("Join Code", validators=[
+        Optional(),
+        Length(max=40)
+    ])
     submit = SubmitField("Join")

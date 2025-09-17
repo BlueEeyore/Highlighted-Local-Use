@@ -1,6 +1,7 @@
 from flask import render_template
 from app import session_globals
 
+
 def register_error_handlers(app):
     """
     registers all of the app's error handlers

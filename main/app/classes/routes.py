@@ -1,20 +1,27 @@
-from flask import render_template, abort, current_app, Blueprint, redirect, url_for, request, flash
+from flask import render_template, abort, current_app
+from flask import Blueprint, redirect, url_for, request, flash
 import os
 from app import session_globals, error
 from app.transcription import Transcription
 from app.logger_config import get_logger
 from app.database import clazz, user, lesson, transcript, comment, userclass
 from app.database.models import db, Class, UserClass
-from app.classes.forms import VideoForm, CommentReplyForm, CommentForm, ClassForm, JoinClassForm
+from app.classes.forms import VideoForm, CommentReplyForm
+from app.classes.forms import CommentForm, ClassForm, JoinClassForm
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import sys
 
 logger = get_logger(__name__)
 # basedir = os.path.abspath(os.path.dirname(__file__))
-      
 
-classes_bp = Blueprint('classes', __name__, url_prefix='/classes', template_folder='templates')
+
+classes_bp = Blueprint(
+    'classes',
+    __name__,
+    url_prefix='/classes',
+    template_folder='templates'
+)
 
 
 # cannot have uid in route because it redirects to login if not logged in
@@ -57,7 +64,7 @@ def join_class():
         return redirect(url_for("auth.login", next=request.url))
 
     join_form = JoinClassForm()
-    classid = None 
+    classid = None
 
     # when "join class" button clicked
     if request.method == "POST":
@@ -72,7 +79,7 @@ def join_class():
                 classid = class_joined[0].id
         else:
             classid = request.form["classid"]
-        
+
         # adding user to new class
         if classid:
             conn = userclass.insert(uid=uid, cid=classid, role="student")
@@ -85,15 +92,20 @@ def join_class():
                 error.push_log("failed to commit to db", e, sys.exc_info())
                 abort(500)
 
-    # getting all public classes user is not a part of and converting objects to dictionary form
+    # getting all public classes user is not a part of and converting objects
+    # to dictionary form
     classes = clazz.get_filtered(
-        Class.private == False,
+        Class.private is False,
         ~Class.userclasses.any(UserClass.uid == uid)    # user is not a part of
     )
     class_dicts = [cla.to_dict() for cla in classes]
 
     logger.debug("rendering join_class template")
-    return render_template("join_class.html", classes=class_dicts, join_form=join_form)
+    return render_template(
+        "join_class.html",
+        classes=class_dicts,
+        join_form=join_form
+    )
 
 
 @classes_bp.route("/create", methods=['GET', 'POST'])
@@ -117,7 +129,7 @@ def create_class():
         school = form.school.data
         private = True if form.privacy.data == "private" else False
         joincode = clazz.generate_unique_joincode()
-        
+
         logger.debug("inserting new class into db")
         new_class = clazz.insert(creatorid=uid,
                                  name=name,
@@ -146,7 +158,7 @@ def create_class():
 @classes_bp.route("/<int:cid>", methods=['GET', 'POST'])
 def individual_class(cid):
     logger.debug("in individual_class")
-    
+
     # getting uid
     uid = session_globals.get("uid")
 
@@ -172,7 +184,7 @@ def individual_class(cid):
 
     # get dictionary form for each lesson
     lesson_dicts = [less.to_dict() for less in lessons]
-    lesson_dicts.sort(key=lambda x:x["creationtime"])   # sort by creation time
+    lesson_dicts.sort(key=lambda x: x["creationtime"])  # sort by creation time
 
     role = userclass.get_role(uid=uid, cid=cid)
     if role is None:
@@ -193,7 +205,7 @@ def individual_class(cid):
 @classes_bp.route("/<int:cid>/createlesson", methods=['GET', 'POST'])
 def create_lesson(cid):
     logger.debug("in create_lesson")
-    
+
     # getting uid
     logger.debug("getting uid")
     uid = session_globals.get("uid")
@@ -213,7 +225,8 @@ def create_lesson(cid):
         # grab video file and save to static folder
         video = form.video.data
         fn = secure_filename(video.filename)
-        file_path = os.path.join(os.path.abspath(current_app.config["UPLOAD_FOLDER"]), fn)
+        upload_folder = current_app.config["UPLOAD_FOLDER"]
+        file_path = os.path.join(os.path.abspath(upload_folder), fn)
         video.save(file_path)
 
         # get mime type for video
@@ -236,7 +249,7 @@ def create_lesson(cid):
         except Exception as e:
             error.push_log("failed to commit to db", e, sys.exc_info())
             abort(500)
-        
+
         # transcribe video
         logger.debug("about to transcribe video")
         transcriber = Transcription()
@@ -257,7 +270,6 @@ def create_lesson(cid):
             for err in error_messages:
                 flash(f"{err}", 'danger')
 
-
     logger.debug("rendering create_lesson template")
     return render_template("create_lesson.html", form=form)
 
@@ -265,7 +277,7 @@ def create_lesson(cid):
 @classes_bp.route("/<int:cid>/<int:lid>", methods=['GET', 'POST'])
 def individual_lesson(cid, lid):
     logger.debug("in individual lesson route")
-    
+
     # getting uid
     logger.debug("getting uid")
     uid = session_globals.get("uid")
@@ -291,20 +303,24 @@ def individual_lesson(cid, lid):
     logger.info(f"HIGHLIGHTS: {results['highlights']}")
 
     # sorts by start offset and then end offset and then id
-    results["highlights"].sort(key = lambda x : [x["ts_start_offset"], x["ts_end_offset"], x["id"]])
+    results["highlights"].sort(
+        key=lambda x: [x["ts_start_offset"], x["ts_end_offset"], x["id"]]
+    )
 
     # presetting new comment aspects.
     parentid = None
     anonymous = None
     private = None
 
-
     reply_forms = {}
     for highlight in results["highlights"]:
         visible = not (highlight["private"] and (highlight["uid"] != uid))
-        if highlight["comtype"] in ["comment", "correction", "reply"] and visible:
+        if (
+            highlight["comtype"] in ["comment", "correction", "reply"]
+            and visible
+        ):
             # set up individual reply form for each comment
-            form = CommentReplyForm(prefix=f"{highlight['id']}-") # prefix to distinguish forms
+            form = CommentReplyForm(prefix=f"{highlight['id']}-")  # prefix to distinguish forms
             form.start_offset.data = highlight["ts_start_offset"]
             form.end_offset.data = highlight["ts_end_offset"]
             form.parentid.data = highlight["id"]
@@ -323,7 +339,7 @@ def individual_lesson(cid, lid):
                 end_offset = int(form.end_offset.data)
                 comtype = "reply"
                 post_handled = True
-    
+
     # make comment data into a frontend-friendly format
     children_forms = []
     for com_id in reply_forms:
@@ -332,13 +348,21 @@ def individual_lesson(cid, lid):
             if replies is None:
                 error.push_log("failed to get comment replies")
                 abort(500)
-            children_forms.append((reply_forms[com_id], tuple([reply_forms[reply.id] for reply in replies])))
-            # children_forms is now of format
-            # [((parent_dict, form), ((child_dict1, form), (child_dict2, form)...))...]
+            children_forms.append((
+                reply_forms[com_id],
+                tuple(reply_forms[reply.id] for reply in replies),
+            ))
+    # children_forms is now of format
+    # [((parent_dict, form), ((child_dict1, form), (child_dict2, form)...))...]
 
-    # get a dict of the standalone highlights (not attached to comments or replies)
-    standalone_highlights = [h for h in results["highlights"] if h["comtype"]=="highlight" and h["uid"]==uid]
-
+    # get a dict of the standalone highlights
+    # (not attached to comments or replies)
+    standalone_highlights = [
+        h
+        for h in results["highlights"]
+        if h["comtype"] == "highlight"
+        and h["uid"] == uid
+    ]
 
     # javascript sends get request when user selects "comment"
     # if user didn't select "comment", these values will just be None
@@ -346,7 +370,8 @@ def individual_lesson(cid, lid):
     temp_end_offset = request.args.get("end_offset")
     temp_selected_text = request.args.get("selected_text")
     new_comment_form = CommentForm()
-    if temp_start_offset and temp_end_offset:     # only occurs when user selected "comment"
+    # only occurs when user selected "comment":
+    if temp_start_offset and temp_end_offset:
         # form with the info for the comment
         logger.debug("User selected 'comment'. Preparing comment form")
         new_comment_form.start_offset.data = temp_start_offset
@@ -357,20 +382,20 @@ def individual_lesson(cid, lid):
         # temporary highlight for pending comment
         temp_highlight = {
             "id": None,
-            "uid":uid,
-            "lid":lid,
-            "parentid":None,
-            "content":None,
-            "uploadtime":None,
-            "anonymous":None,
-            "private":None,
-            "comtype":"setting",
-            "tsrange":None,
-            "ts_start_offset":temp_start_offset,
-            "ts_end_offset":temp_end_offset,
-            "length":None
+            "uid": uid,
+            "lid": lid,
+            "parentid": None,
+            "content": None,
+            "uploadtime": None,
+            "anonymous": None,
+            "private": None,
+            "comtype": "setting",
+            "tsrange": None,
+            "ts_start_offset": temp_start_offset,
+            "ts_end_offset": temp_end_offset,
+            "length": None
         }
-        standalone_highlights.append(temp_highlight)   
+        standalone_highlights.append(temp_highlight)
     if new_comment_form.validate_on_submit():
         comment_content = new_comment_form.comment_text.data
         start_offset = int(new_comment_form.start_offset.data)
@@ -387,9 +412,9 @@ def individual_lesson(cid, lid):
         elif visibility == "private":
             private = True
 
-        # flagging that the post request has been handled and comment can just immediately be inserted
+        # flagging that the post request has been handled and
+        # comment can just immediately be inserted
         post_handled = True
-
 
     # post request is sent when any of the following occur:
     # - user selects "highlight option"
@@ -400,40 +425,51 @@ def individual_lesson(cid, lid):
 
         # parentid is None if submission wasn't a reply
         if not post_handled:
-            # when user highlights text and selects "highlight" or "jump to text",
-            # a request is sent from javascript rather than html
+            # when user highlights text and selects "highlight" or "jump to
+            # text, a request is sent from javascript rather than html
             if request.is_json:
                 logger.debug("""information posted from javascript (meaning
                             user selected highlight)""")
                 try:
                     data = request.get_json()
                 except Exception as e:
-                    error.push_log("failed to get form from js frontend", e, sys.exc_info())
+                    error.push_log(
+                        "failed to get form from js frontend",
+                        e,
+                        sys.exc_info()
+                    )
                     abort(500)
 
             # when user submits a comment, post request is sent from html
             else:
-                logger.debug("""information posted from html (meaning user 
-                            selected comment""")
+                logger.debug("""information posted from html (meaning user
+                             selected comment""")
                 try:
                     data = request.form
                 except Exception as e:
-                    error.push_log("failed to get form from html frontend", e, sys.exc_info())
+                    error.push_log(
+                        "failed to get form from html frontend",
+                        e,
+                        sys.exc_info()
+                    )
                     abort(500)
-                
+
             # grabbing information from frontend
             try:
-                # redirecting to same page with video timestamp info if
-                # post request was sent due to user clicking "jump to timestamp"
+                # redirecting to same page with video timestamp info if post
+                # request was sent due to user clicking "jump to timestamp"
                 posttype = data.get("posttype")
                 if posttype == "timestamp":
                     ts = data.get("timestamp")
                     session_globals.set("video_timestamp", ts)
-                    return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
+                    return redirect(url_for(
+                        "classes.individual_lesson",
+                        cid=cid,
+                        lid=lid
+                    ))
 
                 start_offset = int(data.get("start_offset"))
                 end_offset = int(data.get("end_offset"))
-                selected_text = data.get("selected_text")   # for debugging
                 comtype = data.get("comtype")
 
                 # this could be done earlier in the "if request.is_json" but
@@ -443,7 +479,11 @@ def individual_lesson(cid, lid):
                 else:
                     comment_content = None
             except Exception as e:
-                error.push_log("failed to grab data from frontend form", e, sys.exc_info())
+                error.push_log(
+                    "failed to grab data from frontend form",
+                    e,
+                    sys.exc_info()
+                )
                 abort(500)
 
         # insert new comment/highlight
@@ -466,9 +506,6 @@ def individual_lesson(cid, lid):
             abort(500)
         db.session.commit()
 
-        # if request.is_json:
-        #     logger.debug("sending back success to javascript frontend")
-        #     return jsonify({"status": "success", "highlight": new_comment.to_dict()})
         logger.debug("redirecting back to same page for re-rendering")
         return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
 
@@ -484,17 +521,15 @@ def individual_lesson(cid, lid):
     if results["video_timestamp"] is not None:
         session_globals.remove("video_timestamp")
 
-    # results["video_path"] = os.path.join(os.path.abspath(current_app.config["UPLOAD_FOLDER"]), this_lesson.videofn)
-
     # convert transcript segments to dict form with start and end timestamps
     results["transcripts"] = [ts.to_dict() for ts in this_lesson.transcripts]
 
     results["uid"] = uid
     results["cid"] = cid
     results["lid"] = lid
-    
+
     results["user"] = user.get_user(uid).full_name()
-    
+
     parent_comments = [com[0][0] for com in children_forms]
 
     logger.debug("rendering individual lesson page")
@@ -504,4 +539,4 @@ def individual_lesson(cid, lid):
         comment_forms=children_forms,
         parent_comments_json=parent_comments,
         standalone_highlights_json=standalone_highlights
-        )
+    )

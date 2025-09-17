@@ -1,11 +1,10 @@
-from flask import render_template, abort, Blueprint, redirect, url_for
-import os
+from flask import render_template, Blueprint
 from app.logger_config import get_logger
-from app import session_globals, error
+from app import session_globals
 
 logger = get_logger(__name__)
 # basedir = os.path.abspath(os.path.dirname(__file__))
-      
+
 
 main_bp = Blueprint('main', __name__, template_folder='templates')
 

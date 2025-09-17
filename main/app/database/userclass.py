@@ -25,7 +25,7 @@ def get_role(uid, cid):
     if user_class:
         role = user_class.role
     else:
-        error.push_log(f"couldn't find role associated with user and class", e, sys.exc_info())
+        error.push_log("couldn't find role associated with user and class")
         return None
 
     return role
@@ -42,7 +42,11 @@ def insert(uid, cid, role):
     try:
         db.session.add(new_userclass)
     except Exception as e:
-        error.push_log(f"failed to add new userclass {new_userclass} to db", e, sys.exc_info())
+        error.push_log(
+            f"failed to add new userclass {new_userclass} to db",
+            e,
+            sys.exc_info()
+        )
         db.session.rollback()
         return None
     return new_userclass

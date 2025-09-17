@@ -1,5 +1,5 @@
 from app import create_app
-from app.database import user, clazz, userclass, lesson
+from app.database import user, clazz, userclass, lesson, transcript
 from app.database.models import db
 from faker import Faker
 import string
@@ -79,9 +79,9 @@ def add_userclasses(min_cons=1, max_cons=50):
             )
     db.session.commit()
 
-    ## Below code is to add classes to users
-    ## (not the same as adding users to classes)
-    ## (must have at least one user in each class)
+    # Below code is to add classes to users
+    # (not the same as adding users to classes)
+    # (must have at least one user in each class)
 
     # for sample_user in users:
     #     # select random number of connections
@@ -118,7 +118,7 @@ def add_lessons(min_cons=0, max_cons=3):
                     creationtime=fake.date_time().isoformat()
             )
     db.session.commit()
-                    
+
 
 def add_transcripts(min_cons=10, max_cons=200):
     """adds transcripts"""
@@ -139,10 +139,9 @@ def add_transcripts(min_cons=10, max_cons=200):
 def add_comments():
     """adds comments"""
     lessons = lesson.all_lessons()
-    
+
     for ilesson in lessons:
         pass
-        
 
 
 if __name__ == "__main__":
@@ -155,7 +154,7 @@ if __name__ == "__main__":
             add_classes()
             add_userclasses()
             add_lessons()
-            
+
             print(f"all users: {user.all_users()}")
             user.get_user(1)
             print(user.get_classes(uid=1))

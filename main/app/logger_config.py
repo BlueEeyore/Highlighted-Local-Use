@@ -14,7 +14,7 @@ def get_logger(name):
 
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    
+
     # avoiding having multiple handlers
     if not logger.hasHandlers():
         logger.addHandler(file_handler)

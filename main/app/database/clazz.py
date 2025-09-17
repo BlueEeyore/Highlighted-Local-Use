@@ -35,6 +35,7 @@ def get_class(cid):
         error.push_log("failed to query classes", e, sys.exc_info())
         return None
 
+
 def get_class_by(col_name, val):
     """queries class by one requirement"""
     logger.debug(f"getting all classes with column {col_name} and value {val}")
@@ -44,22 +45,30 @@ def get_class_by(col_name, val):
     try:
         col_attr = getattr(Class, col_name)
     except AttributeError as e:
-        error.push_log(f"failed to get attribute for col {col_name} in Class", e, sys.exc_info())
+        error.push_log(
+            f"failed to get attribute for col {col_name} in Class",
+            e,
+            sys.exc_info()
+        )
         return None
 
     # returning all classes filtered by that column
     logger.debug(f"returning all classes filtered by column {col_name}")
-    return Class.query.filter(col_attr==val).all()
+    return Class.query.filter(col_attr == val).all()
 
 
 def get_filtered(*filters):
     """queries class with given filters"""
     logger.debug(f"getting all classes with filters {filters}")
-    
+
     try:
         return db.session.query(Class).filter(*filters).all()
     except Exception as e:
-        error.push_log(f"failed to query Class with filters {filters}")
+        error.push_log(
+            f"failed to query Class with filters {filters}",
+            e,
+            sys.exc_info()
+        )
         return None
 
 
@@ -78,7 +87,11 @@ def get_users(cid):
     try:
         users = [uc.user for uc in clazz.userclasses]
     except Exception as e:
-        error.push_log("failed to query class for uc and then query uc for users", e, sys.exc_info())
+        error.push_log(
+            "failed to query class for uc and then query uc for users",
+            e,
+            sys.exc_info()
+        )
         return None
 
     return users
@@ -122,16 +135,28 @@ def generate_unique_joincode(length=8):
 
 def insert(name, private, school, joincode, starttime, creatorid=None):
     """inserts a class"""
-    logger.debug(f"adding class with {[creatorid, name, private, school, joincode, starttime]}")
+    logger.debug(f"""adding class with {[
+        creatorid, name, private, school, joincode, starttime
+    ]}""")
 
     # set new class instance
-    new_class = Class(name=name, private=private, school=school, joincode=joincode, starttime=starttime)
+    new_class = Class(
+        name=name,
+        private=private,
+        school=school,
+        joincode=joincode,
+        starttime=starttime
+    )
 
     # add new class to db
     try:
         db.session.add(new_class)
     except Exception as e:
-        error.push_log(f"failed to add new class {new_class} to db", e, sys.exc_info())
+        error.push_log(
+            f"failed to add new class {new_class} to db",
+            e,
+            sys.exc_info()
+        )
         db.session.rollback()
         return None
 
@@ -139,7 +164,7 @@ def insert(name, private, school, joincode, starttime, creatorid=None):
     try:
         db.session.commit()
     except Exception as e:
-        error.push_log(f"failed to commit to db", e, sys.exc_info())
+        error.push_log("failed to commit to db", e, sys.exc_info())
         db.session.rollback()
         return None
 
@@ -148,7 +173,12 @@ def insert(name, private, school, joincode, starttime, creatorid=None):
         try:
             userclass.insert(creatorid, new_class.id, "admin")
         except Exception as e:
-            error.push_log(f"failed to connect new class to creator with uid {creatorid} in db", e, sys.exc_info())
+            error.push_log(
+                f"""failed to connect new class to creator with uid
+                 {creatorid} in db""",
+                e,
+                sys.exc_info()
+            )
             db.session.rollback()
             return None
 

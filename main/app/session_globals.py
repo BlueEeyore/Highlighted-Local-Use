@@ -1,8 +1,6 @@
 from .logger_config import get_logger
 from flask import session
 from flask_session import Session
-from datetime import timedelta
-from app.transcription import Transcription
 from app.database.models import db
 # from flask_session.session_interface.serializer import PickleSerializer
 import pickle
@@ -24,7 +22,7 @@ logger = get_logger(__name__)
 #     def dumps(self, obj):
 #         return pickle.dumps(obj)
 #     def loads(self, data):
-        # return pickle.loads(data)
+#        return pickle.loads(data)
 # --- Pickle Serializer Wrapper ---
 # Flask-Session expects a serializer with encode/decode methods.
 class PickleSerializer:
@@ -38,11 +36,12 @@ class PickleSerializer:
         """
         # Convert the session object to a plain dictionary
         plain_dict = dict(session_object)
-        return pickle.dumps(plain_dict, pickle.HIGHEST_PROTOCOL) 
+        return pickle.dumps(plain_dict, pickle.HIGHEST_PROTOCOL)
 
     def decode(self, data):
         """Deserialize the data using pickle."""
         return pickle.loads(data)
+
 
 def session_config(app):
     """configures session"""
@@ -52,11 +51,11 @@ def session_config(app):
     app.config["SESSION_TYPE"] = "sqlalchemy"
     app.config["SESSION_SQLALCHEMY"] = db
     app.config["SESSION_PERMANENT"] = False
-    app.config["SESSION_USE_SIGNER"] = True # Secures the session ID cookie
+    app.config["SESSION_USE_SIGNER"] = True  # Secures the session ID cookie
 
     # # switch serialiser to pickle instead of JSON
     # app.config["SESSION_SERIALIZER"] = pickle
-    
+
     # if i want to change the table name:
     # app.config['SESSION_SQLALCHEMY_TABLE'] = 'flask_session'
 
@@ -64,8 +63,8 @@ def session_config(app):
     session_handle.app.session_interface.serializer = PickleSerializer()
 
     # make the session last a certain amount of time rather than
-    # just closing when the browser closes
-    # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=0.5)  # commented for dev
+    # just closing when the browser closes (commenting for dev)
+    # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=0.5)
 
 
 def _get_globs():
@@ -111,11 +110,11 @@ def clear():
 
     sess = _get_globs()
     sess.clear()
-    
+
 
 def print_dict():
     """prints the global dictionary (used only for debugging)"""
-    logger.debug(f"printing dictionary")
+    logger.debug("printing dictionary")
 
     globs = _get_globs()
     print(globs)
@@ -135,66 +134,3 @@ def decrement(key):
 
     globs = _get_globs()
     globs[key] -= 1
-
-
-# def get_transcriber():
-#     """
-#     Gets Transcription object instance from session.
-#     If instance doesn't exist, creates a new one
-#     """
-#     logger.debug("getting Transcription object from session")
-
-#     transcriber = get("transcription")
-
-#     if transcriber is None:
-#         logger.debug("Transcription object does not exist in session. Creating new one")
-#         transcriber = Transcription()
-#         set("transcription", transcriber)
-    
-#     return transcriber
-
-
-
-# class SessionGlobals:
-#     def __init__(self):
-#         logger.debug("initialising")
-# 
-#         self.vars = {}
-# 
-#     def set(self, key, value):
-#         """assigns key to value"""
-#         logger.debug(f"setting {key} to {value}")
-# 
-#         self.vars[key] = value
-# 
-#     def get(self, key):
-#         """gets value associated with given key"""
-#         logger.debug(f"getting {key}")
-#         
-#         return self.vars[key]
-# 
-#     def remove(self, key):
-#         """removes item associated with given key"""
-#         logger.debug(f"removing {key}")
-# 
-#         del self.vars[key]
-# 
-#     def increment(self, key):
-#         """increments value associated with given key (must be int)"""
-#         logger.debug(f"incrementing {key}")
-# 
-#         try:
-#             self.vars[key] += 1
-#         except TypeError as e:
-#             logger.exception(e)
-#             raise
-# 
-#     def decrement(self, key):
-#         """decrements value associated with given key (must be int)"""
-#         logger.debug(f"decrementing {key}")
-# 
-#         try:
-#             self.vars[key] -= 1
-#         except TypeError as e:
-#             logger.exception(e)
-#             raise

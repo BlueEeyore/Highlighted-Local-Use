@@ -36,19 +36,24 @@ def get_comment(cid):
 
 def get_comment_by(col_name, val):
     """queries comment"""
-    logger.debug(f"getting all comments with column {col_name} and value {val}")
+    logger.debug(f"""getting all comments with
+                  column {col_name} and value {val}""")
 
     # finding the column in Comment associated with the given column name
     logger.debug(f"getting attribute for column {col_name} in Comment")
     try:
         col_attr = getattr(Comment, col_name)
     except AttributeError as e:
-        error.push_log(f"failed to get attribute for col {col_name} in Comment", e, sys.exc_info())
+        error.push_log(
+            f"failed to get attribute for col {col_name} in Comment",
+            e,
+            sys.exc_info()
+        )
         return None
 
     # returning all comments filtered by that column
     logger.debug(f"returning all comments filtered by column {col_name}")
-    return Comment.query.filter(col_attr==val).all()
+    return Comment.query.filter(col_attr == val).all()
 
 
 def get_children(cid):
@@ -64,7 +69,11 @@ def get_children(cid):
     try:
         children = com.replies.order_by(Comment.uploadtime).all()
     except Exception as e:
-        error.push_log("couldn't query replies and order by uploadtime", e, sys.exc_info())
+        error.push_log(
+            "couldn't query replies and order by uploadtime",
+            e,
+            sys.exc_info()
+        )
         return None
     curr_children = children.copy()
     done = False
@@ -81,19 +90,62 @@ def get_children(cid):
     return children
 
 
-def insert(uid, lid, parentid, content, uploadtime, anonymous, private, comtype, tsrange, ts_start_offset, ts_end_offset, length):
+def insert(
+        uid,
+        lid,
+        parentid,
+        content,
+        uploadtime,
+        anonymous,
+        private,
+        comtype,
+        tsrange,
+        ts_start_offset,
+        ts_end_offset,
+        length
+):
     """inserts a comment"""
-    logger.debug(f"adding comment with {[uid, lid, parentid, content, uploadtime, anonymous, private, comtype, tsrange, ts_start_offset, ts_end_offset, length]}")
+    logger.debug(f"""adding comment with {[
+        uid,
+        lid,
+        parentid,
+        content,
+        uploadtime,
+        anonymous,
+        private,
+        comtype,
+        tsrange,
+        ts_start_offset,
+        ts_end_offset,
+        length
+    ]}""")
 
     # set new comment instance
-    new_comment = Comment(uid=uid, lid=lid, parentid=parentid, content=content, uploadtime=uploadtime, anonymous=anonymous, private=private, comtype=comtype, tsrange=tsrange, ts_start_offset=ts_start_offset, ts_end_offset=ts_end_offset, length=length)
+    new_comment = Comment(
+        uid=uid,
+        lid=lid,
+        parentid=parentid,
+        content=content,
+        uploadtime=uploadtime,
+        anonymous=anonymous,
+        private=private,
+        comtype=comtype,
+        tsrange=tsrange,
+        ts_start_offset=ts_start_offset,
+        ts_end_offset=ts_end_offset,
+        length=length
+    )
 
     # add new comment to db
     try:
         db.session.add(new_comment)
     except Exception as e:
-        error.push_log(f"failed to add new comment {new_comment} to db", e, sys.exc_info)
+        error.push_log(
+            f"failed to add new comment {new_comment} to db",
+            e,
+            sys.exc_info
+        )
         db.session.rollback()
         return None
-    
+
     return new_comment

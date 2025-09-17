@@ -14,6 +14,7 @@ class UserClass(db.Model):
     user = db.relationship("User", back_populates="userclasses")
     clazz = db.relationship("Class", back_populates="userclasses")
 
+
 class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
@@ -26,7 +27,7 @@ class User(db.Model):
     pfp = db.Column(db.LargeBinary)
     notifications = db.Column(db.String(255))
 
-    lessons = db.relationship("Lesson", backref="user")    
+    lessons = db.relationship("Lesson", backref="user")
     userclasses = db.relationship("UserClass", back_populates="user")
     comments = db.relationship("Comment", back_populates="user")
 
@@ -59,7 +60,6 @@ class Class(db.Model):
         }
 
 
-
 class Lesson(db.Model):
     __tablename__ = "lessons"
     id = db.Column(db.Integer, primary_key=True)
@@ -85,7 +85,6 @@ class Lesson(db.Model):
             "creationtime": self.creationtime,
             "creator": f"{self.user.firstname} {self.user.lastname}"
         }
-
 
 
 class Transcript(db.Model):
@@ -114,7 +113,7 @@ class Comment(db.Model):
     lid = db.Column(db.Integer, db.ForeignKey("lessons.id"), nullable=False)
     parentid = db.Column(db.Integer, db.ForeignKey("comments.id"))
     content = db.Column(db.Text)
-    uploadtime = db.Column(db.String(255))  # might change to timestamp type later
+    uploadtime = db.Column(db.String(255))
     anonymous = db.Column(db.Boolean)
     private = db.Column(db.Boolean)
     comtype = db.Column(db.String(50))
@@ -129,7 +128,7 @@ class Comment(db.Model):
         backref=db.backref("parent", remote_side=[id]),
         lazy="dynamic",
         single_parent=True,
-        cascade="all, delete-orphan"    # deletes children when parent is deleted
+        cascade="all, delete-orphan"  # deletes children when parent is deleted
     )
 
     def to_dict(self):

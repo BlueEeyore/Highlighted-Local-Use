@@ -37,20 +37,42 @@ def get_lesson(lid):
 
 def insert(creatorid, classid, name, videofn, mimetype, creationtime):
     """inserts a lesson"""
-    logger.debug(f"adding lesson with {[creatorid, classid, name, videofn, mimetype, creationtime]}")
+    logger.debug(f"""adding lesson with {[
+        creatorid,
+        classid,
+        name,
+        videofn,
+        mimetype,
+        creationtime
+    ]}""")
 
     # setting new lesson instance
     try:
-        new_lesson = Lesson(creatorid=creatorid, classid=classid, name=name, videofn=videofn, mimetype=mimetype, creationtime=creationtime)
+        new_lesson = Lesson(
+            creatorid=creatorid,
+            classid=classid,
+            name=name,
+            videofn=videofn,
+            mimetype=mimetype,
+            creationtime=creationtime
+        )
     except Exception as e:
-        error.push_log(f"filed to create Lesson row instance", e, sys.exc_info()) 
+        error.push_log(
+            "filed to create Lesson row instance",
+            e,
+            sys.exc_info()
+        )
         return False
 
     # adding new lesson to db
     try:
         db.session.add(new_lesson)
     except Exception as e:
-        error.push_log(f"failed to add new lesson {new_lesson} to db", e, sys.exc_info())
+        error.push_log(
+            f"failed to add new lesson {new_lesson} to db",
+            e,
+            sys.exc_info()
+        )
         db.session.rollback()
         return None
 

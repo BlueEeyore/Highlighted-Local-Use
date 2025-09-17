@@ -1,24 +1,29 @@
-from flask import render_template, abort, current_app, Blueprint, redirect, url_for, request, flash
-import os, sys
+from flask import render_template, abort, Blueprint, redirect, url_for
+from flask import request, flash
+import sys
 from app import session_globals, error
 from app.database.models import db
 from app.logger_config import get_logger
 from app.auth.forms import LoginForm, SignupForm
-from werkzeug.utils import secure_filename
 from app.database import user
 from app.auth.hashing import consistent_hash
 
 logger = get_logger(__name__)
 # basedir = os.path.abspath(os.path.dirname(__file__))
-      
 
-auth_bp = Blueprint('auth', __name__, url_prefix='/auth', template_folder='templates')
+
+auth_bp = Blueprint(
+    'auth',
+    __name__,
+    url_prefix='/auth',
+    template_folder='templates'
+)
 
 
 @auth_bp.route("/logout")
 def logout():
     logger.debug("logging out")
-    
+
     # user is registered as "logged in" when their uid is in session
     # clearing the session removes this uid, so they're logged out
     try:
@@ -36,7 +41,10 @@ def login():
     # login route is the default for the profile page
     # If uid is already in session then the user is already logged in
     if session_globals.get("uid"):
-        return redirect(url_for("account.profile", uid=session_globals.get("uid")))
+        return redirect(url_for(
+            "account.profile",
+            uid=session_globals.get("uid")
+        ))
 
     form = LoginForm()
     if form.validate_on_submit():   # when form is submitted
@@ -46,7 +54,7 @@ def login():
         password_hash = consistent_hash(form.password.data)
 
         logger.debug("getting uid for user with provided email")
-        new_user = user.get_user_by("email", email)    # get_user_by returns list
+        new_user = user.get_user_by("email", email)  # get_user_by returns list
 
         # if user doesn't exist
         if new_user == []:
@@ -67,9 +75,11 @@ def login():
         session_globals.set("uid", uid)
         next_page = request.args.get("next")
         if next_page:
-            logger.debug(f"login successful - redirecting to previous url {next_page} for user with uid {uid}")
+            logger.debug(f"""login successful - redirecting to
+                         previous url {next_page} for user with uid {uid}""")
             return redirect(next_page)
-        logger.debug(f"login successful - redirecting to classes page for user with uid {uid}")
+        logger.debug(f"""login successful - redirecting to classes
+                     page for user with uid {uid}""")
         return redirect(url_for("classes.classes", uid=uid))
 
     logger.debug("rendering login page")
@@ -92,7 +102,8 @@ def signup():
         bio = form.bio.data
         pfp = form.pfp.data
 
-        logger.debug(f"checking if user with provided email {email} already exists")
+        logger.debug(f"""checking if user with provided email
+                      {email} already exists""")
         user_exists = True if user.get_user_by("email", email) else False
 
         if user_exists:
@@ -122,7 +133,7 @@ def signup():
             flash("School too long", "danger")
             return render_template("signup.html", form=form)
         if len(bio) > 300:
-            logger.debug("bio is too long (they hacked the frontend")
+            logger.debug("bio is too long (they hacked the frontend)")
             flash("Bio too long", "danger")
             return render_template("signup.html", form=form)
 
@@ -139,12 +150,11 @@ def signup():
                 )
         db.session.commit()
 
-        uid = user.get_user_by("email", email)[0].id    # get_user_by returns list
+        uid = user.get_user_by("email", email)[0].id  # get_user_by returns list
         session_globals.set("uid", uid)
 
         logger.debug("redirecting to classes page for user")
         return redirect(url_for("classes.classes"))
-
 
     logger.debug("rendering signup template")
     return render_template("signup.html", form=form, error_msg=False)

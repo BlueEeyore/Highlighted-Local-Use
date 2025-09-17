@@ -43,12 +43,16 @@ def get_user_by(col_name, val):
     try:
         col_attr = getattr(User, col_name)
     except Exception as e:
-        error.push_log(f"failed to get attribute for col {col_name} in User", e, sys.exc_info())
+        error.push_log(
+            f"failed to get attribute for col {col_name} in User",
+            e,
+            sys.exc_info()
+        )
         return None
 
     # returning all users filtered by that column, returns None if don't exist
     logger.debug(f"returning all users filtered by column {col_name}")
-    return User.query.filter(col_attr==val).all()
+    return User.query.filter(col_attr == val).all()
 
 
 def get_classes(uid):
@@ -66,23 +70,59 @@ def get_classes(uid):
     try:
         classes = [uc.clazz for uc in user.userclasses]
     except Exception as e:
-        error.push_log("failed to query user for uc and then query uc for classes", e, sys.exc_info())
+        error.push_log(
+            "failed to query user for uc and then query uc for classes",
+            e,
+            sys.exc_info()
+        )
         return None
 
     return classes
 
-def insert(email, password, firstname, lastname, bio, school, pfp, notifications):
+
+def insert(
+        email,
+        password,
+        firstname,
+        lastname,
+        bio,
+        school,
+        pfp,
+        notifications
+):
     """inserts a user"""
-    logger.debug(f"adding user with {[email, password, firstname, lastname, bio, school, pfp, notifications]}")
+    logger.debug(f"""adding user with {[
+        email,
+        password,
+        firstname,
+        lastname,
+        bio,
+        school,
+        pfp,
+        notifications
+    ]}""")
 
     # set new user instance
-    new_user = User(email=email, password=password, firstname=firstname, lastname=lastname, bio=bio, school=school, pfp=pfp, notifications=notifications)
+    new_user = User(
+        email=email,
+        password=password,
+        firstname=firstname,
+        lastname=lastname,
+        bio=bio,
+        school=school,
+        pfp=pfp,
+        notifications=notifications
+    )
 
     # add new user to db
     try:
         db.session.add(new_user)
     except Exception as e:
-        error.push_log(f"failed to add new user {new_user} to db", e, sys.exc_info())
+        error.push_log(
+            f"failed to add new user {new_user} to db",
+            e,
+            sys.exc_info()
+        )
         db.session.rollback()
         return None
     return new_user

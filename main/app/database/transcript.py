@@ -36,19 +36,25 @@ def get_transcript(tid):
 
 def get_transcript_by(col_name, val):
     """queries transcript"""
-    logger.debug(f"getting all transcript with column {col_name} and value {val}")
+    logger.debug(
+        f"getting all transcript with column {col_name} and value {val}"
+    )
 
     # finding the column in Transcript associated with the given column name
     logger.debug(f"getting attribute for column {col_name} in Transcript")
     try:
         col_attr = getattr(Transcript, col_name)
     except AttributeError as e:
-        error.push_log(f"failed to get attribute for col {col_name} in Transcript", e, sys.exc_info())
+        error.push_log(
+            f"failed to get attribute for col {col_name} in Transcript",
+            e,
+            sys.exc_info()
+        )
         return None
 
     # returning all transcripts filtered by that column
     logger.debug(f"returning all transcripts filtered by column {col_name}")
-    return Transcript.query.filter(col_attr==val).all()
+    return Transcript.query.filter(col_attr == val).all()
 
 
 def insert(lid, timestamp, text):
@@ -62,7 +68,11 @@ def insert(lid, timestamp, text):
     try:
         db.session.add(new_transcript)
     except Exception as e:
-        error.push_log(f"failed to insert transcript {new_transcript} to db", e, sys.exc_info())
+        error.push_log(
+            f"failed to insert transcript {new_transcript} to db",
+            e,
+            sys.exc_info()
+        )
         db.session.rollback()
         return None
     return new_transcript
@@ -70,7 +80,7 @@ def insert(lid, timestamp, text):
 
 def insert_transcript(lid, transcript_dict):
     """takes a transcription results dict and inserts everything into db"""
-    logger.debug(f"adding transcription")
+    logger.debug("adding transcription")
 
     if transcript_dict is None:
         ts = "0.0, 0.0"
@@ -85,11 +95,11 @@ def insert_transcript(lid, transcript_dict):
         print(segment)
         ts = f"{segment['start']}, {segment['end']}"
         insert(lid, ts, segment["text"])
-    
+
     try:
         db.session.commit()
     except Exception as e:
-        error.push_log(f"failed to commit db changes", e, sys.exc_info())
+        error.push_log("failed to commit db changes", e, sys.exc_info())
         db.session.rollback()
         return None
     return True
