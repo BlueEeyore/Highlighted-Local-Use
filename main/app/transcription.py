@@ -27,7 +27,6 @@ class Transcription:
         model_name = WHISPER_MODEL[model_size]
         self.model_str = model_name
 
-        logger.info(f"MODEL: {whisper_model}")
         if whisper_model is None:
             logger.info("whisper model not yet initialised. Initialising now")
             try:

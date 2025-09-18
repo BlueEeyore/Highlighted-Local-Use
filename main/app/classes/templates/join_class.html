@@ -1,7 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<!-- Use the page-container to guarantee centering -->
 <div class="page-container">
 
     <div class="top-left-container">
@@ -12,7 +11,7 @@
 
         <h1 class="page-title">Join a Class</h1>
 
-        <!-- Section 1: Join with Code (remains the same) -->
+        <!-- option 1: to join with a code -->
         <h2 style="text-align: center; color: #4D6A6D; margin-bottom: 1rem;">Join with a Code</h2>
         <form action="/classes/join" method="post">
             {{ join_form.hidden_tag() }}
@@ -30,10 +29,10 @@
             <span class="divider-text">Or...</span>
         </div>
 
-        <!-- Section 2: Search Public Classes -->
+        <!-- option 2: join public classes in table -->
         <h2 style="text-align: center; color: #4D6A6D; margin-bottom: 1.5rem;">Search Public Classes</h2>
 
-        <!-- NEW: Our prominent, custom search box -->
+        <!-- custom search box tied to datatable -->
         <div class="prominent-search-container">
             <input type="search" id="custom-search-input" placeholder="Search by name or school..." aria-label="Search public classes">
         </div>
@@ -47,7 +46,10 @@
                 </tr>
             </thead>
             <tbody>
+                <!-- loop over public classes -->
                 {% for class_data in classes %}
+                    <!-- this holds the code for the children since it is an expandable row table. 
+                        The code is then handled by the javascript -->
                     <tr data-child-content="
                         <dl>
                             <dt>Created:</dt>

@@ -1032,3 +1032,55 @@ tr.dt-hasChild form {
     line-height: 1.7;
     color: #403D39;
 }
+
+/*
+================================================================
+29. ERROR PAGE DETAILS STYLING
+================================================================
+*/
+
+/* The container for the expandable technical details */
+.error-details {
+    margin-top: 2.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    text-align: left;
+}
+
+/* The clickable summary text (e.g., "Show Technical Details") */
+.error-details summary {
+    padding: 1rem;
+    font-weight: 600;
+    color: #4D6A6D; /* Payne's Gray */
+    background-color: #f8f9fa;
+    cursor: pointer;
+    outline: none; /* Remove focus outline */
+    border-radius: 8px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* Change background on hover */
+.error-details summary:hover {
+    background-color: #e9ecef;
+}
+
+/* When the details are open, round only the top corners of the summary */
+.error-details[open] summary {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* The container for the pre-formatted stack trace */
+.stack-trace-box {
+    padding: 1rem;
+    background-color: #212529; /* A dark background for code */
+    color: #f8f9fa;           /* Light text for readability */
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    white-space: pre-wrap;     /* Allows long lines to wrap */
+    overflow-x: auto;          /* Add horizontal scroll if needed */
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}

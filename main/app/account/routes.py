@@ -1,11 +1,10 @@
-from flask import render_template, abort, current_app, Blueprint
-import os
+from flask import render_template, Blueprint, abort
 from app.database import user
 from app.logger_config import get_logger
 
 logger = get_logger(__name__)
 # basedir = os.path.abspath(os.path.dirname(__file__))
-      
+
 
 account_bp = Blueprint('account', __name__, template_folder='templates')
 
@@ -14,8 +13,14 @@ account_bp = Blueprint('account', __name__, template_folder='templates')
 def profile(uid):
     logger.debug("in profile")
 
+    # to prevent attackers from inputting large uids in route
+    if uid > 10000000:
+        abort(404)
+
     logger.debug("getting user")
     user_info = user.get_user(uid)
+    if user_info is None:
+        abort(404)
     first_name = user_info.firstname
     last_name = user_info.lastname
     bio = user_info.bio
@@ -34,13 +39,11 @@ def profile(uid):
 def settings(uid):
     logger.debug("in settings")
 
-
     return render_template("settings.html")
 
 
 @account_bp.route("/edit_profile/<int:uid>", methods=['GET', 'POST'])
 def edit_profile(uid):
     logger.debug("in edit profile")
-
 
     return render_template("edit_profile.html")

@@ -24,12 +24,16 @@ class VideoForm(FlaskForm):
     """form for uploading video"""
     video = FileField("Video", validators=[
         FileRequired(),
-        FileAllowed(['mp4', 'mkv'], 'mp4 or mkv only!'),
+        FileAllowed(['mp4'], 'mp4 only!'),
         file_size_limit(1000)   # max 1gb
         ])
     name = StringField("Lesson Name", validators=[
         DataRequired(),
-        Length(min=1, max=100)
+        Length(
+            min=1,
+            max=100,
+            message="Lesson name must be between 1 and 100 characters long."
+        )
     ])
     submit = SubmitField("Upload File")
 
@@ -41,7 +45,14 @@ class CommentReplyForm(FlaskForm):
     start_offset = HiddenField()
     end_offset = HiddenField()
     comtype = HiddenField()
-    msg = TextAreaField("Reply", validators=[DataRequired()])
+    msg = TextAreaField("Reply", validators=[
+        DataRequired(),
+        Length(
+            min=1,
+            max=100,
+            message="Reply must be between 1 and 100 characters"
+        )
+    ])
     submit = SubmitField("Submit Reply")
 
 
@@ -51,7 +62,14 @@ class CommentForm(FlaskForm):
     end_offset = HiddenField()
     selected_text = HiddenField()   # not really necessary but keeping for now
     comtype = HiddenField()
-    comment_text = TextAreaField(validators=[DataRequired()])
+    comment_text = TextAreaField(validators=[
+        DataRequired(),
+        Length(
+            min=1,
+            max=100,
+            message="Comment must be between 1 and 100 characters"
+        )
+    ])
     visibility = SelectField("Visibility", choices=[
         ("standard", "Standard"),
         ("anonymous", "Anonymous"),

@@ -1,31 +1,30 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<!-- NEW: The page-container that will force everything inside it to center -->
 <div class="page-container">
 
-    <!-- This container now becomes a flex item, centered by its parent -->
     <div class="top-left-container">
         <a class="btn btn-custom-secondary" href="/classes">Back to Your Classes</a>
     </div>
 
-    <!-- This container is also centered by the new page-container -->
     <div class="content-wrapper">
 
-    <!-- NEW: The header container that holds the title and joincode -->
-    <div class="page-header-container">
-        <h1 class="page-title">{{ class_name }}</h1>
-        
-        <!-- Only show the joincode display if the joincode exists -->
-        {% if role == "admin" %}
-        <div class="joincode-display">
-            <span class="joincode-label">Join Code:</span>
-            <span class="joincode-value" id="class-joincode">{{ joincode }}</span>
+        <div class="page-header-container">
+            <h1 class="page-title">{{ class_name }}</h1>
+            
+            <!-- Only show the joincode display if admin -->
+            {% if role == "admin" %}
+            <div class="joincode-display">
+                <span class="joincode-label">Join Code:</span>
+                <span class="joincode-value" id="class-joincode">{{ joincode }}</span>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
-    </div>
 
-
+        {% if lessons == [] %}
+        <h2 align="center" class="pb-4">This class doesn't have any lessons yet!</h2>
+        {% else %}
+        <!-- table displaying all lessons within class -->
         <table id="lessons" class="display" width="100%">
             <thead>
                 <tr>
@@ -34,6 +33,7 @@
                 </tr>
             </thead>
             <tbody>
+                <!-- loop through the lessons -->
                 {% for lesson_data in lessons %}
                     <tr class="clickable-row" onclick="window.location.href='/classes/{{cid}}/{{lesson_data.id}}'">
                         <td>{{lesson_data.name}}</td>
@@ -42,7 +42,9 @@
                 {% endfor %}
             </tbody>
         </table>
+        {% endif %}
 
+        <!-- create lesson option for admin -->
         {% if role == "admin" %}
             <div class="button-group">
                 <a class="btn btn-custom-primary" href="/classes/{{cid}}/createlesson">Create Lesson</a>
@@ -56,6 +58,5 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- This block remains the same -->
 <script src="{{ url_for('static', filename='js/datatables.js') }}"></script>
 {% endblock %}

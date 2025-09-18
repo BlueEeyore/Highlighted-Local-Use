@@ -7,6 +7,7 @@ from app.logger_config import get_logger
 from app.auth.forms import LoginForm, SignupForm
 from app.database import user
 from app.auth.hashing import consistent_hash
+from app.auth.password import is_strong
 
 logger = get_logger(__name__)
 # basedir = os.path.abspath(os.path.dirname(__file__))
@@ -91,6 +92,15 @@ def signup():
     logger.debug("in signup")
 
     form = SignupForm()
+
+    # if form not valid
+    if not form.validate() and form.is_submitted():
+        # flash the errors
+        for field, errors in form.errors.items():
+            for msg in msg:
+                flash(msg, "danger")
+        return redirect(url_for("auth.signup"))
+
     if form.validate_on_submit():   # when form is submitted
         logger.debug("form submitted")
 
@@ -112,29 +122,14 @@ def signup():
             return render_template("signup.html", form=form)
 
         # checking that everything is valid before inserting into db
-        if len(email) > 40:
-            logger.debug("email is too long (they hacked the frontend")
-            flash("Email too long", "danger")
+        if "@" not in email:  # checking email is valid
+            logger.debug("email not valid")
+            flash("Not a valid email address", "danger")
             return render_template("signup.html", form=form)
-        if len(password) > 30:
-            logger.debug("password is too long (they hacked the frontend")
-            flash("Password too long", "danger")
-            return render_template("signup.html", form=form)
-        if len(first_name) > 50:
-            logger.debug("first name is too long (they hacked the frontend")
-            flash("First name too long", "danger")
-            return render_template("signup.html", form=form)
-        if len(last_name) > 50:
-            logger.debug("last name is too long (they hacked the frontend")
-            flash("Last name too long", "danger")
-            return render_template("signup.html", form=form)
-        if len(school) > 50:
-            logger.debug("school is too long (they hacked the frontend")
-            flash("School too long", "danger")
-            return render_template("signup.html", form=form)
-        if len(bio) > 300:
-            logger.debug("bio is too long (they hacked the frontend)")
-            flash("Bio too long", "danger")
+        if not is_strong(password):  # using my custom function
+            logger.debug("password not secure")
+            flash("""Password not secure. Must be more than 12 characters, contain uppercase and
+                   lowercase letters, numbers, and special characters""", "danger")
             return render_template("signup.html", form=form)
 
         logger.debug("inserting into user table")

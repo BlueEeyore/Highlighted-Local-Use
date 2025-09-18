@@ -1,1 +1,43 @@
-<h2>{{stack_trace}}</h2>
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="page-container">
+
+    <div class="content-wrapper" style="max-width: 800px; text-align: center;">
+
+        <!-- large 500 number. -->
+        <h1 style="font-size: 6rem; font-weight: 700; color: #e9ecef; margin-bottom: 0;">
+            500
+        </h1>
+
+        <h2 class="page-title" style="margin-bottom: 1rem;">
+            Something Went Wrong
+        </h2>
+
+        <!-- friendly message for the user -->
+        <p class="blurb-text" style="margin-bottom: 2.5rem;">
+            We're sorry, but our server encountered an internal error. This is our fault, not yours. Our team has been notified, and we are working to fix it.
+        </p>
+
+        <div class="button-group">
+            <a href="{{ url_for('main.home') }}" class="btn btn-custom-primary">Go to Homepage</a>
+        </div>
+
+        <!-- 
+          expandable section for the stack trace.
+          This will be hidden by default.
+        -->
+        {% if stack_trace %}
+        <details class="error-details">
+            <summary>Show Technical Details</summary>
+            <div class="stack-trace-box">
+                <pre><code>{{ stack_trace }}</code></pre>
+            </div>
+        </details>
+        {% endif %}
+
+    </div><!-- End of content-wrapper -->
+
+</div><!-- End of page-container -->
+
+{% endblock %}

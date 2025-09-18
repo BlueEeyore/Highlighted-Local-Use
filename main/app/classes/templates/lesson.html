@@ -1,15 +1,15 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<!-- Use the page-container to guarantee centering -->
 <div class="page-container">
     <div class="container-fluid">
+
         <!-- Top-left Back button -->
         <div class="top-left-container mb-3">
             <a class="btn btn-custom-secondary" href="/classes/{{results.cid}}">Back to Lessons</a>
         </div>
 
-        <!-- This is the pop-up menu. It's hidden by default with CSS. -->
+        <!-- pop-up menu. It's hidden by default with CSS. -->
         <div id="highlight-menu">
             <button id="highlight-btn">Highlight</button>
             <button id="comment-btn">Comment</button>
@@ -17,14 +17,13 @@
         </div>
 
 
+        <!-- using bootstrap grid -->
         <div class="row">
             <div class="col-md-3"></div>
             <div class="col-md-6">
-                <!-- <div class="video-container"> -->
-                    <video id="lesson_video" w-100 controls>
-                        <source src="{{url_for('static', filename='files/' + results.videofn)}}" type="{{results.mimetype}}">
-                    </video>
-                <!-- </div> -->
+                <video id="lesson_video" w-100 controls>
+                    <source src="{{url_for('static', filename='files/' + results.videofn)}}" type="{{results.mimetype}}">
+                </video>
             </div>
             <div class="col-md-3"></div>
         </div>
@@ -43,9 +42,12 @@
                 <!-- SIDEBAR COLUMN (Comments) -->
             <div class="col-md-2">
                 <div id="comment-sidebar">
+                    <!-- if a new comment is being set -->
                     {% if results.new_comment_form %}
+                        <!-- make it act like a focused comment -->
                         <div class="comment focused-comment" id="setting-comment">
                             <div class="comment-creator">{{results.user}}</div>
+                            <!-- form for new comment information -->
                             <form action="/classes/{{results.cid}}/{{results.lid}}" method="POST">
                                 {% set form = results.new_comment_form %}
                                 {{form.hidden_tag()}}
@@ -58,18 +60,15 @@
                                     {{form.comment_text.label}}
                                     {{form.comment_text(class="form-control", rows="3")}}
                                 </div>
+                                <!-- visibility selection and correction checkbox -->
                                 <div class="row gx-2">
                                     <div class="col-md-6 form-group">
                                         {{form.visibility.label}}
                                         {{form.visibility(class="form-select")}}
                                     </div>
                                     <div class="col-md-6">
-                                        <!-- Use our new wrapper for spacing -->
                                         <div class="form-check-wrapper">
-                                            <!-- Main label that sits above the checkbox -->
-                                            <!-- <label class="form-group-label">{{ form.is_correction.label.text }}</label> -->
-                                            
-                                            <!-- The custom checkbox container -->
+                                            <!-- custom checkbox container -->
                                             <div class="form-check">
                                                 {{ form.is_correction(class="form-check-input") }}
                                                 <label class="form-check-label" for="{{ form.is_correction.id }}">{{ form.is_correction.label.text }}</label>
@@ -82,7 +81,9 @@
                         </div>
                     {% endif %}
 
+                    <!-- loop over all remaining comments -->
                     {% for comment_form, replies in comment_forms %}
+                        <!-- get the comment info and individual reply form -->
                         {% set comment, form = comment_form[0], comment_form[1] %}
                         <div class="comment {%if comment.comtype=='correction'%}comment-correction{%endif%}" data-comment-id="{{comment.id}}">
                             <div class="comment-main">
@@ -98,6 +99,7 @@
                                 <div class="comment-content">{{comment.content}}</div>
                             </div>
 
+                            <!-- reply box for each comment -->
                             <div class="comment-reply-form">
                                 <form method="POST">
                                     {{form.hidden_tag()}}
@@ -114,6 +116,7 @@
                             </div>
 
                             <div class="comment-replies">
+                                <!-- loop over the replies for each comment -->
                                 {% for reply, reply_form in replies %}
                                 <div class="comment-reply-item">
                                     <div class="comment-header">
@@ -151,7 +154,6 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- This section remains the same -->
 <script>
     const commentsData = {{ parent_comments_json| tojson }};
     const standaloneHighlights = {{ standalone_highlights_json| tojson }};

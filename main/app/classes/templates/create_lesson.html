@@ -1,42 +1,34 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<!-- Use the page-container to guarantee centering -->
 <div class="page-container">
 
-    <!-- Container for the top-left 'Back' button -->
     <div class="top-left-container">
-        <!-- Assuming 'cid' (class id) is available to link back correctly -->
-        <a class="btn btn-custom-secondary" href="/classes/{{cid}}">Back to Lessons</a>
+        <a class="btn btn-custom-secondary" href="/classes/{{cid}}">Back</a>
     </div>
 
-    <!-- The main content card -->
     <div class="content-wrapper">
 
         <h1 class="page-title">Create New Lesson</h1>
 
-        <!-- The form itself -->
         <form method="POST" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
 
             <!-- Video Upload Field -->
             <div class="form-group">
                 {{ form.video.label }}
-                <!-- Add the .form-control class for styling -->
                 {{ form.video(class="form-control") }}
             </div>
 
             <!-- Lesson Name Field -->
             <div class="form-group">
                 {{ form.name.label }}
-                <!-- Add the .form-control class for styling -->
                 {{ form.name(class="form-control") }}
             </div>
 
             <!-- Submit Button -->
             <div class="button-group">
-                <!-- Add our custom button class for styling -->
-                {{ form.submit(class="btn btn-custom-primary") }}
+                {{ form.submit(class="btn btn-custom-primary", id="submit-btn") }}
             </div>
         </form>
 						
@@ -44,4 +36,11 @@
 
 </div><!-- End of page-container -->
 
+<script>
+    document.querySelector("form").addEventListener("submit", function() {
+        const btn = document.getElementById("submit-btn");
+        btn.disabled = true;
+        btn.innerText = "Processing...";
+    });
+</script>
 {% endblock %}

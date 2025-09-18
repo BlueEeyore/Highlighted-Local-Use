@@ -82,6 +82,9 @@ def join_class():
 
         # adding user to new class
         if classid:
+            if user.get_user(uid) in clazz.get_users(classid):
+                flash("You're already in that class!", "danger")
+                return redirect(url_for("classes.join_class"))
             conn = userclass.insert(uid=uid, cid=classid, role="student")
             if not conn:
                 error.push_log("failed to add new userclass connection")
@@ -95,7 +98,7 @@ def join_class():
     # getting all public classes user is not a part of and converting objects
     # to dictionary form
     classes = clazz.get_filtered(
-        Class.private is False,
+        Class.private == False,
         ~Class.userclasses.any(UserClass.uid == uid)    # user is not a part of
     )
     class_dicts = [cla.to_dict() for cla in classes]
@@ -172,6 +175,10 @@ def individual_class(cid):
         error.push_log("class does not exist")
         abort(404)
 
+    # checking that user is in the class
+    if not user.get_user(uid) in clazz.get_users(cid):
+        abort(404)
+
     # get class name
     class_name = this_class.name
 
@@ -215,9 +222,34 @@ def create_lesson(cid):
         logger.debug("not logged in, redirecting to login")
         return redirect(url_for("auth.login", next=request.url))
 
+    # if class doesn't exist
+    if clazz.get_class(cid) is None:
+        abort(404)
+
+    # checking that user is in the class
+    if not user.get_user(uid) in clazz.get_users(cid):
+        abort(404)
+
+    # checking that the user is an admin for this class
+    if userclass.get_role(uid, cid) != "admin":
+        abort(404)
+
+    logger.warning(session_globals.get("processing"))
+    if session_globals.get("processing"):
+        flash(
+            "You already have a video being processed. Please wait.",
+            "danger"
+        )
+        return redirect(url_for("classes.individual_class", cid))
+
     form = VideoForm()
     if form.validate_on_submit():   # when form is submitted
         logger.debug("video form submitted")
+
+        # let the program know that the video is being processed.
+        # this is so that I can check whether something is still
+        # being processed or not when the user makes another request
+        session_globals.set("processing", True)
 
         # grab lesson name
         lesson_name = form.name.data
@@ -243,11 +275,13 @@ def create_lesson(cid):
             datetime.utcnow())
         if not new_lesson:
             error.push_log("failed to create new lesson")
+            session_globals.set("processing", False)
             abort(500)
         try:
             db.session.commit()
         except Exception as e:
             error.push_log("failed to commit to db", e, sys.exc_info())
+            session_globals.set("processing", False)
             abort(500)
 
         # transcribe video
@@ -261,6 +295,7 @@ def create_lesson(cid):
         lid = new_lesson.id
 
         flash('Video uploaded successfully!', 'success')
+        session_globals.set("processing", False)
         logger.debug("redirecting to individual_lesson route")
         return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
 
@@ -271,7 +306,7 @@ def create_lesson(cid):
                 flash(f"{err}", 'danger')
 
     logger.debug("rendering create_lesson template")
-    return render_template("create_lesson.html", form=form)
+    return render_template("create_lesson.html", form=form, cid=cid)
 
 
 @classes_bp.route("/<int:cid>/<int:lid>", methods=['GET', 'POST'])
@@ -286,6 +321,22 @@ def individual_lesson(cid, lid):
     if not uid:
         logger.debug("not logged in, redirecting to login")
         return redirect(url_for("auth.login", next=request.url))
+
+    # if class doesn't exist
+    if clazz.get_class(cid) is None:
+        abort(404)
+
+    # if lesson doesn't exist
+    if lesson.get_lesson(lid) is None:
+        abort(404)
+
+    # checking that user is in the class
+    if not user.get_user(uid) in clazz.get_users(cid):
+        abort(404)
+
+    # checking that the lesson is in the class
+    if not lesson.get_lesson(lid) in clazz.get_lessons(cid):
+        abort(404)
 
     # preparing the results dict that will be passed to frontend
     results = {}
@@ -339,6 +390,13 @@ def individual_lesson(cid, lid):
                 end_offset = int(form.end_offset.data)
                 comtype = "reply"
                 post_handled = True
+            elif form.is_submitted():
+                logger.debug(
+                    "form validation failed. Flashing error and re-rendering")
+                for field_name, error_messages in form.errors.items():
+                    for err in error_messages:
+                        flash(f"{err}", 'danger')
+                return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
 
     # make comment data into a frontend-friendly format
     children_forms = []
@@ -415,6 +473,13 @@ def individual_lesson(cid, lid):
         # flagging that the post request has been handled and
         # comment can just immediately be inserted
         post_handled = True
+
+    elif new_comment_form.is_submitted():
+        logger.debug("form validation failed. Flashing error and re-rendering")
+        for field_name, error_messages in new_comment_form.errors.items():
+            for err in error_messages:
+                flash(f"{err}", 'danger')
+        return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
 
     # post request is sent when any of the following occur:
     # - user selects "highlight option"
