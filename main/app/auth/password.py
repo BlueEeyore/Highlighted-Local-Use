@@ -1,8 +1,9 @@
 import re
 
+
 def is_strong(password):
     """returns True if password is strong, otherwise False"""
-    if len(password) < 12:
+    if len(password) < 8:
         return False
 
     # using re to make searching simpler
@@ -12,8 +13,8 @@ def is_strong(password):
         return False
     if not re.search(r"[A-Z]", password):
         return False
-    # if not re.search(r"\d", password):
-    #     return False
-    # if not re.search(r"[^\w\s]", password):  # special char
-    #     return False
+    if not re.search(r"\d", password):
+        return False
+    if not re.search(r"[^\w\s]", password):  # special char
+        return False
     return True

@@ -15,8 +15,10 @@
         </p>
 
         {% if is_logged %}
-            <a class="btn btn-custom-primary" href="/classes/create">Create a Class</a>
-            <a class="btn btn-custom-primary" href="/classes/join">Join a Class</a>
+            <div class="button-group">
+                <a class="btn btn-custom-primary" href="/classes/create">Create a Class</a>
+                <a class="btn btn-custom-primary" href="/classes/join">Join a Class</a>
+            </div>
         {% else %}
             <div class="button-group">
                 <a class="btn btn-custom-primary" href="/auth/signup">Signup</a>

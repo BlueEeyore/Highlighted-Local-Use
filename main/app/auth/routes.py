@@ -97,7 +97,7 @@ def signup():
     if not form.validate() and form.is_submitted():
         # flash the errors
         for field, errors in form.errors.items():
-            for msg in msg:
+            for msg in errors:
                 flash(msg, "danger")
         return redirect(url_for("auth.signup"))
 
@@ -128,8 +128,9 @@ def signup():
             return render_template("signup.html", form=form)
         if not is_strong(password):  # using my custom function
             logger.debug("password not secure")
-            flash("""Password not secure. Must be more than 12 characters, contain uppercase and
-                   lowercase letters, numbers, and special characters""", "danger")
+            flash("""Password not secure. Must be more than 12 characters,
+                   contain uppercase and lowercase letters, numbers,
+                   and special characters""", "danger")
             return render_template("signup.html", form=form)
 
         logger.debug("inserting into user table")
