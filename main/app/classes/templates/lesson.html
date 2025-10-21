@@ -1,6 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
 
+{% if new_comment_form in results %}
+<h1>HI</h1>
+{% else %}
+<h1>NO</h1>
+{% endif %}
 <div class="page-container">
     <div class="container-fluid">
 
@@ -76,7 +81,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                {{form.submit(class="btn btn-custom-primary btn-sm w-100")}}
+                                {{form.submit(class="btn btn-custom-primary btn-sm w-100", name="save_comment")}}
                             </form>
                         </div>
                     {% endif %}
@@ -111,7 +116,7 @@
                                         {{form.msg.label(style="display:none;")}}
                                         {{form.msg(class="form-control", placeholder="Write a reply...")}}
                                     </div>
-                                    {{form.submit(class="btn btn-custom-secondary btn-sm")}}
+                                    {{form.submit(class="btn btn-custom-secondary btn-sm", name="reply_form")}}
                                 </form>
                             </div>
 
@@ -135,7 +140,7 @@
                                                 {{reply_form.msg.label(style="display:none;")}}
                                                 {{reply_form.msg(class="form-control", placeholder="Write a reply...")}}
                                             </div>
-                                            {{reply_form.submit(class="btn btn-custom-secondary btn-sm")}}
+                                            {{reply_form.submit(class="btn btn-custom-secondary btn-sm", name="reply_form")}}
                                         </form>
                                     </div>
                                 </div>

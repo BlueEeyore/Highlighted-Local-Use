@@ -312,6 +312,7 @@ def create_lesson(cid):
 @classes_bp.route("/<int:cid>/<int:lid>", methods=['GET', 'POST'])
 def individual_lesson(cid, lid):
     logger.debug("in individual lesson route")
+    logger.warning(request.method)
 
     # getting uid
     logger.debug("getting uid")
@@ -390,8 +391,8 @@ def individual_lesson(cid, lid):
                 end_offset = int(form.end_offset.data)
                 comtype = "reply"
                 post_handled = True
-            elif form.is_submitted():
-                logger.debug(
+            elif request.method == "POST" and "reply_form" in request.form:
+                logger.warning(
                     "form validation failed. Flashing error and re-rendering")
                 for field_name, error_messages in form.errors.items():
                     for err in error_messages:
@@ -427,6 +428,7 @@ def individual_lesson(cid, lid):
     temp_start_offset = request.args.get("start_offset")
     temp_end_offset = request.args.get("end_offset")
     temp_selected_text = request.args.get("selected_text")
+    logger.warning(f"start offset: {temp_start_offset} {type(temp_start_offset)}")    # DELETE LATER
     new_comment_form = CommentForm()
     # only occurs when user selected "comment":
     if temp_start_offset and temp_end_offset:
@@ -474,7 +476,7 @@ def individual_lesson(cid, lid):
         # comment can just immediately be inserted
         post_handled = True
 
-    elif new_comment_form.is_submitted():
+    elif request.method == "POST" and "save_comment" in request.form:   # "save_comment" is the name of submit button
         logger.debug("form validation failed. Flashing error and re-rendering")
         for field_name, error_messages in new_comment_form.errors.items():
             for err in error_messages:
@@ -482,11 +484,13 @@ def individual_lesson(cid, lid):
         return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
 
     # post request is sent when any of the following occur:
-    # - user selects "highlight option"
+    # - user selects "highlight" option
     # - user submits a comment
     # - a reply form was submitted
+    logger.warning("about to check post")
+    logger.warning(request.method)
     if request.method == "POST":
-        logger.debug("information posted to individual_lesson")
+        logger.warning("information posted to individual_lesson")
 
         # parentid is None if submission wasn't a reply
         if not post_handled:
