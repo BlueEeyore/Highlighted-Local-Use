@@ -71,31 +71,6 @@ def get_filtered(*filters):
         return None
 
 
-def get_users(cid):
-    """returns users that are in a class"""
-    logger.debug(f"getting users in class with {cid}")
-
-    # query class with cid
-    try:
-        clazz = Class.query.get(cid)
-    except Exception as e:
-        error.push_log("failed to query class", e, sys.exc_info())
-        return None
-
-    # get users associated with queried class
-    try:
-        users = [uc.user for uc in clazz.userclasses]
-    except Exception as e:
-        error.push_log(
-            "failed to query class for uc and then query uc for users",
-            e,
-            sys.exc_info()
-        )
-        return None
-
-    return users
-
-
 def get_lessons(cid):
     """returns lessons that are in a class"""
     logger.debug(f"getting lessons in class with {cid}")

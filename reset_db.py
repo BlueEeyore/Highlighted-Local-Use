@@ -14,7 +14,7 @@ if __name__ == "__main__":
         try:
             print("Disabling foreign key checks...")
             with db.engine.begin() as conn:
-                conn.exec_driver_sql("SET FOREIGN_KEY_CHECKS = 0;")
+                conn.exec_driver_sql("PRAGMA foreign_keys = OFF;")
 
             print("Dropping all tables...")
             db.drop_all()  # no bind needed
@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
             print("Re-enabling foreign key checks...")
             with db.engine.begin() as conn:
-                conn.exec_driver_sql("SET FOREIGN_KEY_CHECKS = 1;")
+                conn.exec_driver_sql("PRAGMA foreign_keys = ON;")
 
             print("✅ Database reset complete.")
         finally:
