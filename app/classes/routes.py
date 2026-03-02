@@ -4,10 +4,10 @@ import os
 from app import session_globals, error
 from app.transcription import Transcription
 from app.logger_config import get_logger
-from app.database import clazz, user, lesson, transcript, comment, userclass
-from app.database.models import db, Class, UserClass
+from app.database import clazz, lesson, transcript, comment
+from app.database.models import db, Class
 from app.classes.forms import VideoForm, CommentReplyForm
-from app.classes.forms import CommentForm, ClassForm, JoinClassForm
+from app.classes.forms import CommentForm, ClassForm
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import sys
@@ -445,7 +445,6 @@ def individual_lesson(cid, lid):
 
     logger.debug("in 'get' section")
 
-    results["creator"] = this_lesson.creatorid
     results["name"] = this_lesson.name
     results["videofn"] = this_lesson.videofn
     results["creationtime"] = this_lesson.creationtime
@@ -471,3 +470,7 @@ def individual_lesson(cid, lid):
         parent_comments_json=parent_comments,
         standalone_highlights_json=standalone_highlights
     )
+
+@classes_bp.route("/bruh")
+def bruh():
+    return render_template("bruh.html")

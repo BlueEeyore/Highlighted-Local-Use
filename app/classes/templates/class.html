@@ -4,7 +4,7 @@
 <div class="page-container">
 
     <div class="top-left-container">
-        <a class="btn btn-custom-secondary" href="/classes">Back to Your Classes</a>
+        <a class="btn btn-custom-secondary" href="/">Back to Your Classes</a>
     </div>
 
     <div class="content-wrapper">
@@ -35,7 +35,7 @@
             <tbody>
                 <!-- loop through the lessons -->
                 {% for lesson_data in lessons %}
-                    <tr class="clickable-row" onclick="window.location.href='/classes/{{cid}}/{{lesson_data.id}}'">
+                    <tr class="clickable-row" onclick="window.location.href='/{{cid}}/{{lesson_data.id}}'">
                         <td>{{lesson_data.name}}</td>
                         <td>{{lesson_data.creationtime}}</td>
                     </tr>
@@ -47,7 +47,7 @@
         <!-- create lesson option for admin -->
         {% if role == "admin" %}
             <div class="button-group">
-                <a class="btn btn-custom-primary" href="/classes/{{cid}}/createlesson">Create Lesson</a>
+                <a class="btn btn-custom-primary" href="/{{cid}}/createlesson">Create Lesson</a>
             </div>
         {% endif %}
 

@@ -6,7 +6,7 @@
 
         <!-- Top-left Back button -->
         <div class="top-left-container mb-3">
-            <a class="btn btn-custom-secondary" href="/classes/{{results.cid}}">Back to Lessons</a>
+            <a class="btn btn-custom-secondary" href="/{{results.cid}}">Back to Lessons</a>
         </div>
 
         <!-- pop-up menu. It's hidden by default with CSS. -->
@@ -25,10 +25,22 @@
                     <source src="{{url_for('static', filename='files/' + results.videofn)}}" type="{{results.mimetype}}">
                 </video>
             </div>
-            <div class="col-md-3"></div>
+            <div class="col-md-1">
+                <select id="speed" class="form-select">
+                    <option value="0.5">0.5×</option>
+                    <option value="1" selected>1×</option>
+                    <option value="1.5">1.5×</option>
+                    <option value="2">2×</option>
+                    <option value="3">3×</option>
+                    <option value="4">4×</option>
+                    <option value="8">8×</option>
+                    <option value="16">16×</option>
+                </select>
+            </div>
+            <div class="col-md-2"></div>
         </div>
 
-        <div class="row">
+        <div class="row pb-5">
             <div class="col-md-3"></div>
             <div class="col-md-6">
                 <div id="transcript-container">
@@ -48,7 +60,7 @@
                         <div class="comment focused-comment" id="setting-comment">
                             <div class="comment-creator">{{results.user}}</div>
                             <!-- form for new comment information -->
-                            <form action="/classes/{{results.cid}}/{{results.lid}}" method="POST">
+                            <form action="/{{results.cid}}/{{results.lid}}" method="POST">
                                 {% set form = results.new_comment_form %}
                                 {{form.hidden_tag()}}
                                 {{form.start_offset()}}

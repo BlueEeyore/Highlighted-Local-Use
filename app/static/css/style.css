@@ -671,7 +671,7 @@ tr.dt-hasChild form {
 /* --- Transcript Container --- */
 #transcript-container {
     width: 100%; /* Let the Bootstrap columns handle the width */
-    height: 300px; /* Increased height for better readability */
+    height: 15rem; /* Increased height for better readability */
     overflow-y: auto;
     background-color: #fff;
     border: 1px solid #dee2e6; /* Theme border */
@@ -684,10 +684,10 @@ tr.dt-hasChild form {
     display: inline;
     padding: 2px 0;
     margin: 0;
-    border-radius: 4px;
+    border-radius: 3px;
     transition: background-color 0.2s ease, color 0.2s ease;
-    font-size: 1.1rem;
-    line-height: 1.8;
+    font-size: 1.3rem;
+    line-height: 1.5;
 }
 
 /* --- Overrides for Transcript Highlighting --- */

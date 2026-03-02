@@ -7,6 +7,10 @@ window.addEventListener('DOMContentLoaded', () => {
     // setting currentActiveSegment to null initially. Will change if user highlights
     // a portion of the transcript
     let currentActiveSegment = null;
+        
+    // speed options
+    document.getElementById('speed').onchange = e =>
+        video.playbackRate = +e.target.value;
 
     // listen for when the video's timestamp changes
     video.addEventListener('timeupdate', () => {

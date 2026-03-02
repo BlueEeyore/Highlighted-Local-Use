@@ -1,5 +1,4 @@
 from app.database.models import Class, db
-from app.database import userclass
 from app.logger_config import get_logger
 from app import error
 import sys
@@ -133,10 +132,10 @@ def generate_unique_joincode(length=8):
             return code
 
 
-def insert(name, private, school, joincode, starttime, creatorid=None):
+def insert(name, private, school, joincode, starttime):
     """inserts a class"""
     logger.debug(f"""adding class with {[
-        creatorid, name, private, school, joincode, starttime
+        name, private, school, joincode, starttime
     ]}""")
 
     # set new class instance
@@ -167,19 +166,5 @@ def insert(name, private, school, joincode, starttime, creatorid=None):
         error.push_log("failed to commit to db", e, sys.exc_info())
         db.session.rollback()
         return None
-
-    # may want to add creator immediately
-    if creatorid:
-        try:
-            userclass.insert(creatorid, new_class.id, "admin")
-        except Exception as e:
-            error.push_log(
-                f"""failed to connect new class to creator with uid
-                 {creatorid} in db""",
-                e,
-                sys.exc_info()
-            )
-            db.session.rollback()
-            return None
 
     return new_class
