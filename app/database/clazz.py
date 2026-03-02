@@ -132,16 +132,15 @@ def generate_unique_joincode(length=8):
             return code
 
 
-def insert(name, private, school, joincode, starttime):
+def insert(name, school, joincode, starttime):
     """inserts a class"""
     logger.debug(f"""adding class with {[
-        name, private, school, joincode, starttime
+        name, school, joincode, starttime
     ]}""")
 
     # set new class instance
     new_class = Class(
         name=name,
-        private=private,
         school=school,
         joincode=joincode,
         starttime=starttime

@@ -673,6 +673,7 @@ tr.dt-hasChild form {
     width: 100%; /* Let the Bootstrap columns handle the width */
     height: 15rem; /* Increased height for better readability */
     overflow-y: auto;
+    position: relative;
     background-color: #fff;
     border: 1px solid #dee2e6; /* Theme border */
     border-radius: 8px; /* Theme radius */
@@ -773,6 +774,7 @@ tr.dt-hasChild form {
     height: 600px; /* Give it a max height */
     max-height: calc(100vh - 120px); /* leave space for header/back button */
     overflow-y: auto;
+    position: relative;
     background-color: #f8f9fa; /* Match main page background */
     border-left: 1px solid #dee2e6;
     padding: 1rem;

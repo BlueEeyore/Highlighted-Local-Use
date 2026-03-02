@@ -88,8 +88,4 @@ class ClassForm(FlaskForm):
     school = StringField("School/University (Optional)", validators=[
         Length(max=40)
     ])
-    privacy = SelectField("Privacy", choices=[
-        ("public", "Public"),
-        ("private", "Private")
-    ])
     submit = SubmitField("Create")

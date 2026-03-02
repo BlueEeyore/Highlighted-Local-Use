@@ -46,12 +46,10 @@ def create_class():
         logger.debug("form submitted. Grabbing form data")
         name = form.name.data
         school = form.school.data
-        private = True if form.privacy.data == "private" else False
         joincode = clazz.generate_unique_joincode()
 
         logger.debug("inserting new class into db")
         new_class = clazz.insert(name=name,
-                                 private=private,
                                  school=school,
                                  joincode=joincode,
                                  starttime=datetime.utcnow())

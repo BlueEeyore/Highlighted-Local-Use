@@ -139,12 +139,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (commentToFocus) {
             commentToFocus.classList.add('focused-comment');
             // scroll to new focused element
-            if (scrollTarget === 'comment') commentToFocus.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (scrollTarget === 'comment') {
+                const containerHeight = commentSidebar.clientHeight;
+                const commentTop = commentToFocus.offsetTop;
+                const commentHeight = commentToFocus.offsetHeight;
+
+                commentSidebar.scrollTo({
+                    top: commentTop - (containerHeight / 2) + (commentHeight / 2),
+                    behavior: 'smooth'
+                });
+            }
         }
         if (highlightToFocus) {
             highlightToFocus.classList.add('focused-highlight');
             // scroll to new focused element
-            if (scrollTarget === 'highlight') highlightToFocus.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (scrollTarget === 'highlight') {
+                const containerHeight = textContainer.clientHeight;
+                const highlightTop = highlightToFocus.offsetTop;
+                const highlightHeight = highlightToFocus.offsetHeight;
+
+                textContainer.scrollTo({
+                    top: highlightTop - (containerHeight / 2) + (highlightHeight / 2),
+                    behavior: 'smooth'
+                });
+            }
         }
     }
 

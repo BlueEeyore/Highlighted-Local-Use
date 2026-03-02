@@ -12,6 +12,8 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('speed').onchange = e =>
         video.playbackRate = +e.target.value;
 
+    const transcriptContainer = document.getElementById('transcript-container');
+
     // listen for when the video's timestamp changes
     video.addEventListener('timeupdate', () => {
         // get the video's current time in seconds
@@ -45,12 +47,18 @@ window.addEventListener('DOMContentLoaded', () => {
             currentActiveSegment = activeSegment;
             
             // Scroll the container to the active segment
-            // 'center' tries to put the element in the middle of the container
-            activeSegment.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center',
-                inline: 'nearest'
-            });
+            if (transcriptContainer) {
+                const containerHeight = transcriptContainer.clientHeight;
+                // Since we set transcript-container to position: relative, 
+                // offsetTop is relative to the container.
+                const segmentTop = activeSegment.offsetTop;
+                const segmentHeight = activeSegment.offsetHeight;
+                
+                transcriptContainer.scrollTo({
+                    top: segmentTop - (containerHeight / 2) + (segmentHeight / 2),
+                    behavior: 'smooth'
+                });
+            }
         }
     });
 });
