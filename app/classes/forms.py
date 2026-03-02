@@ -35,6 +35,11 @@ class VideoForm(FlaskForm):
             message="Lesson name must be between 1 and 100 characters long."
         )
     ])
+    model_size = SelectField("Transcription Model Size", choices=[
+        ("small", "Small (Fastest)"),
+        ("medium", "Medium (Balanced)"),
+        ("large", "Large (Most Accurate)")
+    ], default="medium")
     submit = SubmitField("Upload File")
 
 

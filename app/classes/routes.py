@@ -132,8 +132,9 @@ def create_lesson(cid):
         # being processed or not when the user makes another request
         session_globals.set("processing", True)
 
-        # grab lesson name
+        # grab lesson name and model size
         lesson_name = form.name.data
+        model_size = form.model_size.data
 
         # grab video file and save to static folder
         video = form.video.data
@@ -164,8 +165,8 @@ def create_lesson(cid):
             abort(500)
 
         # transcribe video
-        logger.debug("about to transcribe video")
-        transcriber = Transcription()
+        logger.debug(f"about to transcribe video with model size: {model_size}")
+        transcriber = Transcription(model_size=model_size)
         transcript_dict = transcriber.trans_video(file_path)
         transcript.insert_transcript(new_lesson.id, transcript_dict)
         logger.debug("successfully inserted transcript")

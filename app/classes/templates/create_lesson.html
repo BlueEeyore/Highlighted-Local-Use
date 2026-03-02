@@ -26,6 +26,12 @@
                 {{ form.name(class="form-control") }}
             </div>
 
+            <!-- Model Size Field -->
+            <div class="form-group">
+                {{ form.model_size.label }}
+                {{ form.model_size(class="form-select") }}
+            </div>
+
             <!-- Submit Button -->
             <div class="button-group">
                 {{ form.submit(class="btn btn-custom-primary", id="submit-btn") }}

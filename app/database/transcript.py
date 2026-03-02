@@ -59,7 +59,7 @@ def get_transcript_by(col_name, val):
 
 def insert(lid, timestamp, text):
     """inserts a transcript"""
-    logger.debug(f"adding trancsript with {[lid, timestamp, text]}")
+    logger.debug(f"adding transcript with {[lid, timestamp, text]}")
 
     # setting new transcript instance
     new_transcript = Transcript(lid=lid, timestamp=timestamp, text=text)
