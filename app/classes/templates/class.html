@@ -30,6 +30,9 @@
                 <tr>
                     <th><div class="table-title">Lesson</div></th>
                     <th><div class="table-title">Upload Time</div></th>
+                    {% if role == "admin" %}
+                    <th><div class="table-title">Actions</div></th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -38,6 +41,16 @@
                     <tr class="clickable-row" onclick="window.location.href='/{{cid}}/{{lesson_data.id}}'">
                         <td>{{lesson_data.name}}</td>
                         <td>{{lesson_data.creationtime}}</td>
+                        {% if role == "admin" %}
+                        <td onclick="event.stopPropagation();">
+                            <button type="button" class="btn btn-link text-primary p-0 me-2" data-bs-toggle="modal" data-bs-target="#renameLessonModal{{lesson_data.id}}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-link text-danger p-0" data-bs-toggle="modal" data-bs-target="#deleteLessonModal{{lesson_data.id}}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>
@@ -54,6 +67,60 @@
     </div> <!-- End of content-wrapper -->
 
 </div> <!-- End of page-container -->
+
+{% if role == "admin" %}
+<!-- Lesson Modals -->
+{% for lesson_data in lessons %}
+<!-- Delete Lesson Modal -->
+<div class="modal fade" id="deleteLessonModal{{lesson_data.id}}" tabindex="-1" aria-labelledby="deleteLessonModalLabel{{lesson_data.id}}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteLessonModalLabel{{lesson_data.id}}">Delete Lesson?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start text-dark">
+                Are you sure you want to delete the lesson <strong>{{lesson_data.name}}</strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="/{{cid}}">
+                    <input type="hidden" name="posttype" value="delete_lesson">
+                    <input type="hidden" name="lesson_id" value="{{lesson_data.id}}">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rename Lesson Modal -->
+<div class="modal fade" id="renameLessonModal{{lesson_data.id}}" tabindex="-1" aria-labelledby="renameLessonModalLabel{{lesson_data.id}}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renameLessonModalLabel{{lesson_data.id}}">Rename Lesson</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/{{cid}}">
+                <div class="modal-body text-start text-dark">
+                    <div class="mb-3">
+                        <label for="new_name_less{{lesson_data.id}}" class="form-label">New Lesson Name</label>
+                        <input type="text" class="form-control" id="new_name_less{{lesson_data.id}}" name="new_name" value="{{lesson_data.name}}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <input type="hidden" name="posttype" value="rename_lesson">
+                    <input type="hidden" name="lesson_id" value="{{lesson_data.id}}">
+                    <button type="submit" class="btn btn-custom-primary btn-sm">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
 
 {% endblock %}
 

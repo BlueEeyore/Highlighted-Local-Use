@@ -28,6 +28,25 @@ classes_bp = Blueprint(
 def classes():
     logger.debug("in classes")
 
+    if request.method == "POST":
+        posttype = request.form.get("posttype")
+        if posttype == "delete_class":
+            cid = int(request.form.get("class_id"))
+            if clazz.delete(cid):
+                flash("Class deleted successfully.", "success")
+            else:
+                flash("Failed to delete class.", "danger")
+            return redirect(url_for("classes.classes"))
+        
+        elif posttype == "rename_class":
+            cid = int(request.form.get("class_id"))
+            new_name = request.form.get("new_name")
+            if clazz.rename(cid, new_name):
+                flash("Class renamed successfully.", "success")
+            else:
+                flash("Failed to rename class.", "danger")
+            return redirect(url_for("classes.classes"))
+
     all_classes = clazz.all_classes()
     class_dicts = [c.to_dict() for c in all_classes]
 
@@ -73,6 +92,25 @@ def create_class():
 @classes_bp.route("/<int:cid>", methods=['GET', 'POST'])
 def individual_class(cid):
     logger.debug("in individual_class")
+
+    if request.method == "POST":
+        posttype = request.form.get("posttype")
+        if posttype == "delete_lesson":
+            lid = int(request.form.get("lesson_id"))
+            if lesson.delete(lid):
+                flash("Lesson deleted successfully.", "success")
+            else:
+                flash("Failed to delete lesson.", "danger")
+            return redirect(url_for("classes.individual_class", cid=cid))
+
+        elif posttype == "rename_lesson":
+            lid = int(request.form.get("lesson_id"))
+            new_name = request.form.get("new_name")
+            if lesson.rename(lid, new_name):
+                flash("Lesson renamed successfully.", "success")
+            else:
+                flash("Failed to rename lesson.", "danger")
+            return redirect(url_for("classes.individual_class", cid=cid))
 
     # get class
     this_class = clazz.get_class(cid)

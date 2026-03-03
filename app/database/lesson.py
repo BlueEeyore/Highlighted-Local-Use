@@ -75,3 +75,39 @@ def insert(classid, name, videofn, mimetype, creationtime):
         return None
 
     return new_lesson
+
+
+def delete(lid):
+    """deletes a lesson for given lid"""
+    logger.debug(f"deleting lesson with lid {lid}")
+    less = get_lesson(lid)
+    if not less:
+        error.push_log(f"lesson {lid} not found for deletion")
+        return False
+    try:
+        db.session.delete(less)
+        db.session.commit()
+        logger.debug(f"lesson {lid} deleted successfully")
+        return True
+    except Exception as e:
+        error.push_log(f"failed to delete lesson {lid}", e, sys.exc_info())
+        db.session.rollback()
+        return False
+
+
+def rename(lid, new_name):
+    """renames a lesson for given lid"""
+    logger.debug(f"renaming lesson {lid} to {new_name}")
+    less = get_lesson(lid)
+    if not less:
+        error.push_log(f"lesson {lid} not found for renaming")
+        return False
+    try:
+        less.name = new_name
+        db.session.commit()
+        logger.debug(f"lesson {lid} renamed successfully")
+        return True
+    except Exception as e:
+        error.push_log(f"failed to rename lesson {lid}", e, sys.exc_info())
+        db.session.rollback()
+        return False

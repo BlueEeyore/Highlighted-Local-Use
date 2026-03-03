@@ -142,3 +142,39 @@ def insert(name, school, joincode, starttime):
         return None
 
     return new_class
+
+
+def delete(cid):
+    """deletes a class for given cid"""
+    logger.debug(f"deleting class with cid {cid}")
+    clazz = get_class(cid)
+    if not clazz:
+        error.push_log(f"class {cid} not found for deletion")
+        return False
+    try:
+        db.session.delete(clazz)
+        db.session.commit()
+        logger.debug(f"class {cid} deleted successfully")
+        return True
+    except Exception as e:
+        error.push_log(f"failed to delete class {cid}", e, sys.exc_info())
+        db.session.rollback()
+        return False
+
+
+def rename(cid, new_name):
+    """renames a class for given cid"""
+    logger.debug(f"renaming class {cid} to {new_name}")
+    clazz = get_class(cid)
+    if not clazz:
+        error.push_log(f"class {cid} not found for renaming")
+        return False
+    try:
+        clazz.name = new_name
+        db.session.commit()
+        logger.debug(f"class {cid} renamed successfully")
+        return True
+    except Exception as e:
+        error.push_log(f"failed to rename class {cid}", e, sys.exc_info())
+        db.session.rollback()
+        return False

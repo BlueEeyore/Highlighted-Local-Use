@@ -11,6 +11,7 @@
                 <tr>
                     <th><div class="table-title">Class</div></th>
                     <th><div class="table-title">Role</div></th>
+                    <th><div class="table-title">Actions</div></th>
                 </tr>
             </thead>
             <!-- column content -->
@@ -22,6 +23,14 @@
                             {{class_data['name']}}
                         </td>
                         <td>role</td>
+                        <td onclick="event.stopPropagation();">
+                            <button type="button" class="btn btn-link text-primary p-0 me-2" data-bs-toggle="modal" data-bs-target="#renameModal{{class_data.id}}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-link text-danger p-0" data-bs-toggle="modal" data-bs-target="#deleteModal{{class_data.id}}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -34,6 +43,58 @@
         </div>
     </div>
 </div>
+
+<!-- Modals -->
+{% for class_data in classes_data %}
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal{{class_data.id}}" tabindex="-1" aria-labelledby="deleteModalLabel{{class_data.id}}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel{{class_data.id}}">Delete Class?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start text-dark">
+                Are you sure you want to delete the class <strong>{{class_data.name}}</strong>? This will delete all lessons and comments within it.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="/">
+                    <input type="hidden" name="posttype" value="delete_class">
+                    <input type="hidden" name="class_id" value="{{class_data.id}}">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rename Modal -->
+<div class="modal fade" id="renameModal{{class_data.id}}" tabindex="-1" aria-labelledby="renameModalLabel{{class_data.id}}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renameModalLabel{{class_data.id}}">Rename Class</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/">
+                <div class="modal-body text-start text-dark">
+                    <div class="mb-3">
+                        <label for="new_name{{class_data.id}}" class="form-label">New Class Name</label>
+                        <input type="text" class="form-control" id="new_name{{class_data.id}}" name="new_name" value="{{class_data.name}}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <input type="hidden" name="posttype" value="rename_class">
+                    <input type="hidden" name="class_id" value="{{class_data.id}}">
+                    <button type="submit" class="btn btn-custom-primary btn-sm">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 {% endblock %}
 
