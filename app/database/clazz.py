@@ -1,6 +1,7 @@
 from app.database.models import Class, db
 from app.logger_config import get_logger
 from app import error
+from app.database import lesson
 import sys
 import random
 import string
@@ -145,12 +146,19 @@ def insert(name, school, joincode, starttime):
 
 
 def delete(cid):
-    """deletes a class for given cid"""
+    """deletes a class for given cid, including all lessons and their files"""
     logger.debug(f"deleting class with cid {cid}")
     clazz = get_class(cid)
     if not clazz:
         error.push_log(f"class {cid} not found for deletion")
         return False
+    
+    # manually delete lessons to ensure files are removed
+    lessons_list = get_lessons(cid)
+    if lessons_list:
+        for less in lessons_list:
+            lesson.delete(less.id)
+            
     try:
         db.session.delete(clazz)
         db.session.commit()

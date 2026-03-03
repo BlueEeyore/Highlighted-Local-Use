@@ -3,6 +3,7 @@ from app.database.models import db
 from app.logger_config import get_logger
 from app import error
 import sys
+import os
 
 
 logger = get_logger(__name__)
@@ -78,12 +79,27 @@ def insert(classid, name, videofn, mimetype, creationtime):
 
 
 def delete(lid):
-    """deletes a lesson for given lid"""
+    """deletes a lesson for given lid and its associated video file"""
     logger.debug(f"deleting lesson with lid {lid}")
     less = get_lesson(lid)
     if not less:
         error.push_log(f"lesson {lid} not found for deletion")
         return False
+    
+    # attempt to delete the video file
+    try:
+        if less.videofn:
+            # path is relative to the project root where run_app.py is
+            file_path = os.path.join("app/static/files", less.videofn)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                logger.debug(f"deleted video file: {file_path}")
+            else:
+                logger.warning(f"video file not found for deletion: {file_path}")
+    except Exception as e:
+        error.push_log(f"failed to delete video file for lesson {lid}", e, sys.exc_info())
+        # we continue with DB deletion even if file deletion fails to avoid orphaned records
+
     try:
         db.session.delete(less)
         db.session.commit()
