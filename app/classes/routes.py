@@ -258,7 +258,7 @@ def individual_lesson(cid, lid):
                 end_offset = int(form.end_offset.data)
                 comtype = "reply"
                 post_handled = True
-            elif request.method == "POST" and "submit" in request.form:
+            elif request.method == "POST" and form.submit.data:
                 logger.warning(
                     "form validation failed. Flashing error and re-rendering")
                 for field_name, error_messages in form.errors.items():
@@ -341,7 +341,7 @@ def individual_lesson(cid, lid):
         # comment can just immediately be inserted
         post_handled = True
 
-    elif request.method == "POST" and "submit" in request.form:   # "save_comment" is the name of submit button
+    elif request.method == "POST" and new_comment_form.submit.data:   # "save_comment" is the name of submit button
         logger.debug("form validation failed. Flashing error and re-rendering")
         for field_name, error_messages in new_comment_form.errors.items():
             for err in error_messages:

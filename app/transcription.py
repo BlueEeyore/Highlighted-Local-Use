@@ -12,8 +12,8 @@ logger = get_logger(__name__)
 # Model mapping for faster-whisper
 WHISPER_MODEL = {
     "small": "tiny",
-    "medium": "medium",
-    "large": "large-v3"
+    "medium": "small",
+    "large": "medium"
 }
 
 
@@ -21,15 +21,12 @@ class Transcription:
     # Track the currently loaded model name as a class attribute
     last_model_name = None
 
-    def __init__(self, model_size="small", device="cpu", compute_type="int8", english=True):
+    def __init__(self, model_size="small", device="cpu", compute_type="int8"):
         """initialises Transcription class instance using faster-whisper"""
         global whisper_model
         logger.debug("initialising Transcription class instance")
 
         model_name = WHISPER_MODEL.get(model_size, model_size)
-        if english:
-            model_name += ".en"
-        self.english = english
         
         # If a model is loaded but it's different from what's requested, clear it
         if whisper_model is not None and Transcription.last_model_name != model_name:
@@ -72,17 +69,10 @@ class Transcription:
         try:
             logger.debug("about to transcribe")
             # faster-whisper returns a generator for segments and an info object
-            if self.english:
-                segments, info = whisper_model.transcribe(
-                    audio_file,
-                    beam_size=5,
-                    language="en"
-                )
-            else:
-                segments, info = whisper_model.transcribe(
-                    audio_file,
-                    beam_size=5,
-                )
+            segments, info = whisper_model.transcribe(
+                audio_file,
+                beam_size=5,
+            )
             
             # Convert segments generator to a list of dicts to match original whisper format
             segments_list = []

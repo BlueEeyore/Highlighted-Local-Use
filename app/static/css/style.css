@@ -671,7 +671,7 @@ tr.dt-hasChild form {
 /* --- Transcript Container --- */
 #transcript-container {
     width: 100%; /* Let the Bootstrap columns handle the width */
-    height: 15rem; /* Increased height for better readability */
+    height: 30rem; /* Increased height for better readability */
     overflow-y: auto;
     position: relative;
     background-color: #fff;
@@ -687,7 +687,7 @@ tr.dt-hasChild form {
     margin: 0;
     border-radius: 3px;
     transition: background-color 0.2s ease, color 0.2s ease;
-    font-size: 1.3rem;
+    font-size: inherit;
     line-height: 1.5;
 }
 
@@ -713,7 +713,19 @@ tr.dt-hasChild form {
 }
 
 
-/* --- Highlighting Styles --- */
+/* --- Font Size Dropdown Styling --- */
+#font-size-list {
+    min-width: 100%;
+    text-align: center;
+    left: 50% !important;
+    top: 100% !important;
+    transform: translateX(-50%) !important;
+    margin-top: 2px;
+}
+
+#font-size-list .dropdown-item {
+    padding: 0.25rem 0.5rem;
+}
 .highlight {
     background-color: rgba(233, 74, 100, 0.2); /* Light Amaranth Red */
     border-radius: 4px;
@@ -771,13 +783,25 @@ tr.dt-hasChild form {
 
 /* --- Comment Sidebar --- */
 #comment-sidebar {
-    height: 600px; /* Give it a max height */
-    max-height: calc(100vh - 120px); /* leave space for header/back button */
+    height: auto;
+    max-height: 600px; /* Give it a max height */
     overflow-y: auto;
     position: relative;
     background-color: #f8f9fa; /* Match main page background */
-    border-left: 1px solid #dee2e6;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
     padding: 1rem;
+    align-self: start; /* Prevents it from stretching to the full height of the row */
+}
+
+/* 
+   Hide the sidebar background and border when there are no comments 
+   to keep the page clean.
+*/
+#comment-sidebar:not(:has(.comment)) {
+    background-color: transparent;
+    border: none;
+    padding: 0;
 }
 
 .comment {
@@ -818,10 +842,24 @@ tr.dt-hasChild form {
     line-height: 1.6;
 }
 
-/* --- Comment Reply Forms --- */
-.comment-reply {
+/* --- Comment Replies --- */
+.comment-replies {
     margin-top: 1rem;
-    padding-top: 1rem;
+    padding-left: 1rem;
+    border-left: 2px solid #dee2e6;
+}
+
+.comment-reply-item {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background-color: #fcfcfc;
+    border-radius: 4px;
+}
+
+/* --- Comment Reply Forms --- */
+.comment-reply-form {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
     border-top: 1px solid #f0f2f5;
 }
 

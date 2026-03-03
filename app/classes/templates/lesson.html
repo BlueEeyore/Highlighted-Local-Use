@@ -26,17 +26,49 @@
                 </video>
             </div>
             <div class="col-md-1">
-                <select id="speed" class="form-select">
-                    <option value="0.5">0.5×</option>
-                    <option value="1" selected>1×</option>
-                    <option value="1.5">1.5×</option>
-                    <option value="2">2×</option>
-                    <option value="2.5">2.5×</option>
-                    <option value="3">3×</option>
-                    <option value="4">4×</option>
-                    <option value="8">8×</option>
-                    <option value="16">16×</option>
-                </select>
+                <div class="mb-3">
+                    <label for="speed" class="form-label small">Speed</label>
+                    <select id="speed" class="form-select">
+                        <option value="0.5">0.5×</option>
+                        <option value="1" selected>1×</option>
+                        <option value="1.5">1.5×</option>
+                        <option value="2">2×</option>
+                        <option value="2.5">2.5×</option>
+                        <option value="3">3×</option>
+                        <option value="4">4×</option>
+                        <option value="8">8×</option>
+                        <option value="16">16×</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="font-family" class="form-label small">Font</label>
+                    <select id="font-family" class="form-select">
+                        <option value="sans-serif" selected>Sans-serif</option>
+                        <option value="serif">Serif</option>
+                        <option value="monospace">Monospace</option>
+                        <option value="'Open Sans', sans-serif">Open Sans</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Courier New', Courier, monospace">Courier New</option>
+                    </select>
+                </div>
+                <div class="dropdown" id="font-size-dropdown">
+                    <label for="font-size" class="form-label small">Size</label>
+                    <input type="number" id="font-size" class="form-control form-control-sm" 
+                           value="20" min="8" max="72" autocomplete="off">
+                    <ul class="dropdown-menu" id="font-size-list">
+                        <li><a class="dropdown-item" href="#" data-size="12">12</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="14">14</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="16">16</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="18">18</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="20">20</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="24">24</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="28">28</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="32">32</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="36">36</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="48">48</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="72">72</a></li>
+                    </ul>
+                </div>
             </div>
             <div class="col-md-2"></div>
         </div>
@@ -170,4 +202,5 @@
 </script>
 <script src="{{ url_for('static', filename='js/video_timestamp.js') }}"></script>
 <script src="{{ url_for('static', filename='js/highlighter.js') }}"></script>
+<script src="{{ url_for('static', filename='js/font_switch.js') }}"></script>
 {% endblock %}

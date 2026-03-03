@@ -1,0 +1,11 @@
+Flask
+Flask-SQLAlchemy
+Flask-WTF
+Flask-Session
+WTForms
+faster-whisper
+moviepy
+faker
+werkzeug
+email-validator
+setuptools
