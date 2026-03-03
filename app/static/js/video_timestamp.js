@@ -55,7 +55,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 const segmentHeight = activeSegment.offsetHeight;
                 
                 transcriptContainer.scrollTo({
-                    top: segmentTop - (containerHeight / 2) + (segmentHeight / 2),
+                    top: segmentTop - (containerHeight / 4) + (segmentHeight / 2),
                     behavior: 'smooth'
                 });
             }

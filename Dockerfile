@@ -9,10 +9,10 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Install system-level dependencies (required for moviepy and faster-whisper)
-RUN apt-get update && apt-get install -y --no-install-recommends 
-    ffmpeg 
-    build-essential 
-    && apt-get clean 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    build-essential \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -22,11 +22,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code
 COPY . .
 
-# Ensure instance directory exists for SQLite
-RUN mkdir -p instance
+# Ensure necessary directories exist
+RUN mkdir -p instance logs
 
 # Expose port
 EXPOSE 5000
 
 # Start the application
-CMD ["python", "run_app.py"]
+CMD ["/bin/bash"]

@@ -402,6 +402,16 @@ def individual_lesson(cid, lid):
                         lid=lid
                     ))
 
+                # handle deletion
+                if posttype == "delete_comment":
+                    comid = int(data.get("comment_id"))
+                    logger.debug(f"deleting comment {comid}")
+                    if comment.delete(comid):
+                        flash("Comment deleted successfully.", "success")
+                    else:
+                        flash("Failed to delete comment.", "danger")
+                    return redirect(url_for("classes.individual_lesson", cid=cid, lid=lid))
+
                 start_offset = int(data.get("start_offset"))
                 end_offset = int(data.get("end_offset"))
                 comtype = data.get("comtype")

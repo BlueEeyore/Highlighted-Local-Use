@@ -146,3 +146,21 @@ def insert(
         return None
 
     return new_comment
+
+
+def delete(cid):
+    """deletes comment for given cid"""
+    logger.debug(f"deleting comment with cid {cid}")
+    com = get_comment(cid)
+    if not com:
+        error.push_log(f"comment {cid} not found for deletion")
+        return False
+    try:
+        db.session.delete(com)
+        db.session.commit()
+        logger.debug(f"comment {cid} deleted successfully")
+        return True
+    except Exception as e:
+        error.push_log(f"failed to delete comment {cid}", e, sys.exc_info())
+        db.session.rollback()
+        return False
