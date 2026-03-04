@@ -21,7 +21,7 @@ class Transcription:
     # Track the currently loaded model name as a class attribute
     last_model_name = None
 
-    def __init__(self, model_size="small", device="cpu", compute_type="int8"):
+    def __init__(self, model_size="small", device="cpu", compute_type="int8_float32"):
         """initialises Transcription class instance using faster-whisper"""
         global whisper_model
         logger.debug("initialising Transcription class instance")
@@ -71,7 +71,8 @@ class Transcription:
             # faster-whisper returns a generator for segments and an info object
             segments, info = whisper_model.transcribe(
                 audio_file,
-                beam_size=5,
+                beam_size=1,
+                vad_filter=True
             )
             
             # Convert segments generator to a list of dicts to match original whisper format

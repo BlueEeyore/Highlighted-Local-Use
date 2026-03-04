@@ -28,5 +28,5 @@ RUN mkdir -p instance logs
 # Expose port
 EXPOSE 5000
 
-# Start the application
+# Keep the container running with an interactive shell
 CMD ["/bin/bash"]
