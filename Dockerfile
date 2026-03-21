@@ -23,10 +23,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Ensure necessary directories exist
-RUN mkdir -p instance logs
+RUN mkdir -p instance logs app/static/files
 
 # Expose port
 EXPOSE 5000
 
 # Keep the container running with an interactive shell
+# NOTE: When running the app, it MUST listen on 0.0.0.0 (e.g. 'python run_app.py')
+# to be accessible from the host.
 CMD ["/bin/bash"]

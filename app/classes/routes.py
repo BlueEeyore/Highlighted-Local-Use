@@ -181,7 +181,14 @@ def create_lesson(cid):
         file_path = os.path.join(os.path.abspath(upload_folder), fn)
         video.save(file_path)
 
-        # get mime type for video
+
+
+        # transcribe video
+        logger.debug(f"about to transcribe video with model size: {model_size}")
+        transcriber = Transcription(model_size=model_size)
+        transcript_dict = transcriber.trans_video(file_path)
+
+         # get mime type for video
         mime_type = video.mimetype
 
         # insert lesson into db
@@ -202,15 +209,12 @@ def create_lesson(cid):
             session_globals.set("processing", False)
             abort(500)
 
-        # transcribe video
-        logger.debug(f"about to transcribe video with model size: {model_size}")
-        transcriber = Transcription(model_size=model_size)
-        transcript_dict = transcriber.trans_video(file_path)
-        transcript.insert_transcript(new_lesson.id, transcript_dict)
-        logger.debug("successfully inserted transcript")
-
         # get the id for the lesson just inserted
         lid = new_lesson.id
+
+        # insert transcript into db
+        transcript.insert_transcript(lid, transcript_dict)
+        logger.debug("successfully inserted transcript")
 
         flash('Video uploaded successfully!', 'success')
         session_globals.set("processing", False)
@@ -225,6 +229,20 @@ def create_lesson(cid):
 
     logger.debug("rendering create_lesson template")
     return render_template("create_lesson.html", form=form, cid=cid)
+
+
+@classes_bp.route("/<int:cid>/<int:lid>/save_playback", methods=['POST'])
+def save_playback(cid, lid):
+    """Saves the video playback position for a specific lesson in the database."""
+    data = request.get_json()
+    if not data or 'timestamp' not in data:
+        return {"status": "error", "message": "No timestamp provided"}, 400
+    
+    timestamp = data['timestamp']
+    if lesson.save_playback(lid, timestamp):
+        return {"status": "success"}, 200
+    else:
+        return {"status": "error", "message": "Failed to save playback position"}, 500
 
 
 @classes_bp.route("/<int:cid>/<int:lid>", methods=['GET', 'POST'])
@@ -500,6 +518,8 @@ def individual_lesson(cid, lid):
     results["video_timestamp"] = session_globals.get("video_timestamp")
     if results["video_timestamp"] is not None:
         session_globals.remove("video_timestamp")
+    else:
+        results["video_timestamp"] = this_lesson.playback_position
 
     # convert transcript segments to dict form with start and end timestamps
     results["transcripts"] = [ts.to_dict() for ts in this_lesson.transcripts]

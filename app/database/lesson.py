@@ -127,3 +127,21 @@ def rename(lid, new_name):
         error.push_log(f"failed to rename lesson {lid}", e, sys.exc_info())
         db.session.rollback()
         return False
+
+
+def save_playback(lid, timestamp):
+    """updates playback position for given lid"""
+    logger.debug(f"saving playback position {timestamp} for lesson {lid}")
+    less = get_lesson(lid)
+    if not less:
+        error.push_log(f"lesson {lid} not found for saving playback")
+        return False
+    try:
+        less.playback_position = timestamp
+        db.session.commit()
+        logger.debug(f"playback position for lesson {lid} saved successfully")
+        return True
+    except Exception as e:
+        error.push_log(f"failed to save playback position for lesson {lid}", e, sys.exc_info())
+        db.session.rollback()
+        return False

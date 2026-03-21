@@ -1,0 +1,9 @@
+app/static/files/*
+!app/static/files/.gitkeep
+__pycache__/
+instance/*
+!instance/.gitkeep
+logs/*
+!logs/.gitkeep
+*.pyc
+.env

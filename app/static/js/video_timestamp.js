@@ -4,6 +4,37 @@ window.addEventListener('DOMContentLoaded', () => {
     const video = document.getElementById('lesson_video');
     const segments = document.querySelectorAll('.transcript-segment');
 
+    // Restore playback position if available
+    if (typeof videoTimestamp !== 'undefined' && videoTimestamp !== null) {
+        video.currentTime = parseFloat(videoTimestamp);
+    }
+
+    // Function to save playback position to the server
+    const savePlaybackPosition = () => {
+        if (video.currentTime > 0) {
+            fetch(`${window.location.pathname}/save_playback`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    timestamp: video.currentTime
+                }),
+            }).catch(err => console.error('Failed to save playback position:', err));
+        }
+    };
+
+    // Save playback position periodically and on specific events
+    video.addEventListener('pause', savePlaybackPosition);
+    window.addEventListener('beforeunload', savePlaybackPosition);
+    
+    // Periodically save every 30 seconds if playing
+    setInterval(() => {
+        if (!video.paused) {
+            savePlaybackPosition();
+        }
+    }, 30000);
+
     // setting currentActiveSegment to null initially. Will change if user highlights
     // a portion of the transcript
     let currentActiveSegment = null;

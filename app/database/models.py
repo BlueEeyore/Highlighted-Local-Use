@@ -35,6 +35,7 @@ class Lesson(db.Model):
     videofn = db.Column(db.String(255))
     mimetype = db.Column(db.String(255))
     creationtime = db.Column(db.String(255), nullable=False)
+    playback_position = db.Column(db.Float, default=0.0)
 
     transcripts = db.relationship("Transcript", backref="lesson")
     comments = db.relationship("Comment", backref="lesson")
@@ -48,6 +49,7 @@ class Lesson(db.Model):
             "videofn": self.videofn,
             "mimetype": self.mimetype,
             "creationtime": self.creationtime,
+            "playback_position": self.playback_position,
         }
 
 
