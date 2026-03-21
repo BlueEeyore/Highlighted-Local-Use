@@ -31,8 +31,10 @@
 			{% include "header.html" %}
 		</header> #}
 		<main>
-			<div class="row">
-				{% block navbar %}{% include "nav.html" %}{% endblock %}
+			<div class="container-fluid">
+				<div class="row">
+					{% block navbar %}{% include "nav.html" %}{% endblock %}
+				</div>
 			</div>
 
 			<div class="container pt-3"> 
@@ -49,7 +51,7 @@
                 {% endwith %}
             </div>
 
-			<div class="row">
+			<div class="container-fluid">
 				{% block content %}{% endblock %}
 			</div>
 		</main>

@@ -35,6 +35,42 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }, 30000);
 
+    // Keyboard shortcuts for video control
+    document.addEventListener('keydown', (e) => {
+        // Don't trigger shortcuts if the user is typing in an input or textarea
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            return;
+        }
+
+        switch (e.key.toLowerCase()) {
+            case ' ':
+                // Spacebar: Pause/Unpause
+                e.preventDefault(); // Prevent page scrolling
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+                break;
+            case 'arrowright':
+                // Right Arrow: +5 seconds
+                video.currentTime = Math.min(video.duration, video.currentTime + 5);
+                break;
+            case 'arrowleft':
+                // Left Arrow: -5 seconds
+                video.currentTime = Math.max(0, video.currentTime - 5);
+                break;
+            case 'l':
+                // 'l': +10 seconds
+                video.currentTime = Math.min(video.duration, video.currentTime + 10);
+                break;
+            case 'j':
+                // 'j': -10 seconds
+                video.currentTime = Math.max(0, video.currentTime - 10);
+                break;
+        }
+    });
+
     // setting currentActiveSegment to null initially. Will change if user highlights
     // a portion of the transcript
     let currentActiveSegment = null;

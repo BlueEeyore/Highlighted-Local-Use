@@ -10,12 +10,17 @@
 */
 
 /* 1. GENERAL BODY & TYPOGRAPHY */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body, html {
     height: 100%;
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: #f8f9fa; /* Soft off-white for a calm background */
     color: #403D39; /* Black Olive for high readability */
+    overflow-x: hidden; /* Prevent horizontal scrollbar on body */
 }
 
 a {
@@ -31,14 +36,15 @@ a:hover {
 
 /* 2. LAYOUT & CONTAINERS */
 .content-wrapper {
-    width: 90%;
-    max-width: 960px;
+    width: 95%;
+    max-width: 1200px;
     margin: 4rem auto;
     padding: 2rem;
     background-color: #ffffff; /* Content on a clean white card */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     border-radius: 8px;
     border: 1px solid #dee2e6;
+    word-wrap: break-word; /* Ensure long text doesn't cause overflow */
 }
 
 /*
@@ -252,12 +258,11 @@ conflicts with Bootstrap's default .btn-primary.
   to sit above the main content-wrapper on the top-left.
 */
 .top-left-container {
-    width: 90%;
-    max-width: 960px; /* Matches .content-wrapper */
+    width: 95%;
+    max-width: 1200px;
     margin: 2rem auto -2.5rem; /* Centers the container and manages spacing */
     position: relative;
     z-index: 10;
-    /* By removing 'display: flex', this container now centers correctly */
 }
 
 /*
@@ -267,16 +272,13 @@ conflicts with Bootstrap's default .btn-primary.
 */
 
 /*
-  A full-width flex container designed to force its direct children
-  (like .top-left-container and .content-wrapper) to be centered
-  horizontally on the page. This overrides alignment issues from
-  parent templates.
+  A full-width container for layout.
 */
 .page-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* This is the key: it centers flex items */
     width: 100%;
+    max-width: 1600px; /* Increased from 1400px */
+    margin: 0 auto;
+    padding: 0 40px; /* Increased padding */
 }
 
 /*
@@ -650,7 +652,7 @@ tr.dt-hasChild form {
 #lesson_video {
     /* --- Sizing and Aspect Ratio Control --- */
     width: 100%; /* This is handled by the w-100 class but is good to have here */
-    height: 55vh; /* SET YOUR DESIRED FIXED HEIGHT HERE */
+    height: 60vh; /* Increased from 55vh */
     object-fit: contain; /* This is the magic property! */
     background-color: black; /* This creates the black bars */
 
@@ -659,6 +661,12 @@ tr.dt-hasChild form {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     border: 1px solid #dee2e6;
     margin-bottom: 2rem;
+}
+
+.video-controls-column {
+    width: 100%;
+    /* col-2 of 1600px is ~266px. We'll keep it slightly smaller for padding. */
+    max-width: 250px; 
 }
 
 /* Container to center the video above the main content */
